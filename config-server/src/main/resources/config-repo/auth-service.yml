@@ -1,0 +1,4 @@
+# Exemple : variables spécifiques auth-service (JWT, durées, etc.)
+# Les services peuvent consommer via spring.config.import=optional:configserver:
+server:
+  port: 8081

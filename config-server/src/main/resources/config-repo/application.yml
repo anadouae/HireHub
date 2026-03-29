@@ -1,0 +1,6 @@
+# Propriétés communes à tous les services (exemple — à enrichir)
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
