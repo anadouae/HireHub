@@ -1,0 +1,92 @@
+# .pre-commit-config.yaml
+# ATS — Spring Cloud Microservices (monorepo)
+# Setup : pip install pre-commit
+#         pre-commit install
+#         pre-commit install --hook-type commit-msg
+#         pre-commit install --hook-type pre-push
+
+repos:
+
+  # ─── Hooks généraux ───────────────────────────────────────────────
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.5.0
+    hooks:
+
+      # Bloque les fichiers trop lourds (> 500 KB par défaut)
+      - id: check-added-large-files
+        args: ['--maxkb=500']
+
+      # Détecte les clés privées accidentellement committées
+      - id: detect-private-key
+
+      # Vérifie la syntaxe des fichiers JSON
+      - id: check-json
+
+      # Vérifie la syntaxe des fichiers YAML (docker-compose, etc.)
+      - id: check-yaml
+        args: ['--unsafe'] # nécessaire pour les anchors YAML complexes
+
+      # Supprime les espaces en fin de ligne
+      - id: trailing-whitespace
+        args: ['--markdown-linebreak-ext=md']
+
+      # Assure qu'un newline est présent à la fin de chaque fichier
+      - id: end-of-file-fixer
+
+      # Bloque les conflits Git non résolus (<<<<<<< HEAD)
+      - id: check-merge-conflict
+
+      # Bloque les fichiers avec des noms en double (casse différente)
+      - id: check-case-conflict
+
+  # ─── Sécurité : secrets et credentials ───────────────────────────
+  - repo: https://github.com/gitleaks/gitleaks
+    rev: v8.18.2
+    hooks:
+      - id: gitleaks
+        # Détecte les tokens, API keys, mots de passe dans le code
+        # Config fine dans .gitleaks.toml si nécessaire
+
+  # ─── Hooks locaux - Qualité Java (monorepo-aware) ────────────────────────────────
+  - repo: local
+    hooks:
+
+      # Bloque les fichiers de config sensibles + détecte les secrets hardcodés
+      - id: block-sensitive-files
+        name: Block sensitive config files
+        language: script
+        entry: scripts/hooks/check-sensitive-files.sh
+        pass_filenames: false
+        stages: [commit]
+
+      # Checkstyle par service modifié
+      - id: checkstyle
+        name: Checkstyle (changed services)
+        language: script
+        entry: scripts/hooks/run-checkstyle.sh
+        pass_filenames: false
+        types: [java]
+        stages: [commit]
+
+      # Compilation par service modifié
+      - id: maven-compile
+        name: Maven compile (changed services)
+        language: script
+        entry: scripts/hooks/maven-compile.sh
+        pass_filenames: false
+        stages: [push]
+
+      # Tests unitaires par service modifié
+      - id: maven-test
+        name: Maven unit tests (changed services)
+        language: script
+        entry: scripts/hooks/maven-test.sh
+        pass_filenames: false
+        stages: [push]
+
+      # Validation du message de commit (Conventional Commits + scopes ATS)
+      - id: conventional-commit-msg
+        name: Conventional Commits
+        language: script
+        entry: scripts/hooks/commit-msg
+        stages: [commit-msg]
