@@ -16,7 +16,7 @@
 #     - Faciliter les revues de code et les bisect en cas de bug
 #
 # Format attendu :
-#   type(scope): description courte (max 72 caractères)
+#   type(scope): description courte (max 150 caractères)
 #
 #   Exemples valides :
 #     feat(candidate-service): add CV upload endpoint
@@ -79,8 +79,8 @@ TYPE_PATTERN="feat|fix|docs|style|refactor|test|chore|perf|ci|build|revert"
 #   global               → changements qui touchent plusieurs services à la fois
 VALID_SCOPES="candidate-service|job-service|notification-service|api-gateway|eureka-server|config-server|rabbitmq|docker|ci|deps|global"
 
-# Pattern complet : type(scope optionnel): description de 1 à 72 caractères
-FULL_PATTERN="^($TYPE_PATTERN)(\(($VALID_SCOPES)\))?: .{1,72}$"
+# Pattern complet : type(scope optionnel): description de 1 à 150 caractères
+FULL_PATTERN="^($TYPE_PATTERN)(\(($VALID_SCOPES)\))?: .{1,150}$"
 
 
 # -----------------------------------------------------------------------------
