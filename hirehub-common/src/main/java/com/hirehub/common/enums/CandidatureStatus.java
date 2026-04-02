@@ -1,6 +1,6 @@
 package com.hirehub.common.enums;
 
-public enum ApplicationStatus implements BaseEnum {
+public enum CandidatureStatus implements BaseEnum {
 
     SOUMISE("SOUMISE"),      // candidature déposée, non lue
     EN_COURS("EN_COURS"),     // recruteur l'a vue, en traitement
@@ -11,7 +11,7 @@ public enum ApplicationStatus implements BaseEnum {
 
     private final String label;
 
-    ApplicationStatus(String label) {
+    CandidatureStatus(String label) {
         this.label = label;
     }
 
@@ -21,7 +21,7 @@ public enum ApplicationStatus implements BaseEnum {
     }
 
     // Transitions autorisées — la règle métier est ici, pas dans chaque service
-    public boolean canTransitionTo(ApplicationStatus next) {
+    public boolean canTransitionTo(CandidatureStatus next) {
         return switch (this) {
             case SOUMISE    -> next == EN_COURS || next == REFUSEE;
             case EN_COURS   -> next == ENTRETIEN || next == REFUSEE;

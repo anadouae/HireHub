@@ -1,6 +1,6 @@
 package com.hirehub.common.events;
 
-import com.hirehub.common.enums.ApplicationStatus;
+import com.hirehub.common.enums.CandidatureStatus;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -14,8 +14,8 @@ public class StatutChangedEvent {
     private String candidatId;
     private String candidatEmail;   // idem — pas besoin de Feign
     private String candidatNom;
-    private String offreTitre;
-    private ApplicationStatus ancienStatut;
-    private ApplicationStatus nouveauStatut;
+    private String offreId;
+    private CandidatureStatus ancienStatut;
+    private CandidatureStatus nouveauStatut;
     private LocalDateTime dateChangement;
 }
