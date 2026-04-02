@@ -147,13 +147,13 @@ public class RabbitMQConfig {
                 RabbitMQConstants.QUEUE_NOTIFICATION_CANDIDATURE
         );
         return BindingBuilder
-            .bind(notificationCandidatureQueue)
+            .bind(notificationCandidatureQueue())
             .to(hirehubExchange)
             .with(RabbitMQConstants.ROUTING_CANDIDATURE_CREATED);
     }
 
     /**
-     * Binding 2: candidature.statut.changed → QUEUE_NOTIFICATION_STATUT
+     * Binding 2: candidature.statut.changed -> QUEUE_NOTIFICATION_STATUT
      *
      * Quand candidature-service publie "candidature.statut.changed",
      * le message arrive dans cette queue.
@@ -165,13 +165,13 @@ public class RabbitMQConfig {
     ) {
         log.info("✅ [BINDING] {} -> {}", RabbitMQConstants.ROUTING_STATUT_CHANGED, RabbitMQConstants.QUEUE_NOTIFICATION_STATUT);
         return BindingBuilder
-            .bind(notificationStatutQueue)
+            .bind(notificationStatutQueue())
             .to(hirehubExchange)
             .with(RabbitMQConstants.ROUTING_STATUT_CHANGED);
     }
 
     /**
-     * Binding 3: entretien.planifie → QUEUE_NOTIFICATION_ENTRETIEN
+     * Binding 3: entretien.planifie -> QUEUE_NOTIFICATION_ENTRETIEN
      *
      * Quand entretien-service publie "entretien.planifie",
      * le message arrive dans cette queue.
@@ -183,13 +183,13 @@ public class RabbitMQConfig {
     ) {
         log.info("✅ [BINDING] {} -> {}", RabbitMQConstants.ROUTING_ENTRETIEN_PLANIFIE, RabbitMQConstants.QUEUE_NOTIFICATION_ENTRETIEN);
         return BindingBuilder
-            .bind(notificationEntretienQueue)
+            .bind(notificationEntretienQueue())
             .to(hirehubExchange)
             .with(RabbitMQConstants.ROUTING_ENTRETIEN_PLANIFIE);
     }
 
     /**
-     * Binding 4a: recruiter.request.approved → QUEUE_NOTIFICATION_RECRUITER
+     * Binding 4a: recruiter.request.approved -> QUEUE_NOTIFICATION_RECRUITER
      *
      * Quand auth-service publie "recruiter.request.approved",
      * le message arrive dans cette queue.
@@ -201,20 +201,20 @@ public class RabbitMQConfig {
     ) {
         log.info("✅ [BINDING] {} -> {}", RabbitMQConstants.ROUTING_RECRUITER_APPROVED, RabbitMQConstants.QUEUE_NOTIFICATION_RECRUITER);
         return BindingBuilder
-            .bind(notificationRecruiterQueue)
+            .bind(notificationRecruiterQueue())
             .to(hirehubExchange)
             .with(RabbitMQConstants.ROUTING_RECRUITER_APPROVED);
     }
 
     /**
-     * Binding 4b: recruiter.request.rejected → QUEUE_NOTIFICATION_RECRUITER
+     * Binding 4b: recruiter.request.rejected -> QUEUE_NOTIFICATION_RECRUITER
      *
      * Quand auth-service publie "recruiter.request.rejected",
      * le message arrive AUSSI dans cette queue (même queue pour 2 events).
      *
-     * Ceci démontre la flexibilité du Topic Exchange:
+     * Ceci dmontre la flexibilit du Topic Exchange:
      * - Une queue peut recevoir de plusieurs routing keys
-     * - Les consumers doivent identifier le type d'event pour réagir
+     * - Les consumers doivent identifier le type d'event pour ragir
      */
     @Bean
     public Binding bindingRecruiterRejected(
@@ -223,10 +223,22 @@ public class RabbitMQConfig {
     ) {
         log.info("✅ [BINDING] {} -> {}", RabbitMQConstants.ROUTING_RECRUITER_REJECTED, RabbitMQConstants.QUEUE_NOTIFICATION_RECRUITER);
         return BindingBuilder
-            .bind(notificationRecruiterQueue)
+            .bind(notificationRecruiterQueue())
             .to(hirehubExchange)
             .with(RabbitMQConstants.ROUTING_RECRUITER_REJECTED);
     }
+
+    /*@Bean
+    public AmqpTemplate amqpTemplate (ConnectionFactory connectionFactory) {
+        RabbitTemplate  rabbitTemplate  =  new  RabbitTemplate (connectionFactory);
+        rabbitTemplate.setMessageConverter(converter());
+        return rabbitTemplate;
+    }
+
+    @Bean
+    public Jackson2JsonMessageConverter converter () {
+        return  new  Jackson2JsonMessageConverter ();
+    }*/
 
     // ═══════════════════════════════════════════════════════════════
     // z RÉSUMÉ DE L'ARCHITECTURE
