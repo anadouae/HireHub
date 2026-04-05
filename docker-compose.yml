@@ -25,5 +25,28 @@ services:
       - "1025:1025"
       - "8025:8025"
 
+  rabbitmq:
+    image: rabbitmq:4.3-rc-management-alpine
+    container_name: hirehub-rabbitmq
+    restart: unless-stopped
+    environment:
+      RABBITMQ_DEFAULT_USER: hirehub
+      RABBITMQ_DEFAULT_PASS: hirehub
+      RABBITMQ_DEFAULT_VHOST: /
+    ports:
+      - "5672:5672"      # AMQP protocol
+      - "15672:15672"    # Management UI
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    volumes:
+      - hirehub-rabbitmq-data:/var/lib/rabbitmq
+      - hirehub-rabbitmq-logs:/var/log/rabbitmq
+
+
 volumes:
   hirehub-pg-data:
+  hirehub-rabbitmq-data:
+  hirehub-rabbitmq-logs:

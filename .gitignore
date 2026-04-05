@@ -27,3 +27,16 @@ application-local.yml
 
 # Uploads (CV dev)
 uploads/
+
+# Logs and temp files
+logs/
+temp/
+
+# Start services in development environment
+start-services-simple.sh
+start-services.sh
+kill-services.sh
+SERVICES_STARTUP.md
+
+# Docker
+DOCKER.md

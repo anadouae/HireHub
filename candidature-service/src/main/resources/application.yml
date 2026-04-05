@@ -4,8 +4,41 @@ server:
 spring:
   application:
     name: candidature-service
+  profiles:
+    active: mock
+
+  # PostgreSQL Configuration
+  datasource:
+    url: jdbc:postgresql://localhost:5432/hirehub_candidature
+    username: hirehub
+    password: hirehub
+    driver-class-name: org.postgresql.Driver
+
+  # JPA/Hibernate Configuration
+  jpa:
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        format_sql: true
+    show-sql: false
+    open-in-view: false
+
+  # RabbitMQ Configuration
+
+  rabbitmq:
+    host: localhost
+    port: 5672
+    username: hirehub
+    password: hirehub
 
 eureka:
   client:
     service-url:
       defaultZone: http://localhost:8761/eureka/
+
+logging:
+  level:
+    com.hirehub.candidature: INFO
+    org.hibernate.SQL: DEBUG
