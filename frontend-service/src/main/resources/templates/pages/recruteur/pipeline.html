@@ -6,6 +6,8 @@
 </head>
 <body>
 <section layout:fragment="content" class="page-inner">
+    <th:block th:insert="~{fragments/recruteur-lock :: top}"/>
+    <div th:classappend="${uiRecruteurPending} ? 'hh-recruteur-locked'">
     <div class="container">
         <nav aria-label="breadcrumb" class="mb-3">
             <ol class="breadcrumb mb-0">
@@ -37,6 +39,7 @@
                 </tbody>
             </table>
         </div>
+    </div>
     </div>
 </section>
 </body>

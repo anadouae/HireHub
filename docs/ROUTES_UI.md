@@ -1,6 +1,6 @@
 # Routes UI HireHub (frontend-service)
 
-Toutes les pages sont en **Thymeleaf** avec données de démonstration. Branchement Feign / Gateway à faire côté backend.
+Pages **Thymeleaf** ; données mock ou Feign selon l’avancement. Référence produit : `docs/PROJET_HIREHUB_COMPLET.md`.
 
 ## Public
 
@@ -11,7 +11,10 @@ Toutes les pages sont en **Thymeleaf** avec données de démonstration. Branchem
 | `/offres/{id}` | Détail offre |
 | `/offres/{id}/postuler` | Formulaire candidature |
 | `/login` | Connexion |
-| `/register` | Inscription |
+| `/register` | Hub inscription (liens candidat / recruteur) |
+| `/register/candidat` | Inscription **candidat** |
+| `/register/recruteur` | Inscription **recruteur** (champs entreprise, etc.) |
+| `/demande-recruteur` | **Redirection** vers `/register/recruteur` (anciens liens) |
 | `/mes-candidatures` | Redirige vers `/candidat/mes-candidatures` |
 
 ## Candidat
@@ -21,10 +24,11 @@ Toutes les pages sont en **Thymeleaf** avec données de démonstration. Branchem
 | `/candidat/dashboard` | Tableau de bord |
 | `/candidat/mes-candidatures` | Candidatures + timeline |
 | `/candidat/entretiens` | Liste des entretiens |
-| `/candidat/profil` | Profil |
-| `/demande-recruteur` | Formulaire « Devenir recruteur » (envoi admin + emails) |
+| `/candidat/profil` | Profil (lien vers inscription recruteur si besoin d’un 2ᵉ compte) |
 
 ## Recruteur
+
+Toutes les pages incluent le bandeau **en attente de validation** et la classe `hh-recruteur-locked` si `uiRecruteurPending` (JWT / démo).
 
 | URL | Page |
 |-----|------|
@@ -40,10 +44,16 @@ Toutes les pages sont en **Thymeleaf** avec données de démonstration. Branchem
 | URL | Page |
 |-----|------|
 | `/admin/dashboard` | KPI globaux + graphique |
-| `/admin/demandes-recruteur` | File d’attente : approuver / rejeter les demandes recruteur |
+| `/admin/demandes-recruteur` | **Validation** des comptes recruteurs inscrits (approuver / rejeter + emails) |
 | `/admin/utilisateurs` | Gestion des comptes |
 | `/admin/logs` | Journaux (mock) |
 
 ## Démo UI (menus conditionnels)
 
-Ajoutez `?demo=` à l’URL : `visiteur` | `connecte` | `demande_attente` | `demande_rejetee` | `recruteur` | `admin`
+Paramètre `?demo=` sur l’URL :
+
+`visiteur` | `candidat` | `recruteur_pending` | `recruteur` | `admin`
+
+Exemple : `http://localhost:8086/?demo=recruteur_pending` puis naviguer vers `/recruteur/dashboard` pour voir le verrouillage.
+
+Voir `DemoUiAdvice.java` pour le détail des attributs de modèle (`uiMenuRecruteur`, `uiRecruteurPending`, etc.).

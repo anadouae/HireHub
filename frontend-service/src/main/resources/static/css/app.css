@@ -544,6 +544,19 @@ body {
     letter-spacing: 0.06em;
 }
 
+/* Espace recruteur : lecture seule tant que non approuvé */
+.hh-recruteur-locked {
+    position: relative;
+    pointer-events: none;
+    user-select: none;
+    filter: grayscale(0.15);
+    opacity: 0.72;
+}
+
+.hh-recruteur-locked .hh-unlock-note {
+    pointer-events: none;
+}
+
 .log-box {
     font-family: ui-monospace, monospace;
     font-size: 0.8rem;

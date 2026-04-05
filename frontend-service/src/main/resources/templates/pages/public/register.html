@@ -6,33 +6,31 @@
 </head>
 <body>
 <section layout:fragment="content" class="page-inner">
-    <div class="container" style="max-width: 480px;">
+    <div class="container" style="max-width: 900px;">
         <h1 class="page-hero-title text-center">Créer un compte</h1>
         <p class="page-hero-sub text-center">
-            Tout le monde commence en <strong>candidat</strong>. Pour recruter, déposez ensuite une
-            <a th:href="@{/demande-recruteur}">demande recruteur</a> (validation admin + email).
-            Les comptes <strong>admin</strong> sont créés manuellement.
+            Choisissez votre profil : le <strong>formulaire candidat</strong> et le <strong>formulaire recruteur</strong> sont différents.
+            Les comptes <strong>recruteur</strong> accèdent à leur espace tout de suite, mais les <strong>fonctions métier restent verrouillées</strong>
+            jusqu’à l’<strong>approbation d’un administrateur</strong> (email envoyé). Les comptes <strong>admin</strong> ne s’inscrivent pas ici.
         </p>
 
-        <div class="hh-card">
-            <form method="post" th:action="@{/register}">
-                <input type="hidden" name="role" value="CANDIDAT"/>
-                <div class="mb-3">
-                    <label class="hh-form-label" for="nom">Nom complet</label>
-                    <input type="text" id="nom" name="nom" class="form-control rounded-3 border-0 shadow-sm"/>
+        <div class="row g-4">
+            <div class="col-md-6">
+                <div class="hh-card h-100 d-flex flex-column">
+                    <h2 class="h5 mb-2" style="color: var(--hh-violet-900);">Je cherche un emploi</h2>
+                    <p class="text-muted small flex-grow-1">Inscription candidat : postulez aux offres, suivez vos candidatures et entretiens.</p>
+                    <a class="btn hh-btn-primary rounded-pill mt-2" th:href="@{/register/candidat}">Formulaire candidat</a>
                 </div>
-                <div class="mb-3">
-                    <label class="hh-form-label" for="email">Email</label>
-                    <input type="email" id="email" name="email" class="form-control rounded-3 border-0 shadow-sm"/>
+            </div>
+            <div class="col-md-6">
+                <div class="hh-card h-100 d-flex flex-column border" style="border-color: rgba(109,40,217,0.25)!important;">
+                    <h2 class="h5 mb-2" style="color: var(--hh-violet-900);">Je recrute pour mon entreprise</h2>
+                    <p class="text-muted small flex-grow-1">Inscription recruteur : informations société + validation admin avant publication d’offres.</p>
+                    <a class="btn btn-outline-primary rounded-pill mt-2" th:href="@{/register/recruteur}">Formulaire recruteur</a>
                 </div>
-                <div class="mb-4">
-                    <label class="hh-form-label" for="password">Mot de passe</label>
-                    <input type="password" id="password" name="password" class="form-control rounded-3 border-0 shadow-sm"/>
-                </div>
-                <button type="submit" class="btn hh-btn-primary w-100 rounded-pill mb-3">S’inscrire</button>
-                <p class="text-center small text-muted mb-0">Déjà inscrit ? <a th:href="@{/login}">Connexion</a></p>
-            </form>
+            </div>
         </div>
+        <p class="text-center small text-muted mt-4 mb-0">Déjà inscrit ? <a th:href="@{/login}">Connexion</a></p>
     </div>
 </section>
 </body>

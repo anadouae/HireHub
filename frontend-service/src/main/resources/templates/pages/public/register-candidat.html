@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout}">
+<head>
+    <title>Inscription candidat</title>
+</head>
+<body>
+<section layout:fragment="content" class="page-inner">
+    <div class="container" style="max-width: 480px;">
+        <nav class="mb-3" aria-label="breadcrumb">
+            <ol class="breadcrumb mb-0">
+                <li class="breadcrumb-item"><a th:href="@{/register}">Inscription</a></li>
+                <li class="breadcrumb-item active">Candidat</li>
+            </ol>
+        </nav>
+        <h1 class="page-hero-title text-center">Inscription candidat</h1>
+        <p class="page-hero-sub text-center">Compte dédié à la recherche d’emploi et au suivi des candidatures.</p>
+
+        <div class="hh-card">
+            <form method="post" th:action="@{/api/v1/auth/register/candidat}">
+                <input type="hidden" name="role" value="CANDIDAT"/>
+                <div class="mb-3">
+                    <label class="hh-form-label" for="nom">Nom complet</label>
+                    <input type="text" id="nom" name="nom" class="form-control rounded-3 border-0 shadow-sm" required/>
+                </div>
+                <div class="mb-3">
+                    <label class="hh-form-label" for="email">Email</label>
+                    <input type="email" id="email" name="email" class="form-control rounded-3 border-0 shadow-sm" required/>
+                </div>
+                <div class="mb-4">
+                    <label class="hh-form-label" for="password">Mot de passe</label>
+                    <input type="password" id="password" name="password" class="form-control rounded-3 border-0 shadow-sm" required/>
+                </div>
+                <button type="submit" class="btn hh-btn-primary w-100 rounded-pill mb-2">Créer mon compte candidat</button>
+                <a class="btn btn-link w-100 small" th:href="@{/register}">Autre type de compte</a>
+            </form>
+        </div>
+    </div>
+</section>
+</body>
+</html>

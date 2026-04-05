@@ -21,7 +21,7 @@
                         <a class="nav-link" th:href="@{/offres}">Offres</a>
                     </li>
 
-                    <li class="nav-item dropdown" th:if="${uiConnecte}">
+                    <li class="nav-item dropdown" th:if="${uiMenuCandidat}">
                         <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown">Candidat</a>
                         <ul class="dropdown-menu hh-dropdown shadow border-0">
                             <li><a class="dropdown-item" th:href="@{/candidat/dashboard}">Tableau de bord</a></li>
@@ -31,8 +31,11 @@
                         </ul>
                     </li>
 
-                    <li class="nav-item dropdown" th:if="${uiEstRecruteur}">
-                        <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown">Recruteur</a>
+                    <li class="nav-item dropdown" th:if="${uiMenuRecruteur}">
+                        <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown">
+                            Recruteur
+                            <span th:if="${uiRecruteurPending}" class="badge bg-warning text-dark ms-1 rounded-pill">Attente</span>
+                        </a>
                         <ul class="dropdown-menu hh-dropdown shadow border-0">
                             <li><a class="dropdown-item" th:href="@{/recruteur/dashboard}">Tableau de bord</a></li>
                             <li><a class="dropdown-item" th:href="@{/recruteur/offres}">Mes offres</a></li>
@@ -41,15 +44,13 @@
                             <li><a class="dropdown-item" th:href="@{/recruteur/statistiques}">Statistiques</a></li>
                         </ul>
                     </li>
-                    <li class="nav-item" th:if="${uiConnecte && !uiEstRecruteur}">
-                        <span class="nav-link disabled small text-white-50 py-2" title="Accès après validation admin">Recruteur (verrouillé)</span>
-                    </li>
 
                     <li class="nav-item dropdown" th:if="${uiEstAdmin}">
-                        <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown">Admin</a>
+                        <a class="nav-link dropdown-toggle fw-semibold" href="#" data-bs-toggle="dropdown">Espace admin</a>
                         <ul class="dropdown-menu hh-dropdown shadow border-0">
-                            <li><a class="dropdown-item" th:href="@{/admin/dashboard}">Dashboard</a></li>
-                            <li><a class="dropdown-item" th:href="@{/admin/demandes-recruteur}">Demandes recruteur</a></li>
+                            <li><h6 class="dropdown-header">Administration</h6></li>
+                            <li><a class="dropdown-item fw-medium" th:href="@{/admin/dashboard}">Tableau de bord</a></li>
+                            <li><a class="dropdown-item" th:href="@{/admin/demandes-recruteur}">Valider les recruteurs</a></li>
                             <li><a class="dropdown-item" th:href="@{/admin/utilisateurs}">Utilisateurs</a></li>
                             <li><a class="dropdown-item" th:href="@{/admin/logs}">Journaux</a></li>
                         </ul>
@@ -57,24 +58,25 @@
                 </ul>
 
                 <ul class="navbar-nav ms-lg-2 gap-1 flex-row align-items-center flex-wrap justify-content-end">
+                    <li class="nav-item" th:if="${uiEstAdmin}">
+                        <a class="nav-link rounded-pill px-3 fw-semibold text-dark"
+                           style="background: linear-gradient(135deg, #fcd34d, #f59e0b); box-shadow: 0 2px 12px rgba(0,0,0,.15);"
+                           th:href="@{/admin/dashboard}">Espace admin</a>
+                    </li>
                     <li class="nav-item dropdown" th:if="${uiConnecte}">
                         <a class="nav-link dropdown-toggle hh-btn-ghost rounded-pill px-3" href="#" data-bs-toggle="dropdown" id="menuCompte">
                             Mon compte
                         </a>
                         <ul class="dropdown-menu dropdown-menu-end hh-dropdown shadow border-0" aria-labelledby="menuCompte">
-                            <li><a class="dropdown-item" th:href="@{/candidat/profil}">Voir mon profil</a></li>
-                            <li th:if="${uiEstRecruteur}">
-                                <a class="dropdown-item fw-semibold" style="color: var(--hh-violet-800);" th:href="@{/recruteur/dashboard}">Espace recruteur</a>
+                            <li th:if="${uiMenuCandidat}"><a class="dropdown-item" th:href="@{/candidat/profil}">Voir mon profil</a></li>
+                            <li th:if="${uiMenuRecruteur}">
+                                <a class="dropdown-item" th:href="@{/recruteur/dashboard}">Mon espace entreprise</a>
                             </li>
-                            <li th:if="${uiDemandeEnAttente}">
-                                <span class="dropdown-item text-muted">Demande recruteur en cours de traitement…</span>
+                            <li th:if="${uiRecruteurPending}">
+                                <span class="dropdown-item small text-muted">Validation admin en cours…</span>
                             </li>
-                            <li th:if="${uiPeutSoumettreDemandeRecruteur}">
-                                <a class="dropdown-item" th:href="@{/demande-recruteur}">Devenir recruteur</a>
-                            </li>
-                            <li th:if="${uiDemandeRejetee}">
-                                <span class="dropdown-item small text-danger">Dernière demande refusée — vous pouvez renvoyer un dossier.</span>
-                                <a class="dropdown-item" th:href="@{/demande-recruteur}">Nouvelle demande</a>
+                            <li th:if="${uiEstAdmin}">
+                                <a class="dropdown-item fw-semibold" style="color: #b45309;" th:href="@{/admin/dashboard}">Administration</a>
                             </li>
                             <li><hr class="dropdown-divider"/></li>
                             <li><a class="dropdown-item" th:href="@{/login}">Déconnexion</a></li>
@@ -92,9 +94,8 @@
         </div>
     </nav>
     <div class="container-fluid py-1 small text-center border-bottom" style="background: rgba(109,40,217,0.08); color: var(--hh-violet-900);">
-        <span class="d-none d-md-inline">Démo UI : ajoutez </span>
-        <code class="user-select-all">?demo=visiteur|connecte|demande_attente|demande_rejetee|recruteur|admin</code>
-        <span class="d-none d-md-inline"> à l’URL pour simuler un état (menu, droits).</span>
+        <span class="d-none d-md-inline">Démo UI : </span>
+        <code class="user-select-all">?demo=visiteur|candidat|recruteur_pending|recruteur|admin</code>
     </div>
 </header>
 </body>

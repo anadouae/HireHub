@@ -6,6 +6,8 @@
 </head>
 <body>
 <section layout:fragment="content" class="page-inner">
+    <th:block th:insert="~{fragments/recruteur-lock :: top}"/>
+    <div th:classappend="${uiRecruteurPending} ? 'hh-recruteur-locked'">
     <div class="container">
         <h1 class="page-hero-title">Entretiens</h1>
         <p class="page-hero-sub">Planification des créneaux — emails automatiques aux candidats.</p>
@@ -67,6 +69,7 @@
                 </div>
             </div>
         </div>
+    </div>
     </div>
 </section>
 </body>

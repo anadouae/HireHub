@@ -2,25 +2,26 @@
 <html lang="fr" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
       layout:decorate="~{layout}">
 <head>
-    <title>Demandes recruteur</title>
+    <title>Validation recruteurs</title>
 </head>
 <body>
 <section layout:fragment="content" class="page-inner">
     <div class="container">
-        <h1 class="page-hero-title">Demandes « Devenir recruteur »</h1>
+        <h1 class="page-hero-title">Valider les comptes recruteurs</h1>
         <p class="page-hero-sub">
-            Traitez chaque dossier : <strong>Approuver</strong> attribue le rôle RECRUTEUR et envoie un email de confirmation ;
-            <strong>Rejeter</strong> envoie un email de refus (motif optionnel).
+            Les utilisateurs se sont inscrits avec le <strong>formulaire recruteur</strong>. Ils voient déjà leur espace, mais les fonctionnalités
+            sont <strong>verrouillées</strong> jusqu’à votre action. <strong>Approuver</strong> : email de confirmation + déverrouillage.
+            <strong>Rejeter</strong> : email de refus (l’espace reste consultable en lecture bloquée selon politique métier).
         </p>
 
         <div class="hh-table-wrap">
             <table class="table table-hover mb-0">
                 <thead>
                 <tr>
-                    <th>Date</th>
-                    <th>Demandeur</th>
+                    <th>Inscrit le</th>
+                    <th>Email</th>
                     <th>Entreprise</th>
-                    <th>Statut</th>
+                    <th>État</th>
                     <th>Actions</th>
                 </tr>
                 </thead>
@@ -29,7 +30,7 @@
                     <td>28/03/2026</td>
                     <td>marie@rh.ma</td>
                     <td>ACME Tech</td>
-                    <td><span class="badge bg-warning text-dark rounded-pill">EN_ATTENTE</span></td>
+                    <td><span class="badge bg-warning text-dark rounded-pill">En attente</span></td>
                     <td>
                         <button type="button" class="btn btn-sm btn-success rounded-pill me-1">Approuver</button>
                         <button type="button" class="btn btn-sm btn-outline-danger rounded-pill">Rejeter</button>
@@ -39,20 +40,20 @@
                     <td>25/03/2026</td>
                     <td>contact@startup.io</td>
                     <td>StartupIO</td>
-                    <td><span class="badge bg-success rounded-pill">APPROUVEE</span></td>
-                    <td><span class="text-muted small">Traitée — email envoyé</span></td>
+                    <td><span class="badge bg-success rounded-pill">Approuvé</span></td>
+                    <td><span class="text-muted small">Email « compte activé » envoyé</span></td>
                 </tr>
                 <tr>
                     <td>20/03/2026</td>
-                    <td>spam@mail.com</td>
+                    <td>douteux@mail.com</td>
                     <td>—</td>
-                    <td><span class="badge bg-secondary rounded-pill">REJETEE</span></td>
+                    <td><span class="badge bg-secondary rounded-pill">Refusé</span></td>
                     <td><span class="text-muted small">Email de refus envoyé</span></td>
                 </tr>
                 </tbody>
             </table>
         </div>
-        <p class="small text-muted mt-3 mb-0">Données statiques — à remplacer par les appels API admin + envoi via <code>notification-service</code>.</p>
+        <p class="small text-muted mt-3 mb-0">Données de démonstration — brancher sur <code>auth-service</code> + <code>notification-service</code>.</p>
     </div>
 </section>
 </body>

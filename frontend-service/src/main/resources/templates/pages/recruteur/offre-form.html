@@ -6,6 +6,8 @@
 </head>
 <body>
 <section layout:fragment="content" class="page-inner">
+    <th:block th:insert="~{fragments/recruteur-lock :: top}"/>
+    <div th:classappend="${uiRecruteurPending} ? 'hh-recruteur-locked'">
     <div class="container" style="max-width: 720px;">
         <h1 class="page-hero-title">Nouvelle offre</h1>
         <p class="page-hero-sub">Creation et publication vers offre-service.</p>
@@ -37,6 +39,7 @@
                 <a class="btn btn-link" th:href="@{/recruteur/offres}">Annuler</a>
             </div>
         </form>
+    </div>
     </div>
 </section>
 </body>

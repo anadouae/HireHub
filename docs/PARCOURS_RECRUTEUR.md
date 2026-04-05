@@ -1,31 +1,32 @@
-# Parcours « Devenir recruteur » — règles métier HireHub
+# Parcours recruteur — règles métier HireHub (inscription + validation admin)
 
-## Principe
+## Principe (version actuelle)
 
-1. Tout nouvel utilisateur s’inscrit et se connecte comme **utilisateur standard** (rôle **CANDIDAT** / compte « personnel »).
-2. L’accès aux fonctionnalités **recruteur** (publier des offres, pipeline, etc.) **n’est pas** activé à l’inscription.
-3. Depuis **Mon profil** (menu compte), l’utilisateur peut lancer une demande **« Devenir recruteur »** : il remplit un **formulaire complet** (entreprise, SIREN/SIRET si besoin, justification, pièces jointes éventuelles — à définir en équipe).
-4. La demande est enregistrée avec le statut **EN_ATTENTE** et apparaît dans l’**espace administrateur** (file d’attente).
-5. L’**administrateur** ouvre la demande, vérifie les informations, et choisit :
-   - **Approuver** → le compte reçoit le rôle **RECRUTEUR** (ou équivalent) ; un **email d’approbation** est envoyé au demandeur.
-   - **Rejeter** → le rôle reste inchangé ; un **email de refus** est envoyé (motif optionnel).
-6. Après **approbation**, le menu utilisateur affiche l’accès **« Espace recruteur »** (et les entrées de navigation recruteur deviennent visibles selon les règles UI).
+1. À l’**inscription**, l’utilisateur choisit **Candidat** ou **Recruteur** (`/register` → formulaires distincts).
+2. Un compte **Recruteur** reçoit le rôle recruteur (ou équivalent) et peut **se connecter** et **ouvrir** `/recruteur/*` **sans attendre** l’admin.
+3. Tant que le compte n’est **pas approuvé** par l’admin (`recruteurApprouve = false` dans le JWT / profil), l’**interface** affiche un bandeau d’attente et **bloque** les actions (offres, pipeline, entretiens, etc.) — le backend doit refuser les mutations également.
+4. L’**admin** traite la file dans `/admin/demandes-recruteur` :
+   - **Approuver** → `recruteurApprouve = true` + **email** de confirmation.
+   - **Rejeter** → compte reste connectable mais verrouillé (ou politique équipe) + **email de refus**.
+5. Les **admins** ne s’inscrivent pas en ligne : seed ou création manuelle.
+
+Il n’y a plus de parcours séparé « Devenir recruteur » depuis le profil candidat : un second compte recruteur passe par `/register/recruteur` si besoin.
 
 ## Emails (notification-service)
 
 | Événement | Destinataire | Contenu minimal |
 |-----------|--------------|-----------------|
-| Demande soumise | Admin (optionnel) | Nouvelle demande à traiter |
-| Demande approuvée | Demandeur | Confirmation + lien vers l’espace recruteur |
-| Demande rejetée | Demandeur | Refus + contact support (optionnel) |
+| (optionnel) Nouveau recruteur inscrit | Admin | Alerte file de validation |
+| Compte approuvé | Recruteur | Confirmation + lien espace |
+| Compte refusé | Recruteur | Refus + support (optionnel) |
 
 ## Backend (à implémenter)
 
-- Table ou agrégat **demande_recruteur** : id utilisateur, champs formulaire, statut, dates, commentaire admin.
-- Endpoints réservés **ADMIN** : lister, détail, `POST .../approuver`, `POST .../rejeter`.
-- Après décision : appel **notification-service** + mise à jour des **rôles** dans **auth-service**.
+- **auth-service** : champs profil recruteur (entreprise, SIRET, etc.) + booléen **approuvé** ; endpoints **ADMIN** : liste recruteurs en attente, `POST .../approuver`, `POST .../rejeter` ; JWT avec claim `recruteurApprouve`.
+- **notification-service** : envoi des emails après décision admin.
+- **Gateway / services métier** : refuser les écritures offre/candidature pipeline côté recruteur si non approuvé (défense en profondeur, pas seulement le Thymeleaf).
 
-## Frontend (état actuel)
+## Frontend
 
-- Pages et menu reflètent ce scénario (libellés + états démo).
-- Paramètre de démonstration UI : `?demo=` sur l’URL (voir comportement dans l’application).
+- Formulaires `/register/candidat` et `/register/recruteur` ; fragment `fragments/recruteur-lock.html` + classe `hh-recruteur-locked` sur les pages recruteur.
+- Démo : `?demo=recruteur_pending` pour simuler l’attente d’approbation.

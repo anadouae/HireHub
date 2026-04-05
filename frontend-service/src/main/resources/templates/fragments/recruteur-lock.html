@@ -1,0 +1,12 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+<!-- Bandeau + zone désactivée tant que l'admin n'a pas approuvé le compte recruteur -->
+<th:block th:fragment="top">
+    <div th:if="${uiRecruteurPending}" class="alert alert-warning border-0 rounded-0 mb-0 text-center py-3 shadow-sm" style="background: #fef3c7; color: #78350f;">
+        <strong>Espace recruteur — en attente de validation.</strong>
+        Un administrateur doit approuver votre compte. Toutes les actions ci-dessous sont verrouillées. Vous recevrez un <strong>email</strong> après décision (approbation ou refus).
+    </div>
+</th:block>
+</body>
+</html>

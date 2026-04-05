@@ -9,7 +9,7 @@ Application type **ATS** : les entreprises publient des offres, les candidats po
 - **Monorepo Maven multi-modules** : un module par microservice + `hirehub-common` pour les DTO partagés — idéal pour travailler en binôme sans conflits permanents.
 - **Spring Boot 3.2** + **Spring Cloud 2023** : Eureka, Config Server, Gateway, OpenFeign.
 - **PostgreSQL** : une base logique par service (initialisation via Docker).
-- **Documentation** : `docs/ARCHITECTURE.md`, `docs/COLLABORATION.md`, `docs/Repartition_taches_HireHub.md` (répartition binôme), `docs/PARCOURS_RECRUTEUR.md` (demande recruteur validée par l’admin + emails).
+- **Documentation** : `docs/PROJET_HIREHUB_COMPLET.md` (vision + **répartition 4 personnes**), `docs/Repartition_par_microservices.md` (**répartition par microservice** + CSV `Repartition_microservices.csv`), `docs/API-CONTRACTS.md` (REST inscription / validation recruteur), `docs/ARCHITECTURE.md`, `docs/COLLABORATION.md`, `docs/Repartition_taches_HireHub.md`, `docs/PARCOURS_RECRUTEUR.md` (inscription recruteur + **lock UI** jusqu’à approbation admin + emails), `docs/ROUTES_UI.md`.
 
 ## Structure du dépôt
 

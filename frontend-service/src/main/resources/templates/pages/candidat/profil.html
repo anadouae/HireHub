@@ -8,26 +8,10 @@
 <section layout:fragment="content" class="page-inner">
     <div class="container" style="max-width: 640px;">
         <h1 class="page-hero-title">Mon profil</h1>
-        <p class="page-hero-sub">
-            Vous êtes connecté comme <strong>utilisateur standard</strong> (candidat). Le menu <strong>Mon compte</strong> (en haut à droite) permet
-            d’accéder à <strong>Voir mon profil</strong>, <strong>Devenir recruteur</strong> (formulaire envoyé à l’admin) et <strong>Déconnexion</strong>.
+        <p class="page-hero-sub" th:if="${uiMenuCandidat}">
+            Compte <strong>candidat</strong> : menu <strong>Mon compte</strong> pour le profil et la déconnexion.
+            Pour recruter, créez un compte séparé via <a th:href="@{/register/recruteur}">inscription recruteur</a>.
         </p>
-
-        <div class="hh-card mb-4" th:if="${!uiEstRecruteur}">
-            <h2 class="h6 text-uppercase mb-2" style="color: var(--hh-violet-800);">Devenir recruteur</h2>
-            <p class="small text-muted mb-3">
-                Les postes de recruteur sont validés par un administrateur. Après approbation, vous recevrez un email et le bouton
-                <strong>Espace recruteur</strong> apparaîtra dans votre menu.
-            </p>
-            <a class="btn hh-btn-primary rounded-pill" th:href="@{/demande-recruteur}" th:if="${uiPeutSoumettreDemandeRecruteur}">Remplir le formulaire</a>
-            <span class="badge bg-info text-dark rounded-pill" th:if="${uiDemandeEnAttente}">Demande en cours d’instruction</span>
-            <a class="btn btn-outline-primary rounded-pill" th:href="@{/demande-recruteur}" th:if="${uiDemandeRejetee}">Renvoyer une demande</a>
-        </div>
-
-        <div class="alert alert-success rounded-3 border-0 shadow-sm mb-4" th:if="${uiEstRecruteur}">
-            <strong>Profil recruteur actif.</strong><br/>
-            <a class="alert-link" th:href="@{/recruteur/dashboard}">Ouvrir l’espace recruteur</a>
-        </div>
 
         <form class="hh-card">
             <h2 class="h6 text-uppercase mb-3" style="color: var(--hh-violet-800);">Informations personnelles</h2>

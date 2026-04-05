@@ -1,0 +1,13 @@
+Microservice;Port;Base_PostgreSQL;Responsabilites_principales;Dependances_amont;Dependances_aval
+hirehub-parent;—;—;POM Maven versions modules;—;tous les modules
+hirehub-common;—;—;DTO enums erreurs API partagés;—;tous les services Java
+eureka-server;8761;—;Annuaire instances Spring Cloud;—;tous les clients Eureka
+config-server;8888;—;Config centralisée YAML;—;tous les clients Config
+api-gateway;8080;—;Routage JWT CORS regles recruteur admin;eureka;auth offre candidature entretien notification
+auth-service;8081;hirehub_auth;Register candidat recruteur JWT roles approbation admin;eureka config common;notification-service
+offre-service;8082;hirehub_offre;CRUD offres filtres stats;eureka config common;—
+candidature-service;8083;hirehub_candidature;Candidatures CV pipeline statuts;eureka config common;notification-service
+notification-service;8084;—;Emails Spring Mail templates;eureka config common;—
+entretien-service;8085;hirehub_entretien;Planif entretiens rappels;eureka config common;notification-service
+frontend-service;8086;—;Thymeleaf Feign UI lock recruteur;eureka config common;api-gateway ou services
+docker-compose;—;—;PostgreSQL 17 Mailpit init SQL;—;tous

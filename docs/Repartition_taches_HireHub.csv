@@ -1,16 +1,15 @@
 Phase;Lot;Tache;Description;Responsable;Livrables / notes
-0;Infrastructure;Docker & PostgreSQL;docker-compose PostgreSQL 17 init 4 bases volumes;Toi;docker-compose.yml docker/postgres/init/
-0;Infrastructure;Eureka + Config + Gateway;Annuaire config native routage API;Toi;eureka-server config-server api-gateway
-0;Commun;hirehub-common;DTO enums erreurs API partagés;Partagé (Toi init);module hirehub-common
-1;Auth & sécurité;auth-service;Users JWT rôles CANDIDAT RECRUTEUR ADMIN Spring Security;Toi;auth-service + BDD hirehub_auth
-1;Gateway;JWT filter;Validation token routes protégées;Toi;api-gateway filtres
-2;Métier;offre-service;CRUD offres pagination filtres;Mervy;offre-service + BDD hirehub_offre
-2;Métier;candidature-service;Candidatures CV PDF historique statuts Feign notification;Mervy;candidature-service + BDD hirehub_candidature
-2;Métier;notification-service;Spring Mail Mailpit templates emails;Mervy;notification-service
-2;Métier;entretien-service;Planification entretiens notifications;Mervy;entretien-service + BDD hirehub_entretien
-3;Frontend public & candidat;Thymeleaf pages;Offres détail postuler login register espace candidat;Mervy;templates pages/public candidat + Feign
-3;Frontend recruteur;Thymeleaf pages;Dashboard offres pipeline entretiens stats Chart.js;Mervy;templates pages/recruteur + Feign
-3;Frontend admin;Thymeleaf espace ADMIN;Dashboard KPI utilisateurs journaux thème violet;Toi;templates pages/admin + stats agrégées (Feign ou BFF)
-3;Admin backend;Endpoints / agrégation;Stats globales liste users si besoin (auth ou service dédié);Toi;API consommées par admin dashboard
-4;Qualité;Tests JUnit Mockito;Par module services critiques;Partagé;tests unitaires + integration ciblés
-4;Livrable final;Documentation & démo;README schéma architecture script démo;Partagé;docs/ soutenance
+0;Infra;A;Parent Maven hirehub-common Docker PostgreSQL 17 Mailpit;eureka config notification init scripts;Personne A
+0;Infra;B;api-gateway routes lb filtre JWT regles recruteur admin;Personne B;api-gateway
+0;Infra;C;auth-service squelette users JWT register candidat recruteur claim recruteurApprouve;Personne C;auth-service BDD hirehub_auth
+0;Infra;D;Squelettes offre candidature entretien + Flyway/init BDD;Personne D;3 services + 3 BDD
+1;Contrat;Equipe;Session API-CONTRACTS.md + DTO hirehub-common;Tous;docs/API-CONTRACTS.md
+1;Auth;C;Endpoints admin approuver rejeter recruteur liste pending;Personne C;REST + emails via notif
+1;Notif;A;Templates email approbation refus recruteur + appels depuis auth;Personne A;notification-service
+1;UI;B;Register 2 formulaires lock recruteur pages admin validation;Personne B;frontend-service Thymeleaf
+2;Metier;D;offre-service CRUD complet;Personne D;offre-service
+2;Metier;D;candidature-service pipeline CV Feign notification;Personne D;candidature-service
+2;Metier;D;entretien-service planif rappels;Personne D;entretien-service
+2;Integration;B;Feign frontend vers services stubs puis reels;Personne B;clients Feign intercepteur JWT
+3;Qualite;Partage;Tests integration par module contrats;Tous;JUnit Mockito
+3;Livrable;Partage;Demo README PROJET_HIREHUB_COMPLET soutenance;Tous;docs/

@@ -40,6 +40,16 @@ public class UiController {
         return "pages/public/register";
     }
 
+    @GetMapping("/register/candidat")
+    public String registerCandidat() {
+        return "pages/public/register-candidat";
+    }
+
+    @GetMapping("/register/recruteur")
+    public String registerRecruteur() {
+        return "pages/public/register-recruteur";
+    }
+
     @GetMapping("/mes-candidatures")
     public String legacyMesCandidatures() {
         return "redirect:/candidat/mes-candidatures";
@@ -68,8 +78,8 @@ public class UiController {
     }
 
     @GetMapping("/demande-recruteur")
-    public String demandeRecruteur() {
-        return "pages/candidat/demande-recruteur";
+    public String legacyDemandeRecruteur() {
+        return "redirect:/register/recruteur";
     }
 
     /* ---------- Recruteur ---------- */

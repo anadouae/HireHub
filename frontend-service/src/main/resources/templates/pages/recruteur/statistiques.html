@@ -6,6 +6,8 @@
 </head>
 <body>
 <section layout:fragment="content" class="page-inner">
+    <th:block th:insert="~{fragments/recruteur-lock :: top}"/>
+    <div th:classappend="${uiRecruteurPending} ? 'hh-recruteur-locked'">
     <div class="container">
         <h1 class="page-hero-title">Statistiques par offre</h1>
         <p class="page-hero-sub">Graphiques — données agrégées via les microservices (exemple Chart.js).</p>
@@ -65,6 +67,7 @@
             });
         });
     </script>
+    </div>
 </section>
 </body>
 </html>

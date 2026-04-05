@@ -31,8 +31,8 @@
                         suivez chaque étape jusqu’à l’entretien — tout depuis un espace clair et moderne.
                     </p>
                     <p class="hero-lead mb-0">
-                        <strong>Entreprises :</strong> créez votre compte, déposez une demande « recruteur » validée par nos équipes,
-                        puis pilotez offres, pipeline et entretiens. Le bon profil, sans friction.
+                        <strong>Entreprises :</strong> inscrivez-vous en tant que <strong>recruteur</strong> (formulaire dédié), accédez tout de suite à votre espace,
+                        puis débloquez publication et pipeline dès l’<strong>approbation admin</strong> — vous êtes informé par email.
                     </p>
                     <div class="hero-cta">
                         <a class="hh-btn-primary" th:href="@{/offres}">
@@ -41,11 +41,11 @@
                                 <path d="M5 12h14M12 5l7 7-7 7"/>
                             </svg>
                         </a>
-                        <a class="hh-btn-secondary" th:href="@{/register}">Créer mon compte candidat</a>
-                        <a class="hh-btn-secondary border-2" style="background: rgba(255,255,255,.85);" th:href="@{/demande-recruteur}" th:unless="${uiEstRecruteur}">
-                            Recruter sur HireHub
+                        <a class="hh-btn-secondary" th:href="@{/register/candidat}">S’inscrire — candidat</a>
+                        <a class="hh-btn-secondary border-2" style="background: rgba(255,255,255,.85);" th:href="@{/register/recruteur}">
+                            S’inscrire — recruteur
                         </a>
-                        <a class="hh-btn-primary" th:href="@{/recruteur/dashboard}" th:if="${uiEstRecruteur}">
+                        <a class="hh-btn-primary" th:href="@{/recruteur/dashboard}" th:if="${uiMenuRecruteur}">
                             Mon espace recruteur
                         </a>
                     </div>
