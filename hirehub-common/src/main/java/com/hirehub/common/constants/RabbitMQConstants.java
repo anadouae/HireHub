@@ -51,7 +51,7 @@ public final class RabbitMQConstants {
 
     ///Publié par : candidature-service, quand le recruteur change le statut
     ///Consommé par : notification-service → envoie email "Statut mis à jour"
-    public static final String ROUTING_STATUT_CHANGED       = "candidature.statut.changed";
+    public static final String ROUTING_CANDIDATURE_STATUT_CHANGED       = "candidature.statut.changed";
 
     ///Publié par : entretien-service, quand un entretien est planifié ou annulé
     ///Consommé par : notification-service → envoie email date/heure/lieu
@@ -80,11 +80,11 @@ public final class RabbitMQConstants {
 
     ///Queue écoutée pour les nouvelles candidatures
     ///binding : EXCHANGE + ROUTING_CANDIDATURE_CREATED → cette queue
-    public static final String QUEUE_NOTIFICATION_CANDIDATURE = "notif.candidature.queue";
+    public static final String QUEUE_NOTIFICATION_CANDIDATURE_CREATED = "notif.candidature.created.queue";
 
     ///Queue écoutée pour les changements de statut
     ///binding : EXCHANGE + ROUTING_STATUT_CHANGED → cette queue
-    public static final String QUEUE_NOTIFICATION_STATUT      = "notif.statut.queue";
+    public static final String QUEUE_NOTIFICATION_CANDIDATURE_STATUT      = "notif.candidature.statut.changed.queue";
 
     ///Queue écoutée pour les entretiens planifiés/annulés
     ///binding : EXCHANGE + ROUTING_ENTRETIEN_PLANIFIE → cette queue

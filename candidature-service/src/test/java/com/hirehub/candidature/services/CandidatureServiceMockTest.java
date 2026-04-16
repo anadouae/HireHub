@@ -100,7 +100,7 @@ class CandidatureServiceMockTest {
         // Assert
         assertNotNull(newCandidature.getId(), "L'ID devrait être généré");
         assertTrue(newCandidature.getId().startsWith("cand-"));
-        assertEquals(CandidatureStatus.EN_COURS, newCandidature.getStatus());
+        assertEquals(CandidatureStatus.SOUMISE, newCandidature.getStatus());
 
         List<Candidature> allCandidatures = service.getMyCandidaturesByCandidat();
         assertEquals(initialCount + 1, allCandidatures.size());

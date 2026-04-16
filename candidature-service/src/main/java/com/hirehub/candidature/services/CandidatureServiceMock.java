@@ -88,7 +88,7 @@ public class CandidatureServiceMock implements CandidatureService {
         String newId = "cand-" + String.format("%03d", idCounter++);
         candidature.setId(newId);
         candidature.setDateSoumission(LocalDateTime.now());
-        candidature.setStatus(CandidatureStatus.EN_COURS);
+        candidature.setStatus(CandidatureStatus.SOUMISE);
         mockDatabase.put(newId, candidature);
         log.info("[MOCK] Candidature créée: {} pour l'offre: {}", newId, candidature.getOffreId());
     }

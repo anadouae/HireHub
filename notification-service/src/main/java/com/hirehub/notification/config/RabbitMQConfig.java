@@ -61,10 +61,13 @@ public class RabbitMQConfig {
      * Consumer: NotificationService (envoie email de confirmation)
      */
     @Bean
-    public Queue notificationCandidatureQueue() {
-        log.info("[QUEUE] Création: {}", RabbitMQConstants.QUEUE_NOTIFICATION_CANDIDATURE);
+    public Queue notificationCandidatureCreatedQueue() {
+        loggingQueueCreation(
+                RabbitMQConstants.QUEUE_NOTIFICATION_CANDIDATURE_CREATED
+        );
+
         return new Queue(
-            RabbitMQConstants.QUEUE_NOTIFICATION_CANDIDATURE,
+            RabbitMQConstants.QUEUE_NOTIFICATION_CANDIDATURE_CREATED,
             true,      // durable
             false,     // exclusive (pas réservée à une connexion)
             false      // autoDelete
@@ -77,10 +80,13 @@ public class RabbitMQConfig {
      * Consumer: NotificationService (envoie email de mise à jour)
      */
     @Bean
-    public Queue notificationStatutQueue() {
-        log.info("[QUEUE] Création: {}", RabbitMQConstants.QUEUE_NOTIFICATION_STATUT);
+    public Queue notificationCandidatureStatutQueue() {
+        loggingQueueCreation(
+                RabbitMQConstants.QUEUE_NOTIFICATION_CANDIDATURE_STATUT
+        );
+
         return new Queue(
-            RabbitMQConstants.QUEUE_NOTIFICATION_STATUT,
+            RabbitMQConstants.QUEUE_NOTIFICATION_CANDIDATURE_STATUT,
             true,
             false,
             false
@@ -94,7 +100,10 @@ public class RabbitMQConfig {
      */
     @Bean
     public Queue notificationEntretienQueue() {
-        log.info("[QUEUE] Création: {}", RabbitMQConstants.QUEUE_NOTIFICATION_ENTRETIEN);
+        loggingQueueCreation(
+                RabbitMQConstants.QUEUE_NOTIFICATION_ENTRETIEN
+        );
+
         return new Queue(
             RabbitMQConstants.QUEUE_NOTIFICATION_ENTRETIEN,
             true,
@@ -110,7 +119,10 @@ public class RabbitMQConfig {
      */
     @Bean
     public Queue notificationRecruiterQueue() {
-        log.info("[QUEUE] Création: {}", RabbitMQConstants.QUEUE_NOTIFICATION_RECRUITER);
+        loggingQueueCreation(
+                RabbitMQConstants.QUEUE_NOTIFICATION_RECRUITER
+        );
+
         return new Queue(
             RabbitMQConstants.QUEUE_NOTIFICATION_RECRUITER,
             true,
@@ -138,16 +150,17 @@ public class RabbitMQConfig {
      */
     @Bean
     public Binding bindingCandidatureCreated(
-            @Qualifier("notificationCandidatureQueue") Queue notificationCandidatureQueue,
+            @Qualifier("notificationCandidatureCreatedQueue") Queue notificationCandidatureCreatedQueue,
             TopicExchange hirehubExchange
     ) {
         log.info(
                 "[BINDING] {} -> {}",
                 RabbitMQConstants.ROUTING_CANDIDATURE_CREATED,
-                RabbitMQConstants.QUEUE_NOTIFICATION_CANDIDATURE
+                RabbitMQConstants.QUEUE_NOTIFICATION_CANDIDATURE_CREATED
         );
+
         return BindingBuilder
-            .bind(notificationCandidatureQueue())
+            .bind(notificationCandidatureCreatedQueue)
             .to(hirehubExchange)
             .with(RabbitMQConstants.ROUTING_CANDIDATURE_CREATED);
     }
@@ -160,14 +173,18 @@ public class RabbitMQConfig {
      */
     @Bean
     public Binding bindingStatutChanged(
-            @Qualifier("notificationStatutQueue") Queue notificationStatutQueue,
+            @Qualifier("notificationCandidatureStatutQueue") Queue notificationCandidatureStatutQueue,
             TopicExchange hirehubExchange
     ) {
-        log.info("✅ [BINDING] {} -> {}", RabbitMQConstants.ROUTING_STATUT_CHANGED, RabbitMQConstants.QUEUE_NOTIFICATION_STATUT);
+        loggingBindingRabbitMQ(
+                RabbitMQConstants.ROUTING_CANDIDATURE_STATUT_CHANGED,
+                RabbitMQConstants.QUEUE_NOTIFICATION_CANDIDATURE_STATUT
+        );
+
         return BindingBuilder
-            .bind(notificationStatutQueue())
+            .bind(notificationCandidatureStatutQueue)
             .to(hirehubExchange)
-            .with(RabbitMQConstants.ROUTING_STATUT_CHANGED);
+            .with(RabbitMQConstants.ROUTING_CANDIDATURE_STATUT_CHANGED);
     }
 
     /**
@@ -181,9 +198,14 @@ public class RabbitMQConfig {
             @Qualifier("notificationEntretienQueue") Queue notificationEntretienQueue,
             TopicExchange hirehubExchange
     ) {
-        log.info("✅ [BINDING] {} -> {}", RabbitMQConstants.ROUTING_ENTRETIEN_PLANIFIE, RabbitMQConstants.QUEUE_NOTIFICATION_ENTRETIEN);
+
+        loggingBindingRabbitMQ(
+                RabbitMQConstants.ROUTING_ENTRETIEN_PLANIFIE,
+                RabbitMQConstants.QUEUE_NOTIFICATION_ENTRETIEN
+        );
+
         return BindingBuilder
-            .bind(notificationEntretienQueue())
+            .bind(notificationEntretienQueue)
             .to(hirehubExchange)
             .with(RabbitMQConstants.ROUTING_ENTRETIEN_PLANIFIE);
     }
@@ -199,9 +221,12 @@ public class RabbitMQConfig {
             @Qualifier("notificationRecruiterQueue") Queue notificationRecruiterQueue,
             TopicExchange hirehubExchange
     ) {
-        log.info("✅ [BINDING] {} -> {}", RabbitMQConstants.ROUTING_RECRUITER_APPROVED, RabbitMQConstants.QUEUE_NOTIFICATION_RECRUITER);
+        loggingBindingRabbitMQ(
+                RabbitMQConstants.ROUTING_RECRUITER_APPROVED,
+                RabbitMQConstants.QUEUE_NOTIFICATION_RECRUITER
+        );
         return BindingBuilder
-            .bind(notificationRecruiterQueue())
+            .bind(notificationRecruiterQueue)
             .to(hirehubExchange)
             .with(RabbitMQConstants.ROUTING_RECRUITER_APPROVED);
     }
@@ -221,11 +246,40 @@ public class RabbitMQConfig {
             @Qualifier("notificationRecruiterQueue") Queue notificationRecruiterQueue,
             TopicExchange hirehubExchange
     ) {
-        log.info("✅ [BINDING] {} -> {}", RabbitMQConstants.ROUTING_RECRUITER_REJECTED, RabbitMQConstants.QUEUE_NOTIFICATION_RECRUITER);
+        loggingBindingRabbitMQ(
+                RabbitMQConstants.ROUTING_RECRUITER_REJECTED,
+                RabbitMQConstants.QUEUE_NOTIFICATION_RECRUITER
+        );
+
         return BindingBuilder
-            .bind(notificationRecruiterQueue())
+            .bind(notificationRecruiterQueue)
             .to(hirehubExchange)
             .with(RabbitMQConstants.ROUTING_RECRUITER_REJECTED);
+    }
+
+    /**
+     * Logue la liaison (binding) d'une file d'attente à une clé de routage.
+     * <p>
+     *
+     * @param routingKey La clé de routage utilisée pour le filtrage des messages.
+     * @param queue      Le nom de la file d'attente (destination) liée.
+     */
+    private static void loggingBindingRabbitMQ(String routingKey, String queue) {
+        // On lie la Queue à la Routing Key (via l'Exchange)
+        log.info(
+                "✅ [BINDING] Queue [{}] bound with routing key [{}]",
+                queue,
+                routingKey
+        );
+    }
+
+    /**
+     * Logue la création d'une file d'attente RabbitMQ.
+     *
+     * @param queueName Le nom de la file d'attente créée.
+     */
+    private static void loggingQueueCreation(String queueName) {
+        log.info("[QUEUE] Création: {}", queueName);
     }
 
     /*@Bean

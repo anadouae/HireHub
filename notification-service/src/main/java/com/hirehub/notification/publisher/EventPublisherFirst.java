@@ -79,7 +79,7 @@ public class EventPublisherFirst {
 
         rabbitTemplate.convertAndSend(
             RabbitMQConstants.EXCHANGE,
-            RabbitMQConstants.ROUTING_STATUT_CHANGED,
+            RabbitMQConstants.ROUTING_CANDIDATURE_STATUT_CHANGED,
             event
         );
 

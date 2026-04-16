@@ -60,7 +60,7 @@ public class CandidatureServiceImpl implements CandidatureService {
         }
 
         // Définir les valeurs par défaut
-        candidature.setStatus(CandidatureStatus.EN_COURS);
+        candidature.setStatus(CandidatureStatus.SOUMISE);
         candidature.setDateSoumission(LocalDateTime.now());
 
         // Sauvegarder en BDD
@@ -214,7 +214,7 @@ public class CandidatureServiceImpl implements CandidatureService {
 
             rabbitTemplate.convertAndSend(
                     RabbitMQConstants.EXCHANGE,
-                    RabbitMQConstants.ROUTING_STATUT_CHANGED,
+                    RabbitMQConstants.ROUTING_CANDIDATURE_STATUT_CHANGED,
                     event
             );
             log.info("Événement 'candidature.statut.changed' publié pour la candidature: {}", candidature.getId());

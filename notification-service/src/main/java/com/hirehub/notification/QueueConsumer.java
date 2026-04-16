@@ -40,7 +40,7 @@ public class QueueConsumer {
      *   "candidatName": "Jean Dupont"
      * }
      */
-    @RabbitListener(queues = RabbitMQConstants.QUEUE_NOTIFICATION_CANDIDATURE)
+    @RabbitListener(queues = RabbitMQConstants.QUEUE_NOTIFICATION_CANDIDATURE_CREATED)
     public void handleCandidatureCreated(@Payload String message) {
         try {
             log.info("[CANDIDATURE CRÉÉE] Message reçu: {}", message);
@@ -78,7 +78,7 @@ public class QueueConsumer {
      *   "commentaire": "Bravo, vous êtes sélectionné!"
      * }
      */
-    @RabbitListener(queues = RabbitMQConstants.QUEUE_NOTIFICATION_STATUT)
+    @RabbitListener(queues = RabbitMQConstants.QUEUE_NOTIFICATION_CANDIDATURE_STATUT)
     public void handleStatutChanged(@Payload String message) {
         try {
             log.info("[STATUT CHANGÉ] Message reçu: {}", message);
