@@ -1,11 +1,32 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <body>
-<!-- Bandeau + zone désactivée tant que l'admin n'a pas approuvé le compte recruteur -->
+<!-- Bandeau + zone désactivée tant que recruiterApproved == false (validation entreprise / admin). -->
 <th:block th:fragment="top">
     <div th:if="${uiRecruteurPending}" class="alert alert-warning border-0 rounded-0 mb-0 text-center py-3 shadow-sm" style="background: #fef3c7; color: #78350f;">
-        <strong>Espace recruteur — en attente de validation.</strong>
-        Un administrateur doit approuver votre compte. Toutes les actions ci-dessous sont verrouillées. Vous recevrez un <strong>email</strong> après décision (approbation ou refus).
+        <p class="mb-2 small text-start text-md-center mx-auto" style="max-width: 52rem;">
+            <strong>Inscription :</strong> enregistrée (formulaire et pièce jointe reçus).
+            <strong class="ms-1">Accès espace recruteur (offres, pipeline, etc.) :</strong> pas encore ouvert — une étape séparée valide votre entreprise.
+        </p>
+        <strong th:if="${uiRecruteurAutoCheck}">Espace recruteur — vérification automatique en cours.</strong>
+        <strong th:if="${uiRecruteurReviewRequired}">Espace recruteur — dossier en revue.</strong>
+        <strong th:if="${!uiRecruteurAutoCheck and !uiRecruteurReviewRequired}">Espace recruteur — activation en attente.</strong>
+        <span th:if="${uiRecruteurAutoCheck}" class="d-block mt-1">
+            Notre service extrait et contrôle votre justificatif (RC / ICE / patente). Cela tourne en arrière-plan : ce n'est pas le même instant que la fin du formulaire d'inscription.
+            Vos actions restent verrouillées jusqu'à la fin de cette vérification.
+        </span>
+        <span th:if="${uiRecruteurReviewRequired}" class="d-block mt-1">
+            La vérification automatique n'a pas suffi ; votre dossier est en revue côté équipe. Vos actions restent verrouillées jusqu'à décision.
+        </span>
+        <span th:if="${!uiRecruteurAutoCheck and !uiRecruteurReviewRequired}" class="d-block mt-1">
+            La validation automatique n'a pas encore abouti (serveur de vérification ou file de messages). Si vous venez d'ouvrir votre compte, attendez quelques instants puis rafraîchissez la page après avoir démarré RabbitMQ et le microservice <code>verification-service</code>.
+        </span>
+        <span th:if="${uiRecruteurReviewRequired}" class="d-block mt-2 small">
+            Vous recevrez un <strong>email</strong> dès qu'une décision est prise.
+        </span>
+        <span th:if="${!uiRecruteurReviewRequired}" class="d-block mt-2 small">
+            En cas d'approbation automatique, l'accès se déverrouille sans action de votre part ; un email peut suivre selon la configuration du projet.
+        </span>
     </div>
 </th:block>
 </body>

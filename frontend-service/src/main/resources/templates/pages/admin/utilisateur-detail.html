@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout}">
+<head>
+    <title>Details utilisateur</title>
+</head>
+<body>
+<section layout:fragment="content" class="page-inner">
+    <div class="container" style="max-width: 780px;">
+        <div class="d-flex align-items-center justify-content-between flex-wrap gap-2 mb-3">
+            <h1 class="page-hero-title mb-0">Details utilisateur</h1>
+            <a class="btn btn-sm hh-admin-action-btn hh-admin-action-btn-primary" th:href="@{/admin/utilisateurs}">Retour liste</a>
+        </div>
+        <div class="hh-card hh-user-detail-card">
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <div class="hh-user-detail-item">
+                        <div class="hh-user-detail-label">Email</div>
+                        <div class="hh-user-detail-value" th:text="${detailEmail}">email@example.com</div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="hh-user-detail-item">
+                        <div class="hh-user-detail-label">Nom complet</div>
+                        <div class="hh-user-detail-value" th:text="${detailFullName}">Nom Prenom</div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="hh-user-detail-item">
+                        <div class="hh-user-detail-label">Role</div>
+                        <div class="hh-user-detail-value" th:text="${detailRole}">RECRUTEUR</div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="hh-user-detail-item">
+                        <div class="hh-user-detail-label">Statut compte</div>
+                        <div class="hh-user-detail-value">
+                            <span th:if="${detailBlocked}">Bloque</span>
+                            <span th:unless="${detailBlocked}">Actif</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+</body>
+</html>

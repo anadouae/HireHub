@@ -8,37 +8,41 @@
 <section layout:fragment="content" class="page-inner">
     <div class="container">
         <h1 class="page-hero-title">Dashboard administrateur</h1>
-        <p class="page-hero-sub">KPIs globaux — lecture depuis les services et logs centralises.</p>
+        <p class="page-hero-sub">Vue globale de la plateforme.</p>
 
         <div class="row g-3 mb-4">
             <div class="col-6 col-md-3">
-                <div class="hh-kpi">
-                    <div class="hh-kpi-value">28</div>
-                    <div class="hh-kpi-label">Offres actives</div>
-                </div>
-            </div>
-            <div class="col-6 col-md-3">
-                <div class="hh-kpi">
-                    <div class="hh-kpi-value">412</div>
-                    <div class="hh-kpi-label">Candidatures / sem.</div>
-                </div>
-            </div>
-            <div class="col-6 col-md-3">
-                <div class="hh-kpi">
-                    <div class="hh-kpi-value">18%</div>
-                    <div class="hh-kpi-label">Taux acceptation</div>
-                </div>
-            </div>
-            <div class="col-6 col-md-3">
-                <div class="hh-kpi">
-                    <div class="hh-kpi-value">124</div>
+                <div class="hh-kpi hh-admin-kpi">
+                    <div class="hh-admin-kpi-icon">👥</div>
+                    <div class="hh-kpi-value" th:text="${stats.totalUsers}">0</div>
                     <div class="hh-kpi-label">Utilisateurs</div>
+                </div>
+            </div>
+            <div class="col-6 col-md-3">
+                <div class="hh-kpi hh-admin-kpi">
+                    <div class="hh-admin-kpi-icon">🎓</div>
+                    <div class="hh-kpi-value" th:text="${stats.candidats}">0</div>
+                    <div class="hh-kpi-label">Candidats</div>
+                </div>
+            </div>
+            <div class="col-6 col-md-3">
+                <div class="hh-kpi hh-admin-kpi">
+                    <div class="hh-admin-kpi-icon">🏢</div>
+                    <div class="hh-kpi-value" th:text="${stats.recruteurs}">0</div>
+                    <div class="hh-kpi-label">Recruteurs</div>
+                </div>
+            </div>
+            <div class="col-6 col-md-3">
+                <div class="hh-kpi hh-admin-kpi">
+                    <div class="hh-admin-kpi-icon">⏱</div>
+                    <div class="hh-kpi-value" th:text="${stats.admins}">0</div>
+                    <div class="hh-kpi-label">Administrateurs</div>
                 </div>
             </div>
         </div>
 
         <div class="hh-card mb-4">
-            <h2 class="h6 text-uppercase mb-3" style="color: var(--hh-violet-800);">Activite plateforme</h2>
+                    <h2 class="h6 text-uppercase mb-3" style="color: var(--hh-violet-800);">Activite plateforme</h2>
             <div style="max-height: 380px;">
                 <canvas id="chartAdmin"></canvas>
             </div>
@@ -48,20 +52,20 @@
             <div class="col-md-6">
                 <div class="hh-card">
                     <h2 class="h6 mb-2" style="color: var(--hh-violet-900);">Accès rapides</h2>
-                    <a class="d-block mb-2" th:href="@{/admin/demandes-recruteur}">Valider les comptes recruteurs</a>
-                    <a class="d-block mb-2" th:href="@{/admin/utilisateurs}">Gestion des utilisateurs</a>
-                    <a class="d-block" th:href="@{/admin/logs}">Journaux système</a>
+                    <a class="hh-admin-quick-link d-block mb-2" th:href="@{/admin/utilisateurs}">Gestion des utilisateurs</a>
+                    <a class="hh-admin-quick-link d-block" th:href="@{/admin/logs}">Journaux système</a>
                 </div>
             </div>
             <div class="col-md-6">
                 <div class="hh-card">
                     <h2 class="h6 mb-2" style="color: var(--hh-violet-900);">Sante</h2>
-                    <p class="small text-muted mb-0">Eureka, Gateway, services : branchement <code>/actuator/health</code>.</p>
+                    <p class="small text-muted mb-1">Admins: <strong th:text="${stats.admins}">0</strong></p>
+                    <p class="small text-muted mb-0">Statut des services via <code>/actuator/health</code>.</p>
                 </div>
             </div>
         </div>
     </div>
-    <script>
+    <script th:inline="javascript">
         document.addEventListener('DOMContentLoaded', function () {
             const el = document.getElementById('chartAdmin');
             if (!el || typeof Chart === 'undefined') return;
@@ -71,7 +75,7 @@
                     labels: ['Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam', 'Dim'],
                     datasets: [{
                         label: 'Candidatures',
-                        data: [32, 45, 38, 52, 48, 20, 15],
+                        data: [0, [[${stats.candidats}]], [[${stats.recruteurs}]], [[${stats.recruiterPendingReview}]], [[${stats.totalUsers}]], [[${stats.admins}]], [[${stats.totalUsers}]]],
                         borderColor: 'rgb(109, 40, 217)',
                         backgroundColor: 'rgba(109, 40, 217, 0.15)',
                         fill: true,

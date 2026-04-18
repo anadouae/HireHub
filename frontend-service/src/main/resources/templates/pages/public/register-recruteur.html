@@ -14,22 +14,80 @@
             </ol>
         </nav>
         <h1 class="page-hero-title text-center">Inscription recruteur</h1>
-        <p class="page-hero-sub text-center">
-            Après inscription vous pourrez <strong>ouvrir l’espace recruteur</strong>, mais les actions (offres, pipeline, etc.)
-            restent <strong>verrouillées</strong> jusqu’à validation par un administrateur. Vous recevrez un <strong>email</strong> (approbation ou refus).
-        </p>
+        <p class="page-hero-sub text-center">Créez votre compte recruteur avec justificatif entreprise.</p>
+
+        <div id="hh-recruiter-alert-mount"
+             class="hh-recruiter-alert-mount"
+             th:attr="data-hh-server-rendered=${(registerErrorFlag == true) ? '1' : '0'}">
+            <div class="hh-reg-rec-alert mb-3" th:if="${registerErrorFlag}" role="alert">
+                <div class="hh-reg-rec-alert__inner">
+                    <span class="hh-reg-rec-alert__icon" aria-hidden="true">!</span>
+                    <div>
+                        <strong class="d-block mb-1 hh-reg-rec-alert__title">Inscription non finalis&eacute;e</strong>
+                        <span th:switch="${registerErrorCode}">
+                            <th:block th:case="'justificatif_mismatch'">
+                                <span th:switch="${registerErrorDetail}">
+                                    <span th:case="'both'">
+                                        Le document ne contient pas la <strong>raison sociale</strong> saisie ni le <strong>SIRET</strong> indiqu&eacute;.
+                                        V&eacute;rifiez que le fichier correspond bien &agrave; votre entreprise (KBIS, extrait RC, etc.).
+                                    </span>
+                                    <span th:case="'raison'">
+                                        La <strong>raison sociale</strong> du formulaire n&rsquo;appara&icirc;t pas clairement dans le texte extrait du justificatif.
+                                        Corrigez l&rsquo;orthographe ou joignez un document plus r&eacute;cent / plus lisible.
+                                    </span>
+                                    <span th:case="'siret'">
+                                        Le <strong>SIRET</strong> saisi n&rsquo;a pas &eacute;t&eacute; retrouv&eacute; dans le document.
+                                        V&eacute;rifiez les 14 chiffres ou fournissez un justificatif o&ugrave; le num&eacute;ro est visible.
+                                    </span>
+                                    <span th:case="*">
+                                        Le <strong>justificatif</strong> ne correspond pas aux informations saisies (raison sociale et/ou SIRET).
+                                    </span>
+                                </span>
+                                <strong class="d-block mt-2">Aucun compte n&rsquo;a &eacute;t&eacute; cr&eacute;&eacute;.</strong>
+                                <span class="small d-block mt-1 opacity-90">Corrigez le fichier ou les champs, puis renvoyez le formulaire.</span>
+                            </th:block>
+                            <span th:case="'justificatif_format'">
+                                Format de fichier non accept&eacute;. Utilisez un <strong>PDF, JPG ou PNG</strong> conforme.
+                                <strong class="d-block mt-2">Aucun compte n&rsquo;a &eacute;t&eacute; cr&eacute;&eacute;.</strong>
+                            </span>
+                            <span th:case="'justificatif_ocr'">
+                                Le texte du document n&rsquo;a pas pu &ecirc;tre lu automatiquement. Essayez un <strong>PDF plus net</strong> ou une <strong>photo</strong> bien contrast&eacute;e.
+                                <strong class="d-block mt-2">Aucun compte n&rsquo;a &eacute;t&eacute; cr&eacute;&eacute;.</strong>
+                            </span>
+                            <span th:case="'justificatif_lecture'">
+                                Impossible de lire le fichier joint. V&eacute;rifiez qu&rsquo;il n&rsquo;est pas corrompu et r&eacute;essayez.
+                                <strong class="d-block mt-2">Aucun compte n&rsquo;a &eacute;t&eacute; cr&eacute;&eacute;.</strong>
+                            </span>
+                            <span th:case="'justificatif_invalide'">
+                                Le justificatif n&rsquo;a pas pu &ecirc;tre valid&eacute;. V&eacute;rifiez le document et les champs.
+                                <strong class="d-block mt-2">Aucun compte n&rsquo;a &eacute;t&eacute; cr&eacute;&eacute;.</strong>
+                            </span>
+                            <span th:case="'missing_file'">Le fichier justificatif est obligatoire. <strong>Aucun compte n'a &eacute;t&eacute; cr&eacute;&eacute;.</strong></span>
+                            <span th:case="'missing_fields'">Des champs obligatoires sont manquants. <strong>Aucun compte n'a &eacute;t&eacute; cr&eacute;&eacute;.</strong></span>
+                            <span th:case="'recaptcha_failed'">La v&eacute;rification reCAPTCHA a &eacute;chou&eacute;. R&eacute;essayez. <strong>Aucun compte n'a &eacute;t&eacute; cr&eacute;&eacute;.</strong></span>
+                            <span th:case="'email_taken'">Cet email est d&eacute;j&agrave; utilis&eacute;. Choisissez un autre email ou connectez-vous.</span>
+                            <span th:case="'strict_verification_unavailable'">La v&eacute;rification automatique du document est temporairement indisponible. R&eacute;essayez plus tard.</span>
+                            <span th:case="*">Impossible de cr&eacute;er le compte. R&eacute;essayez ou contactez le support.</span>
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
 
         <div class="hh-card">
-            <form method="post" th:action="@{/api/v1/auth/register/recruteur}">
+            <form id="formRegisterRecruiter" method="post" enctype="multipart/form-data" th:action="${apiBaseUrl + '/api/v1/auth/register/recruteur'}">
                 <input type="hidden" name="role" value="RECRUTEUR"/>
+                <input type="hidden" name="frontendRedirect" value="true"/>
+                <input type="hidden" name="recaptchaToken" id="recaptchaTokenRecruiter"/>
                 <h2 class="h6 text-uppercase mb-3" style="color: var(--hh-violet-800);">Contact RH</h2>
-                <div class="mb-3">
-                    <label class="hh-form-label" for="nom">Nom et prénom</label>
-                    <input type="text" id="nom" name="nomComplet" class="form-control rounded-3 border-0 shadow-sm" required/>
-                </div>
-                <div class="mb-3">
-                    <label class="hh-form-label" for="email">Email professionnel</label>
-                    <input type="email" id="email" name="email" class="form-control rounded-3 border-0 shadow-sm" required/>
+                <input type="hidden" name="nomComplet" th:value="${signupNom}"/>
+                <input type="hidden" name="email" th:value="${signupEmail}"/>
+                <div class="mb-4 p-3 rounded-3" style="background: rgba(109,40,217,0.06);">
+                    <p class="small text-muted mb-1">Nom (v&eacute;rifi&eacute;)</p>
+                    <p class="mb-0 fw-medium" th:text="${signupNom}">-</p>
+                    <p class="small text-muted mb-1 mt-2">Email (v&eacute;rifi&eacute;)</p>
+                    <p class="mb-0 fw-medium" th:text="${signupEmail}">-</p>
+                    <a class="small d-inline-block mt-2" th:href="@{/register/recruteur/email}">Changer d&rsquo;email (recommencer)</a>
                 </div>
                 <div class="mb-3">
                     <label class="hh-form-label" for="tel">Téléphone</label>
@@ -59,19 +117,119 @@
                     <label class="hh-form-label" for="site">Site web</label>
                     <input type="url" id="site" name="siteWeb" class="form-control rounded-3 border-0 shadow-sm" placeholder="https://"/>
                 </div>
+                <div class="mb-3">
+                    <label class="hh-form-label" for="justificatif">Justificatif d'existence de l'entreprise (obligatoire)</label>
+                    <input type="file" id="justificatif" name="justificatifEntreprise"
+                           class="form-control rounded-3 border-0 shadow-sm" accept=".pdf,.jpg,.jpeg,.png" required/>
+                    <div class="form-text">
+                        Document accepte : extrait RC. A defaut : attestation ICE ou patente/IF officielle (PDF, JPG, PNG - max 5 Mo).
+                    </div>
+                </div>
                 <div class="mb-4">
                     <label class="hh-form-label" for="presentation">Présentation courte de l’entreprise</label>
                     <textarea id="presentation" name="presentation" class="form-control rounded-3 border-0 shadow-sm" rows="4" required></textarea>
                 </div>
                 <div class="form-check mb-4">
                     <input class="form-check-input" type="checkbox" id="accept" required/>
-                    <label class="form-check-label small" for="accept">Je comprends que mon compte sera activé fonctionnellement après vérification par un administrateur.</label>
+                    <label class="form-check-label small" for="accept">
+                        J'accepte la verification documentaire.
+                    </label>
                 </div>
                 <button type="submit" class="btn hh-btn-primary w-100 rounded-pill mb-2">Créer mon compte recruteur</button>
                 <a class="btn btn-link w-100 small" th:href="@{/register}">Autre type de compte</a>
             </form>
         </div>
     </div>
+    <!-- api.js (v3) + siteverify cote auth : compatible avec hirehub.recaptcha.secret-key.
+         enterprise.js + execute Enterprise produisent un jeton incompatible avec siteverify si GCP Enterprise n'est pas configure. -->
+    <th:block th:if="${recaptchaSiteKey != null and !#strings.isEmpty(recaptchaSiteKey)}">
+        <script th:src="|https://www.google.com/recaptcha/api.js?render=${recaptchaSiteKey}|" async defer></script>
+        <script th:inline="javascript">
+            /*<![CDATA[*/
+            document.addEventListener('DOMContentLoaded', function () {
+                const siteKey = /*[[${recaptchaSiteKey}]]*/ '';
+                const form = document.getElementById('formRegisterRecruiter');
+                const tokenInput = document.getElementById('recaptchaTokenRecruiter');
+                if (!form || !siteKey || !tokenInput) return;
+                form.addEventListener('submit', function (e) {
+                    if (form.dataset.recaptchaDone === '1') return;
+                    e.preventDefault();
+                    var attempts = 0;
+                    function runExecute() {
+                        attempts++;
+                        if (attempts > 120) {
+                            alert('reCAPTCHA ne se charge pas. Verifiez la connexion ou desactivez un bloqueur de scripts.');
+                            return;
+                        }
+                        if (typeof grecaptcha === 'undefined' || !grecaptcha.execute) {
+                            setTimeout(runExecute, 50);
+                            return;
+                        }
+                        grecaptcha.ready(function () {
+                            grecaptcha.execute(siteKey, {action: 'register'}).then(function (token) {
+                                tokenInput.value = token;
+                                form.dataset.recaptchaDone = '1';
+                                form.requestSubmit();
+                            }).catch(function () {
+                                form.dataset.recaptchaDone = '';
+                                alert('reCAPTCHA indisponible. Rechargez la page et reessayez.');
+                            });
+                        });
+                    }
+                    runExecute();
+                });
+            });
+            /*]]>*/
+        </script>
+    </th:block>
+    <script>
+        /* Fallback : affiche l'alerte depuis l'URL si le rendu serveur n'a pas rempli le bloc (POST cross-origin + layout). */
+        (function () {
+            function esc(s) {
+                if (!s) return '';
+                return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/"/g, '&quot;');
+            }
+
+            function bodyHtml(code, detail) {
+                var mismatchBodies = {
+                    both: "Le document ne contient pas la <strong>raison sociale</strong> saisie ni le <strong>SIRET</strong> indiqu&eacute;. V&eacute;rifiez que le fichier correspond bien &agrave; votre entreprise (KBIS, extrait RC, etc.).",
+                    raison: "La <strong>raison sociale</strong> du formulaire n'appara&icirc;t pas clairement dans le texte extrait du justificatif. Corrigez l'orthographe ou joignez un document plus lisible.",
+                    siret: "Le <strong>SIRET</strong> saisi n'a pas &eacute;t&eacute; retrouv&eacute; dans le document. V&eacute;rifiez les 14 chiffres ou fournissez un justificatif o&ugrave; le num&eacute;ro est visible.",
+                    "": "Le <strong>justificatif</strong> ne correspond pas aux informations saisies (raison sociale et/ou SIRET)."
+                };
+                var foot = "<strong class=\"d-block mt-2\">Aucun compte n'a &eacute;t&eacute; cr&eacute;&eacute;.</strong><span class=\"small d-block mt-1 opacity-90\">Corrigez le fichier ou les champs, puis renvoyez le formulaire.</span>";
+                var map = {
+                    justificatif_mismatch: (mismatchBodies[detail] || mismatchBodies[""]) + foot,
+                    justificatif_format: "Format de fichier non accept&eacute;. Utilisez un <strong>PDF, JPG ou PNG</strong> conforme.<strong class=\"d-block mt-2\">Aucun compte n'a &eacute;t&eacute; cr&eacute;&eacute;.</strong>",
+                    justificatif_ocr: "Le texte du document n'a pas pu &ecirc;tre lu automatiquement. Essayez un <strong>PDF plus net</strong> ou une <strong>photo</strong> bien contrast&eacute;e.<strong class=\"d-block mt-2\">Aucun compte n'a &eacute;t&eacute; cr&eacute;&eacute;.</strong>",
+                    justificatif_lecture: "Impossible de lire le fichier joint. V&eacute;rifiez qu'il n'est pas corrompu et r&eacute;essayez.<strong class=\"d-block mt-2\">Aucun compte n'a &eacute;t&eacute; cr&eacute;&eacute;.</strong>",
+                    justificatif_invalide: "Le justificatif n'a pas pu &ecirc;tre valid&eacute;. V&eacute;rifiez le document et les champs.<strong class=\"d-block mt-2\">Aucun compte n'a &eacute;t&eacute; cr&eacute;&eacute;.</strong>",
+                    missing_file: "Le fichier justificatif est obligatoire. <strong>Aucun compte n'a &eacute;t&eacute; cr&eacute;&eacute;.</strong>",
+                    missing_fields: "Des champs obligatoires sont manquants. <strong>Aucun compte n'a &eacute;t&eacute; cr&eacute;&eacute;.</strong>",
+                    recaptcha_failed: "La v&eacute;rification reCAPTCHA a &eacute;chou&eacute;. R&eacute;essayez. <strong>Aucun compte n'a &eacute;t&eacute; cr&eacute;&eacute;.</strong>",
+                    email_taken: "Cet email est d&eacute;j&agrave; utilis&eacute;. Choisissez un autre email ou connectez-vous.",
+                    strict_verification_unavailable: "La v&eacute;rification automatique du document est temporairement indisponible. R&eacute;essayez plus tard."
+                };
+                return map[code] || ("Code : <code>" + esc(code) + "</code> &mdash; impossible de finaliser l'inscription. <strong class=\"d-block mt-2\">Aucun compte n'a &eacute;t&eacute; cr&eacute;&eacute;.</strong>");
+            }
+
+            document.addEventListener('DOMContentLoaded', function () {
+                var mount = document.getElementById('hh-recruiter-alert-mount');
+                if (!mount || mount.getAttribute('data-hh-server-rendered') === '1') return;
+                var q = new URLSearchParams(window.location.search);
+                if (!q.get('registerError')) return;
+                var code = q.get('code') || '';
+                var detail = q.get('detail') || '';
+                var inner = document.createElement('div');
+                inner.className = 'hh-reg-rec-alert mb-3';
+                inner.setAttribute('role', 'alert');
+                inner.innerHTML = '<div class="hh-reg-rec-alert__inner"><span class="hh-reg-rec-alert__icon" aria-hidden="true">!</span><div><strong class="d-block mb-1 hh-reg-rec-alert__title">Inscription non finalis&eacute;e</strong><span>'
+                    + bodyHtml(code, detail) + '</span></div></div>';
+                mount.appendChild(inner);
+                mount.setAttribute('data-hh-server-rendered', '1');
+            });
+        })();
+    </script>
 </section>
 </body>
 </html>

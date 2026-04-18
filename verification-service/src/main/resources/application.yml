@@ -1,0 +1,22 @@
+server:
+  port: 8088
+
+spring:
+  application:
+    name: verification-service
+  rabbitmq:
+    host: localhost
+    port: 5672
+    username: hirehub
+    password: hirehub
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka/
+
+verification:
+  ocr:
+    api-key: ${OCR_SPACE_API_KEY:}
+    endpoint: ${OCR_SPACE_ENDPOINT:https://api.ocr.space/parse/image}
+    language: ${OCR_SPACE_LANGUAGE:fre}

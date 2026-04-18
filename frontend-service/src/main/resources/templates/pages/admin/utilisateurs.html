@@ -10,9 +10,15 @@
         <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
             <div>
                 <h1 class="page-hero-title mb-0">Utilisateurs</h1>
-                <p class="page-hero-sub mb-0">Creation de comptes recruteurs et attribution des roles (auth-service).</p>
+                <p class="page-hero-sub mb-0">Gestion des comptes.</p>
             </div>
-            <button type="button" class="btn hh-btn-primary rounded-pill">Inviter un utilisateur</button>
+            <span class="badge rounded-pill bg-dark" th:text="${#lists.size(users) + ' comptes'}">0 comptes</span>
+        </div>
+        <div class="alert alert-success" th:if="${param.updated}">
+            Action admin appliquee avec succes.
+        </div>
+        <div class="alert alert-danger" th:if="${param.error}">
+            Action impossible pour le moment. Verifiez l'identifiant utilisateur ou reessayez.
         </div>
 
         <div class="hh-table-wrap">
@@ -23,30 +29,38 @@
                     <th>Nom</th>
                     <th>Role</th>
                     <th>Statut</th>
-                    <th></th>
+                    <th>Actions</th>
                 </tr>
                 </thead>
                 <tbody>
-                <tr>
-                    <td>admin@hirehub.local</td>
-                    <td>Admin</td>
-                    <td><span class="badge bg-dark rounded-pill">ADMIN</span></td>
-                    <td><span class="badge bg-success rounded-pill">Actif</span></td>
-                    <td><button type="button" class="btn btn-sm btn-outline-secondary rounded-pill">Modifier</button></td>
-                </tr>
-                <tr>
-                    <td>rh@entreprise.ma</td>
-                    <td>Service RH</td>
-                    <td><span class="badge rounded-pill" style="background: #ede9fe; color: #5b21b6;">RECRUTEUR</span></td>
-                    <td><span class="badge bg-success rounded-pill">Actif</span></td>
-                    <td><button type="button" class="btn btn-sm btn-outline-secondary rounded-pill">Modifier</button></td>
-                </tr>
-                <tr>
-                    <td>candidat@email.com</td>
-                    <td>Jean Dupont</td>
-                    <td><span class="badge bg-secondary rounded-pill">CANDIDAT</span></td>
-                    <td><span class="badge bg-success rounded-pill">Actif</span></td>
-                    <td><button type="button" class="btn btn-sm btn-outline-secondary rounded-pill">Modifier</button></td>
+                <tr th:each="u : ${users}">
+                    <td th:text="${u.email}">email@example.com</td>
+                    <td th:text="${u.fullName}">Nom</td>
+                    <td>
+                        <span class="badge rounded-pill bg-dark" th:if="${u.role.name() == 'ADMIN'}" th:text="${u.role.name()}">ADMIN</span>
+                        <span class="badge rounded-pill" style="background: #ede9fe; color: #5b21b6;" th:if="${u.role.name() == 'RECRUTEUR'}" th:text="${u.role.name()}">RECRUTEUR</span>
+                        <span class="badge bg-secondary rounded-pill" th:if="${u.role.name() == 'CANDIDAT'}" th:text="${u.role.name()}">CANDIDAT</span>
+                    </td>
+                    <td>
+                        <span class="badge bg-success rounded-pill">Actif</span>
+                        <span class="badge bg-danger rounded-pill ms-1" th:if="${u.isBlocked()}">Bloque</span>
+                    </td>
+                    <td>
+                        <div th:if="${u.role.name() != 'ADMIN'}">
+                            <a th:href="@{/admin/utilisateurs/{id}(id=${u.id})}" class="btn btn-sm hh-admin-action-btn hh-admin-action-btn-primary me-1">Voir details</a>
+                            <form method="post" th:action="@{/admin/utilisateurs/{id}/block(id=${u.id})}" class="d-inline" th:if="${!u.isBlocked()}">
+                                <button type="submit" class="btn btn-sm hh-admin-action-btn hh-admin-action-btn-warning me-1">Bloquer</button>
+                            </form>
+                            <form method="post" th:action="@{/admin/utilisateurs/{id}/unblock(id=${u.id})}" class="d-inline" th:if="${u.isBlocked()}">
+                                <button type="submit" class="btn btn-sm hh-admin-action-btn hh-admin-action-btn-success me-1">Debloquer</button>
+                            </form>
+                            <form method="post" th:action="@{/admin/utilisateurs/{id}/delete(id=${u.id})}" class="d-inline"
+                                  onsubmit="return confirm('Supprimer ce compte ? Cette action est irreversible.');">
+                                <button type="submit" class="btn btn-sm hh-admin-action-btn hh-admin-action-btn-danger">Supprimer</button>
+                            </form>
+                        </div>
+                        <span class="text-muted small" th:if="${u.role.name() == 'ADMIN'}">Compte systeme</span>
+                    </td>
                 </tr>
                 </tbody>
             </table>

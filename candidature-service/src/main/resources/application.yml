@@ -9,7 +9,7 @@ spring:
 
   # PostgreSQL Configuration
   datasource:
-    url: jdbc:postgresql://localhost:5432/hirehub_candidature
+    url: jdbc:postgresql://localhost:55432/hirehub_candidature
     username: hirehub
     password: hirehub
     driver-class-name: org.postgresql.Driver

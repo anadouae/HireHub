@@ -65,6 +65,22 @@ public final class RabbitMQConstants {
     ///Consommé par : notification-service → envoie email "Demande refusée"
     public static final String ROUTING_RECRUITER_REJECTED   = "recruiter.request.rejected";
 
+    ///Publié par : auth-service, quand un recruteur finit l'inscription
+    ///Consommé par : verification-service -> OCR/API + decision async
+    public static final String ROUTING_RECRUITER_REGISTERED  = "recruiter.registered";
+
+    ///Publié par : verification-service, résultat final du contrôle documentaire
+    ///Consommé par : auth-service -> mise à jour du statut du compte
+    public static final String ROUTING_RECRUITER_VERIFIED    = "recruiter.verified";
+
+    ///Publié par : frontend-service (espace admin), lors d'un blocage utilisateur
+    ///Consommé par : notification-service pour audit / notification
+    public static final String ROUTING_USER_BLOCKED          = "user.blocked";
+
+    ///Publié par : frontend-service (espace admin), lors d'une suppression utilisateur
+    ///Consommé par : notification-service pour audit / notification
+    public static final String ROUTING_USER_DELETED          = "user.deleted";
+
 
     ///─── LES QUEUES ────────────────────────────────────────────────
     //
@@ -94,4 +110,13 @@ public final class RabbitMQConstants {
     ///binding : EXCHANGE + ROUTING_RECRUITER_APPROVED/REJECTED → cette queue
     ///(les deux routing keys vont dans la même queue — un seul listener gère les deux)
     public static final String QUEUE_NOTIFICATION_RECRUITER   = "notif.recruiter.queue";
+
+    ///Queue écoutée par verification-service pour lancer le contrôle OCR/API
+    public static final String QUEUE_VERIFICATION_RECRUITER   = "verification.recruiter.queue";
+
+    ///Queue écoutée par auth-service pour recevoir le résultat du verification-service
+    public static final String QUEUE_AUTH_RECRUITER_VERIFIED  = "auth.recruiter.verified.queue";
+
+    ///Queue notifications/audit pour actions admin sur comptes utilisateurs
+    public static final String QUEUE_NOTIFICATION_ADMIN_USER   = "notif.admin.user.queue";
 }

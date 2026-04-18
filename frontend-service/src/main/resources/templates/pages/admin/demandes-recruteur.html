@@ -7,53 +7,47 @@
 <body>
 <section layout:fragment="content" class="page-inner">
     <div class="container">
-        <h1 class="page-hero-title">Valider les comptes recruteurs</h1>
+        <h1 class="page-hero-title">Suivi automatique des recruteurs</h1>
         <p class="page-hero-sub">
-            Les utilisateurs se sont inscrits avec le <strong>formulaire recruteur</strong>. Ils voient déjà leur espace, mais les fonctionnalités
-            sont <strong>verrouillées</strong> jusqu’à votre action. <strong>Approuver</strong> : email de confirmation + déverrouillage.
-            <strong>Rejeter</strong> : email de refus (l’espace reste consultable en lecture bloquée selon politique métier).
+            Le workflow est 100% automatique : verification OCR/API puis decision systeme.
+            L'admin ne valide plus manuellement les comptes recruteurs.
         </p>
 
         <div class="hh-table-wrap">
             <table class="table table-hover mb-0">
                 <thead>
                 <tr>
-                    <th>Inscrit le</th>
+                    <th>ID</th>
                     <th>Email</th>
                     <th>Entreprise</th>
+                    <th>Source verification</th>
                     <th>État</th>
-                    <th>Actions</th>
                 </tr>
                 </thead>
                 <tbody>
-                <tr>
-                    <td>28/03/2026</td>
-                    <td>marie@rh.ma</td>
-                    <td>ACME Tech</td>
-                    <td><span class="badge bg-warning text-dark rounded-pill">En attente</span></td>
+                <tr th:each="recruiter : ${recruiters}">
+                    <td th:text="${recruiter.id}">uuid</td>
+                    <td th:text="${recruiter.email}">email</td>
+                    <td th:text="${recruiter.companyName != null ? recruiter.companyName : '-'}">Societe</td>
                     <td>
-                        <button type="button" class="btn btn-sm btn-success rounded-pill me-1">Approuver</button>
-                        <button type="button" class="btn btn-sm btn-outline-danger rounded-pill">Rejeter</button>
+                        <span class="badge bg-primary rounded-pill">OCR/API automatique</span>
                     </td>
-                </tr>
-                <tr>
-                    <td>25/03/2026</td>
-                    <td>contact@startup.io</td>
-                    <td>StartupIO</td>
-                    <td><span class="badge bg-success rounded-pill">Approuvé</span></td>
-                    <td><span class="text-muted small">Email « compte activé » envoyé</span></td>
-                </tr>
-                <tr>
-                    <td>20/03/2026</td>
-                    <td>douteux@mail.com</td>
-                    <td>—</td>
-                    <td><span class="badge bg-secondary rounded-pill">Refusé</span></td>
-                    <td><span class="text-muted small">Email de refus envoyé</span></td>
+                    <td>
+                        <span class="badge bg-success rounded-pill"
+                              th:if="${recruiter.verificationStatus != null and recruiter.verificationStatus.name() == 'APPROVED'}">Approuve automatiquement</span>
+                        <span class="badge bg-secondary rounded-pill"
+                              th:if="${recruiter.verificationStatus != null and recruiter.verificationStatus.name() == 'REJECTED'}">Refuse automatiquement</span>
+                        <span class="badge bg-info text-dark rounded-pill"
+                              th:if="${recruiter.verificationStatus != null and recruiter.verificationStatus.name() == 'PENDING_AUTO_CHECK'}">Verification en cours</span>
+                        <span class="badge bg-warning text-dark rounded-pill"
+                              th:if="${recruiter.verificationStatus != null and recruiter.verificationStatus.name() == 'REVIEW_REQUIRED'}">Controle renforce</span>
+                        <span class="badge bg-light text-dark rounded-pill"
+                              th:if="${recruiter.verificationStatus == null}">Inconnu</span>
+                    </td>
                 </tr>
                 </tbody>
             </table>
         </div>
-        <p class="small text-muted mt-3 mb-0">Données de démonstration — brancher sur <code>auth-service</code> + <code>notification-service</code>.</p>
     </div>
 </section>
 </body>

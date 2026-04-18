@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout}">
+<head>
+    <title>Inscription candidat &mdash; code</title>
+</head>
+<body>
+<section layout:fragment="content" class="page-inner">
+    <div class="container" style="max-width: 480px;">
+        <nav class="mb-3" aria-label="breadcrumb">
+            <ol class="breadcrumb mb-0">
+                <li class="breadcrumb-item"><a th:href="@{/register}">Inscription</a></li>
+                <li class="breadcrumb-item"><a th:href="@{/register/candidat/email}">&Eacute;tape 1</a></li>
+                <li class="breadcrumb-item active">Code</li>
+            </ol>
+        </nav>
+        <h1 class="page-hero-title text-center">Code de v&eacute;rification</h1>
+        <p class="page-hero-sub text-center">
+            Saisissez le code &agrave; 6 chiffres re&ccedil;u par email pour
+            <strong th:text="${pendingEmail}">email</strong>.
+        </p>
+        <div class="alert alert-success" th:if="${signupCodeSent}" role="status">
+            Un email avec votre code vient d&rsquo;&ecirc;tre envoy&eacute; (ou consultez les logs serveur sans SMTP).
+        </div>
+        <div class="alert alert-danger" th:if="${signupCodeError}" role="alert">
+            Code incorrect ou expir&eacute;. R&eacute;essayez ou redemandez un code depuis l&rsquo;&eacute;tape pr&eacute;c&eacute;dente.
+        </div>
+        <div class="hh-card">
+            <form method="post" th:action="@{/register/candidat/code}">
+                <div class="mb-4">
+                    <label class="hh-form-label" for="code">Code &agrave; 6 chiffres</label>
+                    <input type="text" id="code" name="code" inputmode="numeric" pattern="[0-9\\s]*" maxlength="14"
+                           class="form-control rounded-3 border-0 shadow-sm text-center fs-4" required autocomplete="one-time-code"
+                           placeholder="000000"/>
+                </div>
+                <button type="submit" class="btn hh-btn-primary w-100 rounded-pill mb-2">Valider et continuer</button>
+                <a class="btn btn-link w-100 small" th:href="@{/register/candidat/email}">Modifier email / renvoyer un code</a>
+            </form>
+        </div>
+    </div>
+</section>
+</body>
+</html>

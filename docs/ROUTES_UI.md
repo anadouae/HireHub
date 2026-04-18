@@ -2,6 +2,8 @@
 
 Pages **Thymeleaf** ; données mock ou Feign selon l’avancement. Référence produit : `docs/PROJET_HIREHUB_COMPLET.md`.
 
+**Quelle page pour quel espace (visiteur / candidat / recruteur / admin) :** voir **`docs/ESPACES_ET_PAGES.md`** (tableau URL → espace → microservice).
+
 ## Public
 
 | URL | Page |

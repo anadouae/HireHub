@@ -11,6 +11,78 @@
         <p class="page-hero-sub text-center">Accédez à votre espace candidat, recruteur ou admin.</p>
 
         <div class="hh-card">
+            <th:block th:if="${loginRegistered}">
+                <div class="hh-doc-match-banner mb-4" th:if="${loginFlow == 'recruteur' and loginDocMatch}" role="status">
+                    <div class="hh-doc-match-banner__shine" aria-hidden="true"></div>
+                    <div class="hh-doc-match-banner__content">
+                        <div class="hh-doc-match-banner__icon" aria-hidden="true">&#10003;</div>
+                        <div>
+                            <h2 class="hh-doc-match-banner__title">Document v&eacute;rifi&eacute; &mdash; tout est coh&eacute;rent</h2>
+                            <p class="hh-doc-match-banner__text mb-0">
+                                Votre justificatif a &eacute;t&eacute; analys&eacute; : <strong>aucune incoh&eacute;rence</strong> n&rsquo;a &eacute;t&eacute; d&eacute;tect&eacute;e entre le fichier et vos informations (raison sociale / SIRET).
+                                Votre compte recruteur est <strong>cr&eacute;&eacute; et actif</strong>. Connectez-vous ci-dessous pour acc&eacute;der &agrave; votre espace entreprise.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                <div class="hh-register-success-banner hh-register-success-banner--recruiter mb-4" th:if="${loginFlow == 'recruteur' and !loginDocMatch}" role="status">
+                    <div class="hh-register-success-banner__shine" aria-hidden="true"></div>
+                    <div class="hh-register-success-banner__content">
+                        <div class="hh-register-success-banner__icon" aria-hidden="true">&#10003;</div>
+                        <div>
+                            <h2 class="hh-register-success-banner__title">Inscription recruteur r&eacute;ussie</h2>
+                            <p class="hh-register-success-banner__text mb-0">
+                                Votre compte entreprise est <strong>cr&eacute;&eacute; et actif</strong>. Connectez-vous pour publier vos offres, suivre les candidatures et g&eacute;rer votre vivier.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                <div class="hh-register-success-banner hh-register-success-banner--candidate mb-4" th:if="${loginFlow == 'candidat'}" role="status">
+                    <div class="hh-register-success-banner__shine" aria-hidden="true"></div>
+                    <div class="hh-register-success-banner__content">
+                        <div class="hh-register-success-banner__icon" aria-hidden="true">&#10003;</div>
+                        <div>
+                            <h2 class="hh-register-success-banner__title">Bienvenue sur HireHub</h2>
+                            <p class="hh-register-success-banner__text mb-0">
+                                Votre compte <strong>candidat</strong> est pr&ecirc;t. Postulez aux offres, suivez vos candidatures et t&eacute;l&eacute;chargez vos documents en un clic.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                <div class="hh-register-success-banner hh-register-success-banner--neutral mb-4" th:if="${loginFlow != 'recruteur' and loginFlow != 'candidat'}" role="status">
+                    <div class="hh-register-success-banner__shine" aria-hidden="true"></div>
+                    <div class="hh-register-success-banner__content">
+                        <div class="hh-register-success-banner__icon" aria-hidden="true">&#10003;</div>
+                        <div>
+                            <h2 class="hh-register-success-banner__title">Inscription enregistr&eacute;e</h2>
+                            <p class="hh-register-success-banner__text mb-0">Vous pouvez maintenant vous connecter avec vos identifiants.</p>
+                        </div>
+                    </div>
+                </div>
+            </th:block>
+            <div class="alert alert-success" th:if="${passwordResetOk}" role="status">
+                Mot de passe mis &agrave; jour. Vous pouvez vous connecter avec votre nouveau mot de passe.
+            </div>
+            <div class="alert alert-danger" th:if="${loginOauthError}" role="alert">
+                Connexion Google impossible (email non fourni, non v&eacute;rifi&eacute;, ou configuration OAuth &agrave; compl&eacute;ter).
+            </div>
+            <div class="alert alert-danger" th:if="${loginBlocked}" role="alert">
+                Ce compte est d&eacute;sactiv&eacute;. Contactez l&rsquo;administrateur.
+            </div>
+            <div class="alert alert-danger" th:if="${loginCredentialError}" role="alert">
+                Email ou mot de passe invalide.
+            </div>
+            <div class="alert alert-danger" th:if="${loginRegisterError}">
+                <span th:switch="${loginRegisterErrorCode}">
+                    <span th:case="'email_taken'">Cet email est d&eacute;j&agrave; utilis&eacute;.</span>
+                    <span th:case="'missing_fields'">Champs obligatoires manquants.</span>
+                    <span th:case="'missing_file'">Le justificatif est obligatoire.</span>
+                    <span th:case="'recaptcha_failed'">Validation reCAPTCHA invalide. R&eacute;essayez ou v&eacute;rifiez la configuration (voir documentation).</span>
+                    <span th:case="'justificatif_mismatch'">Le justificatif ne correspond pas aux donn&eacute;es du formulaire (raison sociale / SIRET).</span>
+                    <span th:case="'strict_verification_unavailable'">V&eacute;rification documentaire indisponible pour le moment. R&eacute;essayez plus tard.</span>
+                    <span th:case="*">Impossible de finaliser l&rsquo;inscription.</span>
+                </span>
+            </div>
             <form method="post" th:action="@{/login}">
                 <div class="mb-3">
                     <label class="hh-form-label" for="email">Email</label>
@@ -21,10 +93,16 @@
                     <input type="password" id="password" name="password" class="form-control rounded-3 border-0 shadow-sm" autocomplete="current-password"/>
                 </div>
                 <button type="submit" class="btn hh-btn-primary w-100 rounded-pill mb-3">Se connecter</button>
+                <p class="text-center small mb-3">
+                    <a th:href="@{/forgot-password}">Mot de passe oublie ?</a>
+                </p>
                 <p class="text-center small text-muted mb-0">
                     Pas encore de compte ? <a th:href="@{/register}">Inscription</a>
                 </p>
             </form>
+            <a th:if="${googleSignInEnabled}" class="btn btn-outline-dark w-100 rounded-pill mb-2 hh-google-btn mt-3" th:href="@{/oauth2/authorization/google}">
+                Continuer avec Google
+            </a>
         </div>
     </div>
 </section>

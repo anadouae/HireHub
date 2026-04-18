@@ -3,40 +3,43 @@
 <body>
 <footer th:fragment="footer" class="hh-footer">
     <div class="container">
-        <div class="row g-4 align-items-start">
-            <div class="col-md-4">
-                <div class="hh-footer-brand">
+        <div class="row g-4 mb-4">
+            <div class="col-6 col-lg-3">
+                <div class="hh-footer-brand mb-2">
                     <span th:replace="~{fragments/logo :: logoFt}"></span>
-                    <span class="fs-5 fw-bold text-white">HireHub</span>
+                    <div class="fw-semibold">HireHub</div>
                 </div>
-                <p class="small mb-0" style="color: rgba(250,247,242,0.65); max-width: 280px;">
-                    Plateforme ATS — recrutement, candidatures et entretiens, propulsée par Spring.
-                </p>
+                <p class="hh-footer-tagline mb-0">L’ATS qui simplifie le recrutement : un parcours fluide pour les talents et les équipes RH.</p>
             </div>
-            <div class="col-6 col-md-4">
-                <h6 class="text-white text-uppercase small fw-semibold mb-3" style="letter-spacing: .08em;">Navigation</h6>
-                <nav class="nav flex-column hh-footer-nav">
-                    <a class="nav-link px-0 py-1" th:href="@{/}">Accueil</a>
-                    <a class="nav-link px-0 py-1" th:href="@{/offres}">Offres d’emploi</a>
-                    <a class="nav-link px-0 py-1" th:href="@{/candidat/mes-candidatures}">Mes candidatures</a>
-                    <a class="nav-link px-0 py-1" th:href="@{/recruteur/dashboard}">Espace recruteur</a>
-                    <a class="nav-link px-0 py-1" th:href="@{/register/recruteur}">Inscription recruteur</a>
-                    <a class="nav-link px-0 py-1" th:href="@{/admin/dashboard}">Administration</a>
-                    <a class="nav-link px-0 py-1" th:href="@{/login}">Connexion</a>
-                </nav>
+            <div class="col-6 col-lg-3">
+                <h6 class="hh-footer-title">Candidats</h6>
+                <div class="d-flex flex-column gap-1">
+                    <a th:href="@{/offres}">Parcourir les offres</a>
+                    <a th:href="@{/register/candidat}">Créer un compte</a>
+                    <a th:href="@{/candidat/dashboard}">Mon espace</a>
+                </div>
             </div>
-            <div class="col-6 col-md-4">
-                <h6 class="text-white text-uppercase small fw-semibold mb-3" style="letter-spacing: .08em;">Ressources</h6>
-                <nav class="nav flex-column hh-footer-nav">
-                    <a class="nav-link px-0 py-1" href="#">Aide</a>
-                    <a class="nav-link px-0 py-1" href="#">Confidentialité</a>
-                    <a class="nav-link px-0 py-1" href="#">Contact</a>
-                </nav>
+            <div class="col-6 col-lg-3">
+                <h6 class="hh-footer-title">Entreprises</h6>
+                <div class="d-flex flex-column gap-1">
+                    <a th:href="@{/register/recruteur}">Inscription recruteur</a>
+                    <a th:href="@{/recruteur/dashboard}">Espace recruteur</a>
+                    <a th:href="@{/recruteur/offres}">Mes offres</a>
+                    <a th:href="@{/support}">Demander une démo</a>
+                </div>
+            </div>
+            <div class="col-6 col-lg-3">
+                <h6 class="hh-footer-title">Légal</h6>
+                <div class="d-flex flex-column gap-1">
+                    <a th:href="@{/confidentialite}">Confidentialité</a>
+                    <a th:href="@{/faq}">FAQ</a>
+                    <a th:href="@{/support}">Support</a>
+                    <a th:href="@{/login}">Connexion</a>
+                </div>
             </div>
         </div>
-        <div class="hh-footer-bottom text-center text-md-start d-flex flex-column flex-md-row justify-content-between align-items-center gap-2">
-            <span>© <span th:text="${#dates.format(#dates.createNow(), 'yyyy')}">2026</span> HireHub — Projet JEE</span>
-            <span class="d-none d-md-inline">Microservices · PostgreSQL · Thymeleaf</span>
+        <div class="hh-footer-bottom text-center">
+            <span>© <span th:text="${#dates.format(#dates.createNow(), 'yyyy')}">2026</span> HireHub</span>
         </div>
     </div>
 </footer>

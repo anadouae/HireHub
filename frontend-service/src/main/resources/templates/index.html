@@ -13,101 +13,139 @@
         <div class="hero-orb hero-orb--1" aria-hidden="true"></div>
         <div class="hero-orb hero-orb--2" aria-hidden="true"></div>
         <div class="hero-orb hero-orb--3" aria-hidden="true"></div>
+        <div class="hero-orb hero-orb--4" aria-hidden="true"></div>
         <div class="hero-grid" aria-hidden="true"></div>
 
         <div class="container hero-content">
-            <div class="row align-items-center g-5">
-                <div class="col-lg-7">
+            <div class="row align-items-center g-4 g-lg-5">
+                <div class="col-lg-6">
                     <div class="hero-badge">
                         <span class="d-inline-block rounded-circle bg-success" style="width:8px;height:8px;"></span>
-                        Une plateforme, deux parcours — candidats &amp; entreprises
+                        ATS tout-en-un
                     </div>
-                    <h1 class="hero-title">
-                        Avancez votre carrière,<br/>
-                        <span class="text-gradient">accélérez vos recrutements</span>
+                    <h1 class="hero-title hero-title-compact">
+                        <span class="hero-title-kicker">Postuler ou recruter :</span>
+                        <span class="d-block">un seul endroit <span class="text-gradient">clair</span>.</span>
                     </h1>
-                    <p class="hero-lead mb-2">
-                        <strong>Candidats :</strong> parcourez des offres sélectionnées, postulez en un clic avec votre CV,
-                        suivez chaque étape jusqu’à l’entretien — tout depuis un espace clair et moderne.
-                    </p>
-                    <p class="hero-lead mb-0">
-                        <strong>Entreprises :</strong> inscrivez-vous en tant que <strong>recruteur</strong> (formulaire dédié), accédez tout de suite à votre espace,
-                        puis débloquez publication et pipeline dès l’<strong>approbation admin</strong> — vous êtes informé par email.
-                    </p>
+                    <p class="hero-lead hero-lead-one mb-3">Offres, candidatures et statuts — sans dispersion.</p>
                     <div class="hero-cta">
                         <a class="hh-btn-primary" th:href="@{/offres}">
-                            Explorer les offres
+                            Voir les offres
                             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                 <path d="M5 12h14M12 5l7 7-7 7"/>
                             </svg>
                         </a>
-                        <a class="hh-btn-secondary" th:href="@{/register/candidat}">S’inscrire — candidat</a>
+                        <a class="hh-btn-secondary" th:href="@{/register/candidat}">Candidat</a>
                         <a class="hh-btn-secondary border-2" style="background: rgba(255,255,255,.85);" th:href="@{/register/recruteur}">
-                            S’inscrire — recruteur
+                            Recruteur
                         </a>
                         <a class="hh-btn-primary" th:href="@{/recruteur/dashboard}" th:if="${uiMenuRecruteur}">
-                            Mon espace recruteur
+                            Mon espace
                         </a>
                     </div>
-                    <div class="hero-stats">
-                        <div class="stat-card">
-                            <div class="stat-value">100%</div>
-                            <div class="stat-label">Suivi des étapes</div>
-                        </div>
-                        <div class="stat-card">
-                            <div class="stat-value">ATS</div>
-                            <div class="stat-label">Pipeline clair</div>
-                        </div>
-                        <div class="stat-card">
-                            <div class="stat-value">24/7</div>
-                            <div class="stat-label">Candidature en ligne</div>
-                        </div>
-                    </div>
                 </div>
-                <div class="col-lg-5 d-none d-lg-block hero-visual">
-                    <div class="hero-card-float">
-                        <div class="d-flex align-items-center gap-3 mb-3 pb-3 border-bottom" style="border-color: rgba(109,40,217,0.15)!important;">
+                <div class="col-lg-6 d-none d-lg-flex hero-visual justify-content-center align-items-center">
+                    <div class="hero-logo-showcase text-center">
+                        <div class="hero-logo-glow" aria-hidden="true"></div>
+                        <div class="hero-logo-svg-wrap d-inline-block">
                             <span th:replace="~{fragments/logo :: logoHero}"></span>
-                            <div>
-                                <div class="fw-semibold" style="color: #4c1d95;">Tableau de bord</div>
-                                <small class="text-muted">Vue recruteur</small>
-                            </div>
                         </div>
-                        <div class="mb-2">
-                            <div class="d-flex justify-content-between small mb-1">
-                                <span class="text-muted">Pipeline</span>
-                                <span class="fw-medium" style="color: #6d28d9;">+12%</span>
-                            </div>
-                            <div class="progress rounded-pill" style="height: 8px;">
-                                <div class="progress-bar rounded-pill" role="progressbar"
-                                     style="width: 72%; background: linear-gradient(90deg, #7c3aed, #a78bfa);"></div>
-                            </div>
-                        </div>
-                        <div class="row g-2 text-center small mt-3">
-                            <div class="col-4">
-                                <div class="rounded-3 p-2" style="background: rgba(109,40,217,0.08);">
-                                    <div class="fw-bold" style="color: #5b21b6;">48</div>
-                                    <div class="text-muted" style="font-size: 0.7rem;">Offres</div>
-                                </div>
-                            </div>
-                            <div class="col-4">
-                                <div class="rounded-3 p-2" style="background: rgba(109,40,217,0.08);">
-                                    <div class="fw-bold" style="color: #5b21b6;">320</div>
-                                    <div class="text-muted" style="font-size: 0.7rem;">CV</div>
-                                </div>
-                            </div>
-                            <div class="col-4">
-                                <div class="rounded-3 p-2" style="background: rgba(109,40,217,0.08);">
-                                    <div class="fw-bold" style="color: #5b21b6;">94</div>
-                                    <div class="text-muted" style="font-size: 0.7rem;">Entretiens</div>
-                                </div>
-                            </div>
-                        </div>
+                        <div class="hero-logo-wordmark mt-3">HireHub</div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
+
+    <section class="hh-home-features">
+        <div class="container py-5">
+            <div class="text-center mb-4">
+                <h2 class="hh-home-features-title mb-2">Pourquoi HireHub</h2>
+                <p class="hh-home-features-lead mb-0">Simple, rapide, lisible.</p>
+            </div>
+            <div class="row g-4 hh-features-grid">
+                <div class="col-md-6 col-xl-3">
+                    <div class="hh-feature-glass hh-feature-glass--cyan">
+                        <div class="hh-feature-glass-icon" aria-hidden="true">◎</div>
+                        <h3 class="h6 mb-2">Visibilité</h3>
+                        <p class="small mb-0">Offres structurées, moins de bruit.</p>
+                    </div>
+                </div>
+                <div class="col-md-6 col-xl-3">
+                    <div class="hh-feature-glass hh-feature-glass--pink">
+                        <div class="hh-feature-glass-icon" aria-hidden="true">▣</div>
+                        <h3 class="h6 mb-2">Centralisation</h3>
+                        <p class="small mb-0">Candidatures et statuts au même endroit.</p>
+                    </div>
+                </div>
+                <div class="col-md-6 col-xl-3">
+                    <div class="hh-feature-glass hh-feature-glass--amber">
+                        <div class="hh-feature-glass-icon" aria-hidden="true">◇</div>
+                        <h3 class="h6 mb-2">Cadre clair</h3>
+                        <p class="small mb-0">CV et échanges mieux encadrés.</p>
+                    </div>
+                </div>
+                <div class="col-md-6 col-xl-3">
+                    <div class="hh-feature-glass hh-feature-glass--mint">
+                        <div class="hh-feature-glass-icon" aria-hidden="true">✦</div>
+                        <h3 class="h6 mb-2">Support</h3>
+                        <p class="small mb-0">Aide 7j/7 pour avancer vite.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="hh-home-cta-band hh-animate-on-scroll">
+        <div class="container py-5">
+            <div class="hh-home-cta-inner text-center text-lg-start">
+                <div class="row align-items-center g-4">
+                    <div class="col-lg-8">
+                        <h2 class="hh-home-cta-title mb-2">C’est parti ?</h2>
+                        <p class="hh-home-cta-text mb-0">Compte en deux minutes, puis offres ou publications.</p>
+                    </div>
+                    <div class="col-lg-4 text-lg-end">
+                        <a class="btn hh-btn-primary rounded-pill me-lg-2 mb-2 mb-lg-0" th:href="@{/register}">Créer un compte</a>
+                        <a class="btn btn-light rounded-pill fw-semibold" th:href="@{/login}">Se connecter</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    <script>
+        (function () {
+            if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+                document.querySelectorAll(".hh-animate-on-scroll").forEach(function (el) {
+                    el.classList.add("hh-animate-on-scroll--in");
+                });
+                return;
+            }
+            var nodes = document.querySelectorAll(".hh-animate-on-scroll");
+            if (!nodes.length) {
+                return;
+            }
+            if (!("IntersectionObserver" in window)) {
+                nodes.forEach(function (n) {
+                    n.classList.add("hh-animate-on-scroll--in");
+                });
+                return;
+            }
+            var io = new IntersectionObserver(
+                function (entries) {
+                    entries.forEach(function (e) {
+                        if (e.isIntersecting) {
+                            e.target.classList.add("hh-animate-on-scroll--in");
+                            io.unobserve(e.target);
+                        }
+                    });
+                },
+                { rootMargin: "0px 0px 25% 0px", threshold: 0.01 }
+            );
+            nodes.forEach(function (n) {
+                io.observe(n);
+            });
+        })();
+    </script>
 </section>
 </body>
 </html>

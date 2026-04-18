@@ -17,6 +17,7 @@
         <module>config-server</module>
         <module>api-gateway</module>
         <module>auth-service</module>
+        <module>verification-service</module>
         <module>offre-service</module>
         <module>candidature-service</module>
         <module>notification-service</module>
@@ -62,5 +63,16 @@
                 </plugin>
             </plugins>
         </pluginManagement>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.13.0</version>
+                <configuration>
+                    <release>${java.version}</release>
+                    <parameters>true</parameters>
+                </configuration>
+            </plugin>
+        </plugins>
     </build>
 </project>

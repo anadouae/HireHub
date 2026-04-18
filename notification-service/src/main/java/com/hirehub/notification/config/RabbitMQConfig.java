@@ -119,6 +119,17 @@ public class RabbitMQConfig {
         );
     }
 
+    @Bean
+    public Queue notificationAdminUserQueue() {
+        log.info("[QUEUE] Création: {}", RabbitMQConstants.QUEUE_NOTIFICATION_ADMIN_USER);
+        return new Queue(
+                RabbitMQConstants.QUEUE_NOTIFICATION_ADMIN_USER,
+                true,
+                false,
+                false
+        );
+    }
+
     // ═══════════════════════════════════════════════════════════════
     // 3-  CONFIGURATION DES BINDINGS
     //     (connexions entre exchange et queues)
@@ -226,6 +237,30 @@ public class RabbitMQConfig {
             .bind(notificationRecruiterQueue())
             .to(hirehubExchange)
             .with(RabbitMQConstants.ROUTING_RECRUITER_REJECTED);
+    }
+
+    @Bean
+    public Binding bindingUserBlocked(
+            @Qualifier("notificationAdminUserQueue") Queue notificationAdminUserQueue,
+            TopicExchange hirehubExchange
+    ) {
+        log.info("✅ [BINDING] {} -> {}", RabbitMQConstants.ROUTING_USER_BLOCKED, RabbitMQConstants.QUEUE_NOTIFICATION_ADMIN_USER);
+        return BindingBuilder
+                .bind(notificationAdminUserQueue())
+                .to(hirehubExchange)
+                .with(RabbitMQConstants.ROUTING_USER_BLOCKED);
+    }
+
+    @Bean
+    public Binding bindingUserDeleted(
+            @Qualifier("notificationAdminUserQueue") Queue notificationAdminUserQueue,
+            TopicExchange hirehubExchange
+    ) {
+        log.info("✅ [BINDING] {} -> {}", RabbitMQConstants.ROUTING_USER_DELETED, RabbitMQConstants.QUEUE_NOTIFICATION_ADMIN_USER);
+        return BindingBuilder
+                .bind(notificationAdminUserQueue())
+                .to(hirehubExchange)
+                .with(RabbitMQConstants.ROUTING_USER_DELETED);
     }
 
     /*@Bean

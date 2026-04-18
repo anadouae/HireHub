@@ -1,11 +1,61 @@
 server:
   port: 8086
+  error:
+    include-message: always
+    include-binding-errors: always
 
 spring:
   application:
     name: frontend-service
   thymeleaf:
     cache: false
+  datasource:
+    url: jdbc:postgresql://localhost:55432/hirehub_auth
+    username: hirehub
+    password: hirehub
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+    open-in-view: false
+  rabbitmq:
+    host: localhost
+    port: 5672
+    username: hirehub
+    password: hirehub
+
+  # Google OAuth : variables d'environnement ou fichier application-local.yml (non versionne)
+  # URI redirection Console : http://localhost:8086/login/oauth2/code/google
+  security:
+    oauth2:
+      client:
+        registration:
+          google:
+            client-id: ${GOOGLE_OAUTH_CLIENT_ID:}
+            client-secret: ${GOOGLE_OAUTH_CLIENT_SECRET:}
+            scope: openid, profile, email
+
+  # SMTP : definir MAIL_HOST, MAIL_PORT, MAIL_USERNAME, MAIL_PASSWORD ou application-local.yml
+  mail:
+    host: ${MAIL_HOST:smtp.gmail.com}
+    port: ${MAIL_PORT:587}
+    username: ${MAIL_USERNAME:}
+    password: ${MAIL_PASSWORD:}
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+
+hirehub:
+  api-base-url: http://localhost:8081
+  public-base-url: http://localhost:8086
+  recaptcha:
+    site-key: ${RECAPTCHA_SITE_KEY:}
 
 eureka:
   client:

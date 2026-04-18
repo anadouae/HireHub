@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="fr" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
       layout:decorate="~{layout}">
 <head>
     <title>Mon profil</title>
@@ -8,20 +9,19 @@
 <section layout:fragment="content" class="page-inner">
     <div class="container" style="max-width: 640px;">
         <h1 class="page-hero-title">Mon profil</h1>
-        <p class="page-hero-sub" th:if="${uiMenuCandidat}">
-            Compte <strong>candidat</strong> : menu <strong>Mon compte</strong> pour le profil et la déconnexion.
-            Pour recruter, créez un compte séparé via <a th:href="@{/register/recruteur}">inscription recruteur</a>.
+        <p class="page-hero-sub" sec:authorize="hasRole('CANDIDAT')">
+            Compte <strong>candidat</strong> : gérez vos informations depuis cet espace.
         </p>
 
         <form class="hh-card">
             <h2 class="h6 text-uppercase mb-3" style="color: var(--hh-violet-800);">Informations personnelles</h2>
             <div class="mb-3">
                 <label class="hh-form-label" for="nom">Nom complet</label>
-                <input type="text" id="nom" class="form-control rounded-3 border-0 shadow-sm" value="Jean Dupont"/>
+                <input type="text" id="nom" class="form-control rounded-3 border-0 shadow-sm" th:value="${#authentication.principal.fullName}" readonly/>
             </div>
             <div class="mb-3">
                 <label class="hh-form-label" for="email">Email</label>
-                <input type="email" id="email" class="form-control rounded-3 border-0 shadow-sm" value="jean.dupont@email.com"/>
+                <input type="email" id="email" class="form-control rounded-3 border-0 shadow-sm" th:value="${#authentication.name}" readonly/>
             </div>
             <div class="mb-3">
                 <label class="hh-form-label" for="tel">Téléphone</label>

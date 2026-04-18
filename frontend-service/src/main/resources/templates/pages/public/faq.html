@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout}">
+<head>
+    <title>FAQ</title>
+</head>
+<body>
+<section layout:fragment="content" class="page-inner">
+    <div class="container" style="max-width: 900px;">
+        <h1 class="page-hero-title">FAQ</h1>
+        <p class="page-hero-sub">Questions frequentes des candidats et recruteurs.</p>
+        <div class="hh-card">
+            <h2 class="h6 mb-1" style="color: var(--hh-violet-900);">Comment creer un compte ?</h2>
+            <p class="text-muted">Utilisez la page inscription puis choisissez le profil candidat ou recruteur.</p>
+            <h2 class="h6 mb-1 mt-3" style="color: var(--hh-violet-900);">Comment reinitialiser mon mot de passe ?</h2>
+            <p class="text-muted">Depuis la page connexion, cliquez sur "Mot de passe oublie ?".</p>
+            <h2 class="h6 mb-1 mt-3" style="color: var(--hh-violet-900);">Comment contacter l'equipe ?</h2>
+            <p class="text-muted mb-0">Rendez-vous sur la page <a th:href="@{/support}">Support</a> pour l’e-mail et le numéro de téléphone.</p>
+        </div>
+    </div>
+</section>
+</body>
+</html>

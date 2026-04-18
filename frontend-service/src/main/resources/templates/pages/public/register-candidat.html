@@ -10,32 +10,76 @@
         <nav class="mb-3" aria-label="breadcrumb">
             <ol class="breadcrumb mb-0">
                 <li class="breadcrumb-item"><a th:href="@{/register}">Inscription</a></li>
-                <li class="breadcrumb-item active">Candidat</li>
+                <li class="breadcrumb-item"><a th:href="@{/register/candidat/email}">V&eacute;rification</a></li>
+                <li class="breadcrumb-item active">Finalisation</li>
             </ol>
         </nav>
         <h1 class="page-hero-title text-center">Inscription candidat</h1>
-        <p class="page-hero-sub text-center">Compte dédié à la recherche d’emploi et au suivi des candidatures.</p>
+        <p class="page-hero-sub text-center">Email v&eacute;rifi&eacute;. Choisissez votre mot de passe pour cr&eacute;er le compte.</p>
 
         <div class="hh-card">
-            <form method="post" th:action="@{/api/v1/auth/register/candidat}">
+            <div class="mb-3 p-3 rounded-3" style="background: rgba(109,40,217,0.06);">
+                <p class="small text-muted mb-1">Nom</p>
+                <p class="mb-0 fw-medium" th:text="${signupNom}">-</p>
+                <p class="small text-muted mb-1 mt-2">Email</p>
+                <p class="mb-0 fw-medium" th:text="${signupEmail}">-</p>
+            </div>
+            <form id="formRegisterCandidate" method="post" th:action="${apiBaseUrl + '/api/v1/auth/register/candidat'}">
                 <input type="hidden" name="role" value="CANDIDAT"/>
-                <div class="mb-3">
-                    <label class="hh-form-label" for="nom">Nom complet</label>
-                    <input type="text" id="nom" name="nom" class="form-control rounded-3 border-0 shadow-sm" required/>
-                </div>
-                <div class="mb-3">
-                    <label class="hh-form-label" for="email">Email</label>
-                    <input type="email" id="email" name="email" class="form-control rounded-3 border-0 shadow-sm" required/>
-                </div>
+                <input type="hidden" name="frontendRedirect" value="true"/>
+                <input type="hidden" name="recaptchaToken" id="recaptchaTokenCandidate"/>
+                <input type="hidden" name="nomComplet" th:value="${signupNom}"/>
+                <input type="hidden" name="email" th:value="${signupEmail}"/>
                 <div class="mb-4">
                     <label class="hh-form-label" for="password">Mot de passe</label>
-                    <input type="password" id="password" name="password" class="form-control rounded-3 border-0 shadow-sm" required/>
+                    <input type="password" id="password" name="password" class="form-control rounded-3 border-0 shadow-sm" required minlength="8" autocomplete="new-password"/>
                 </div>
-                <button type="submit" class="btn hh-btn-primary w-100 rounded-pill mb-2">Créer mon compte candidat</button>
+                <button type="submit" class="btn hh-btn-primary w-100 rounded-pill mb-2">Cr&eacute;er mon compte candidat</button>
+                <a class="btn btn-link w-100 small" th:href="@{/register/candidat/email}">Changer d&rsquo;email (recommencer)</a>
                 <a class="btn btn-link w-100 small" th:href="@{/register}">Autre type de compte</a>
             </form>
         </div>
     </div>
+    <th:block th:if="${recaptchaSiteKey != null and !#strings.isEmpty(recaptchaSiteKey)}">
+        <script th:src="|https://www.google.com/recaptcha/api.js?render=${recaptchaSiteKey}|" async defer></script>
+        <script th:inline="javascript">
+            /*<![CDATA[*/
+            document.addEventListener('DOMContentLoaded', function () {
+                const siteKey = /*[[${recaptchaSiteKey}]]*/ '';
+                const form = document.getElementById('formRegisterCandidate');
+                const tokenInput = document.getElementById('recaptchaTokenCandidate');
+                if (!form || !siteKey || !tokenInput) return;
+                form.addEventListener('submit', function (e) {
+                    if (form.dataset.recaptchaDone === '1') return;
+                    e.preventDefault();
+                    var attempts = 0;
+                    function runExecute() {
+                        attempts++;
+                        if (attempts > 120) {
+                            alert('reCAPTCHA ne se charge pas. Verifiez la connexion ou desactivez un bloqueur de scripts.');
+                            return;
+                        }
+                        if (typeof grecaptcha === 'undefined' || !grecaptcha.execute) {
+                            setTimeout(runExecute, 50);
+                            return;
+                        }
+                        grecaptcha.ready(function () {
+                            grecaptcha.execute(siteKey, {action: 'register'}).then(function (token) {
+                                tokenInput.value = token;
+                                form.dataset.recaptchaDone = '1';
+                                form.requestSubmit();
+                            }).catch(function () {
+                                form.dataset.recaptchaDone = '';
+                                alert('reCAPTCHA indisponible. Rechargez la page et reessayez.');
+                            });
+                        });
+                    }
+                    runExecute();
+                });
+            });
+            /*]]>*/
+        </script>
+    </th:block>
 </section>
 </body>
 </html>

@@ -170,6 +170,17 @@ public class QueueConsumer {
             throw new RuntimeException("Erreur traitement décision recruteur", e);
         }
     }
+
+    @RabbitListener(queues = RabbitMQConstants.QUEUE_NOTIFICATION_ADMIN_USER)
+    public void handleAdminUserAction(@Payload String message) {
+        try {
+            log.info("[ADMIN USER ACTION] Message reçu: {}", message);
+            log.info("[ADMIN USER ACTION] Audit/notification traitée");
+        } catch (Exception e) {
+            log.error("[ADMIN USER ACTION] Erreur lors du traitement: {}", e.getMessage(), e);
+            throw new RuntimeException("Erreur traitement action admin utilisateur", e);
+        }
+    }
 }
 
 

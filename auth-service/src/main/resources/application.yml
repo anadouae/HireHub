@@ -4,8 +4,52 @@ server:
 spring:
   application:
     name: auth-service
+  datasource:
+    url: jdbc:postgresql://localhost:55432/hirehub_auth
+    username: hirehub
+    password: hirehub
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+    open-in-view: false
+  servlet:
+    multipart:
+      max-file-size: 5MB
+      max-request-size: 5MB
+  rabbitmq:
+    host: localhost
+    port: 5672
+    username: hirehub
+    password: hirehub
 
 eureka:
   client:
     service-url:
       defaultZone: http://localhost:8761/eureka/
+
+hirehub:
+  frontend-base-url: http://localhost:8086
+  recaptcha:
+    enabled: true
+    # Cle publique (meme valeur que frontend) — obligatoire pour la verification Enterprise
+    site-key: "6LeGD74sAAAAAIMY9Dc-Xfi9Rr1dOfMVps2iwCmo"
+    # Cle secrete (console reCAPTCHA) — utilisee seulement si la verification Enterprise n'est pas configuree
+    secret-key: "6LeGD74sAAAAAL03vQkaSK-HDeBjvhu4i_bBPzBF"
+    verify-url: https://www.google.com/recaptcha/api/siteverify
+    # Google Cloud : activer "reCAPTCHA Enterprise API" puis creer une cle API restreinte a ce service
+    gcp-project-id: ""
+    gcp-api-key: ""
+  admin:
+    email: admin@hirehub.local
+    password: Admin@12345
+    full-name: Admin HireHub
+  recruiter-verification:
+    strict-enabled: true
+    ocr:
+      api-key: "K87844108488957"
+      endpoint: ${OCR_SPACE_ENDPOINT:https://api.ocr.space/parse/image}
+      language: ${OCR_SPACE_LANGUAGE:fre}

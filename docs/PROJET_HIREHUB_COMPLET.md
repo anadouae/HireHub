@@ -2,6 +2,8 @@
 
 Document de référence pour le binôme étendu : **4 développeurs**, base **PostgreSQL 17**, architecture **microservices Spring Cloud**.
 
+**Carte des pages par espace (accueil, public, candidat, recruteur, admin) :** `docs/ESPACES_ET_PAGES.md`.
+
 ---
 
 ## 1. Vision produit
