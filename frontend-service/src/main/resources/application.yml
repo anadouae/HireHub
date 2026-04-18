@@ -5,6 +5,9 @@ server:
     include-binding-errors: always
 
 spring:
+  # Secrets locaux : creez application-local.yml (non versionne) avec vos cles Google / SMTP / reCAPTCHA
+  config:
+    import: optional:classpath:application-local.yml
   application:
     name: frontend-service
   thymeleaf:
