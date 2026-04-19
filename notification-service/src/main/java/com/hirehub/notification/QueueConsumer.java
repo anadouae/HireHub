@@ -134,15 +134,14 @@ public class QueueConsumer {
 
     /**
      * ╔────────────────────────────────────────────────────────────╗
-     * ║  LISTENER 4: Décisions recruteur (approbation/rejet)       ║
+     * ║  LISTENER 4: Messages recruteur (routings legacy / notif)     ║
      * ╚────────────────────────────────────────────────────────────╝
      *
      * Événements:
-     * - recruiter.request.approved (admin approuve la demande recruteur)
-     * - recruiter.request.rejected (admin rejette la demande recruteur)
+     * - recruiter.request.approved / rejected (routings historiques ; le produit ne repose pas sur une "approbation admin inscription")
      *
-     * Source: auth-service (publie quand l'admin prend une décision)
-     * Action: Envoyer email pour notifier de l'approbation/rejet
+     * Source: typiquement auth-service ou autre publisher d'evenements metier
+     * Action: Envoyer email si ces routings sont encore utilises
      *
      * Exemple de message JSON attendu:
      * {

@@ -104,9 +104,9 @@ public class RabbitMQConfig {
     }
 
     /**
-     * Queue pour les notifications des DÉCISIONS RECRUTEUR
+     * Queue pour les notifications recruteur (routings legacy / optionnels).
      * Événements: recruiter.request.approved, recruiter.request.rejected
-     * Consumer: NotificationService (envoie email d'approbation/rejet)
+     * Consumer: NotificationService — pas une file "admin approuve inscription".
      */
     @Bean
     public Queue notificationRecruiterQueue() {
@@ -220,7 +220,7 @@ public class RabbitMQConfig {
     /**
      * Binding 4b: recruiter.request.rejected -> QUEUE_NOTIFICATION_RECRUITER
      *
-     * Quand auth-service publie "recruiter.request.rejected",
+     * Si un publisher emet ce routing,
      * le message arrive AUSSI dans cette queue (même queue pour 2 events).
      *
      * Ceci dmontre la flexibilit du Topic Exchange:

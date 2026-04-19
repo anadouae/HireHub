@@ -16,6 +16,8 @@
         </nav>
         <h1 class="page-hero-title text-center">V&eacute;rifier votre email</h1>
         <p class="page-hero-sub text-center">Indiquez votre nom et votre email professionnel. Nous vous enverrons un code &agrave; 6 chiffres avant le formulaire entreprise.</p>
+        <th:block th:if="${registerErrorFlag}"
+                  th:replace="~{fragments/recruiter-register-error-alert :: alertMount(showSessionLostHint=${true})}"/>
         <div class="alert alert-danger" th:if="${signupEmailError == 'taken'}" role="alert">
             Cet email est d&eacute;j&agrave; utilis&eacute;. Connectez-vous ou choisissez un autre email.
         </div>

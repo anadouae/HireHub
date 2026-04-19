@@ -16,63 +16,7 @@
         <h1 class="page-hero-title text-center">Inscription recruteur</h1>
         <p class="page-hero-sub text-center">Créez votre compte recruteur avec justificatif entreprise.</p>
 
-        <div id="hh-recruiter-alert-mount"
-             class="hh-recruiter-alert-mount"
-             th:attr="data-hh-server-rendered=${(registerErrorFlag == true) ? '1' : '0'}">
-            <div class="hh-reg-rec-alert mb-3" th:if="${registerErrorFlag}" role="alert">
-                <div class="hh-reg-rec-alert__inner">
-                    <span class="hh-reg-rec-alert__icon" aria-hidden="true">!</span>
-                    <div>
-                        <strong class="d-block mb-1 hh-reg-rec-alert__title">Inscription non finalis&eacute;e</strong>
-                        <span th:switch="${registerErrorCode}">
-                            <th:block th:case="'justificatif_mismatch'">
-                                <span th:switch="${registerErrorDetail}">
-                                    <span th:case="'both'">
-                                        Le document ne contient pas la <strong>raison sociale</strong> saisie ni le <strong>SIRET</strong> indiqu&eacute;.
-                                        V&eacute;rifiez que le fichier correspond bien &agrave; votre entreprise (KBIS, extrait RC, etc.).
-                                    </span>
-                                    <span th:case="'raison'">
-                                        La <strong>raison sociale</strong> du formulaire n&rsquo;appara&icirc;t pas clairement dans le texte extrait du justificatif.
-                                        Corrigez l&rsquo;orthographe ou joignez un document plus r&eacute;cent / plus lisible.
-                                    </span>
-                                    <span th:case="'siret'">
-                                        Le <strong>SIRET</strong> saisi n&rsquo;a pas &eacute;t&eacute; retrouv&eacute; dans le document.
-                                        V&eacute;rifiez les 14 chiffres ou fournissez un justificatif o&ugrave; le num&eacute;ro est visible.
-                                    </span>
-                                    <span th:case="*">
-                                        Le <strong>justificatif</strong> ne correspond pas aux informations saisies (raison sociale et/ou SIRET).
-                                    </span>
-                                </span>
-                                <strong class="d-block mt-2">Aucun compte n&rsquo;a &eacute;t&eacute; cr&eacute;&eacute;.</strong>
-                                <span class="small d-block mt-1 opacity-90">Corrigez le fichier ou les champs, puis renvoyez le formulaire.</span>
-                            </th:block>
-                            <span th:case="'justificatif_format'">
-                                Format de fichier non accept&eacute;. Utilisez un <strong>PDF, JPG ou PNG</strong> conforme.
-                                <strong class="d-block mt-2">Aucun compte n&rsquo;a &eacute;t&eacute; cr&eacute;&eacute;.</strong>
-                            </span>
-                            <span th:case="'justificatif_ocr'">
-                                Le texte du document n&rsquo;a pas pu &ecirc;tre lu automatiquement. Essayez un <strong>PDF plus net</strong> ou une <strong>photo</strong> bien contrast&eacute;e.
-                                <strong class="d-block mt-2">Aucun compte n&rsquo;a &eacute;t&eacute; cr&eacute;&eacute;.</strong>
-                            </span>
-                            <span th:case="'justificatif_lecture'">
-                                Impossible de lire le fichier joint. V&eacute;rifiez qu&rsquo;il n&rsquo;est pas corrompu et r&eacute;essayez.
-                                <strong class="d-block mt-2">Aucun compte n&rsquo;a &eacute;t&eacute; cr&eacute;&eacute;.</strong>
-                            </span>
-                            <span th:case="'justificatif_invalide'">
-                                Le justificatif n&rsquo;a pas pu &ecirc;tre valid&eacute;. V&eacute;rifiez le document et les champs.
-                                <strong class="d-block mt-2">Aucun compte n&rsquo;a &eacute;t&eacute; cr&eacute;&eacute;.</strong>
-                            </span>
-                            <span th:case="'missing_file'">Le fichier justificatif est obligatoire. <strong>Aucun compte n'a &eacute;t&eacute; cr&eacute;&eacute;.</strong></span>
-                            <span th:case="'missing_fields'">Des champs obligatoires sont manquants. <strong>Aucun compte n'a &eacute;t&eacute; cr&eacute;&eacute;.</strong></span>
-                            <span th:case="'recaptcha_failed'">La v&eacute;rification reCAPTCHA a &eacute;chou&eacute;. R&eacute;essayez. <strong>Aucun compte n'a &eacute;t&eacute; cr&eacute;&eacute;.</strong></span>
-                            <span th:case="'email_taken'">Cet email est d&eacute;j&agrave; utilis&eacute;. Choisissez un autre email ou connectez-vous.</span>
-                            <span th:case="'strict_verification_unavailable'">La v&eacute;rification automatique du document est temporairement indisponible. R&eacute;essayez plus tard.</span>
-                            <span th:case="*">Impossible de cr&eacute;er le compte. R&eacute;essayez ou contactez le support.</span>
-                        </span>
-                    </div>
-                </div>
-            </div>
-        </div>
+        <th:block th:replace="~{fragments/recruiter-register-error-alert :: alertMount(showSessionLostHint=${false})}"/>
 
         <div class="hh-card">
             <form id="formRegisterRecruiter" method="post" enctype="multipart/form-data" th:action="${apiBaseUrl + '/api/v1/auth/register/recruteur'}">

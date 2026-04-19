@@ -57,12 +57,12 @@ public final class RabbitMQConstants {
     ///Consommé par : notification-service → envoie email date/heure/lieu
     public static final String ROUTING_ENTRETIEN_PLANIFIE   = "entretien.planifie";
 
-    ///Publié par : auth-service, quand l'admin approuve une demande recruteur
-    ///Consommé par : notification-service → envoie email "Vous êtes maintenant recruteur"
+    ///(Legacy / optionnel) Publié si le produit notifie un passage en "recruteur actif" — pas une etape admin "approuver inscription".
+    ///Consommé par : notification-service → email eventuel
     public static final String ROUTING_RECRUITER_APPROVED   = "recruiter.request.approved";
 
-    ///Publié par : auth-service, quand l'admin rejette une demande recruteur
-    ///Consommé par : notification-service → envoie email "Demande refusée"
+    ///(Legacy / optionnel) Publié si le produit notifie un refus / restriction — pas une file admin d'inscription.
+    ///Consommé par : notification-service → email eventuel
     public static final String ROUTING_RECRUITER_REJECTED   = "recruiter.request.rejected";
 
     ///Publié par : auth-service, quand un recruteur finit l'inscription

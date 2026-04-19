@@ -105,24 +105,50 @@ public class RegistrationVerificationController {
             @RequestParam(value = "code", required = false) String registerErrorCode,
             @RequestParam(value = "detail", required = false) String registerErrorDetail,
             HttpSession session,
-            Model model
+            Model model,
+            RedirectAttributes redirectAttributes
     ) {
         SignupSessionVerified v = verifiedOrNull(session, ROLE_RECRUTEUR);
         if (v == null) {
+            /*
+             * Le POST inscription part vers auth-service (autre origine). Si la session HTTP
+             * du front a expire ou si l'utilisateur ouvre 127.0.0.1 au lieu de localhost, la
+             * verification email n'est plus en session : sans ce bloc, la redirection vers
+             * /register/recruteur/email efface les query params d'erreur et aucun message ne s'affiche.
+             */
+            if (StringUtils.hasText(registerError)) {
+                redirectAttributes.addFlashAttribute("authRecruiterRegisterError", Boolean.TRUE);
+                redirectAttributes.addFlashAttribute(
+                        "authRecruiterRegisterErrorCode",
+                        StringUtils.hasText(registerErrorCode) ? registerErrorCode : ""
+                );
+                redirectAttributes.addFlashAttribute(
+                        "authRecruiterRegisterErrorDetail",
+                        StringUtils.hasText(registerErrorDetail) ? registerErrorDetail : ""
+                );
+            }
             return "redirect:/register/recruteur/email";
         }
         model.addAttribute("signupNom", v.getNomComplet());
         model.addAttribute("signupEmail", v.getEmail());
-        boolean err = registerError != null && !registerError.isBlank();
+        boolean err = StringUtils.hasText(registerError);
         model.addAttribute("registerErrorFlag", err);
-        model.addAttribute("registerErrorCode", err && registerErrorCode != null ? registerErrorCode : "");
-        model.addAttribute("registerErrorDetail", err && registerErrorDetail != null ? registerErrorDetail : "");
+        model.addAttribute("registerErrorCode", err && StringUtils.hasText(registerErrorCode) ? registerErrorCode : "");
+        model.addAttribute("registerErrorDetail", err && StringUtils.hasText(registerErrorDetail) ? registerErrorDetail : "");
         return "pages/public/register-recruteur";
     }
 
     @GetMapping("/register/recruteur/email")
-    public String registerRecruteurEmail(HttpSession session) {
+    public String registerRecruteurEmail(HttpSession session, Model model) {
         session.removeAttribute(RegistrationSessionKeys.VERIFIED);
+        Boolean authErr = (Boolean) model.asMap().get("authRecruiterRegisterError");
+        if (Boolean.TRUE.equals(authErr)) {
+            model.addAttribute("registerErrorFlag", true);
+            Object code = model.asMap().get("authRecruiterRegisterErrorCode");
+            Object detail = model.asMap().get("authRecruiterRegisterErrorDetail");
+            model.addAttribute("registerErrorCode", code != null ? code.toString() : "");
+            model.addAttribute("registerErrorDetail", detail != null ? detail.toString() : "");
+        }
         return "pages/public/register-recruteur-step-email";
     }
 
