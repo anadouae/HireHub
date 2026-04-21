@@ -56,7 +56,7 @@ public class RabbitMQConfig {
     //
 
     /**
-     * Queue pour les notifications de NOUVELLES CANDIDATURES
+     * Queue pour les services de NOUVELLES CANDIDATURES
      * Événements: candidature.created
      * Consumer: NotificationService (envoie email de confirmation)
      */
@@ -72,7 +72,7 @@ public class RabbitMQConfig {
     }
 
     /**
-     * Queue pour les notifications de CHANGEMENT DE STATUT
+     * Queue pour les services de CHANGEMENT DE STATUT
      * Événements: candidature.statut.changed
      * Consumer: NotificationService (envoie email de mise à jour)
      */
@@ -88,7 +88,7 @@ public class RabbitMQConfig {
     }
 
     /**
-     * Queue pour les notifications d'ENTRETIENS PLANIFIÉS/ANNULÉS
+     * Queue pour les services d'ENTRETIENS PLANIFIÉS/ANNULÉS
      * Événements: entretien.planifie
      * Consumer: NotificationService (envoie email avec détails entretien)
      */
@@ -104,7 +104,7 @@ public class RabbitMQConfig {
     }
 
     /**
-     * Queue pour les notifications recruteur (routings legacy / optionnels).
+     * Queue pour les services recruteur (routings legacy / optionnels).
      * Événements: recruiter.request.approved, recruiter.request.rejected
      * Consumer: NotificationService — pas une file "admin approuve inscription".
      */

@@ -3,6 +3,7 @@ server:
 spring:
   application:
     name: notification-service
+
   rabbitmq:
     host: localhost
     port: 5672
@@ -19,6 +20,32 @@ spring:
           initial-interval: 1000
           max-attempts: 3
           multiplier: 1.0
+
+  datasource:
+    url: jdbc:postgresql://localhost:55432/hirehub_notification
+    username: hirehub
+    password: hirehub
+    driver-class-name: org.postgresql.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+    open-in-view: false
+
+  mail:
+    host: ${MAIL_HOST:smtp.gmail.com}
+    port: ${MAIL_PORT:587}
+    username: ${MAIL_USERNAME:lydivinemerveille.magnetsafack@etu.uae.ac.ma}
+    password: ${MAIL_PASSWORD:kyqdslkemcrnbjzg}
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
 
 eureka:
   client:

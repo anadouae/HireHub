@@ -68,7 +68,7 @@ TYPE_PATTERN="feat|fix|docs|style|refactor|test|chore|perf|ci|build|revert"
 # Scopes valides — correspondent aux modules de l'architecture ATS :
 #   candidate-service    → gestion des candidats (CV, profil, candidature)
 #   job-service          → gestion des offres d'emploi
-#   notification-service → emails, notifications RabbitMQ
+#   notification-service → emails, services RabbitMQ
 #   api-gateway          → Spring Cloud Gateway (routing, auth, rate limiting)
 #   eureka-server        → service de découverte (Eureka)
 #   config-server        → configuration centralisée (optionnel)

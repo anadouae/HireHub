@@ -117,6 +117,6 @@ public final class RabbitMQConstants {
     ///Queue écoutée par auth-service pour recevoir le résultat du verification-service
     public static final String QUEUE_AUTH_RECRUITER_VERIFIED  = "auth.recruiter.verified.queue";
 
-    ///Queue notifications/audit pour actions admin sur comptes utilisateurs
+    ///Queue services/audit pour actions admin sur comptes utilisateurs
     public static final String QUEUE_NOTIFICATION_ADMIN_USER   = "notif.admin.user.queue";
 }
