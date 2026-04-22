@@ -81,6 +81,12 @@ public final class RabbitMQConstants {
     ///Consommé par : notification-service pour audit / notification
     public static final String ROUTING_USER_DELETED          = "user.deleted";
 
+    public static final String ROUTING_USER_AUTHENTIFICATION_LOGIN = "user.authentification.login";
+    public static final String ROUTING_USER_AUTHENTIFICATION_LOGOUT = "user.authentification.logout";
+    public static final String ROUTING_USER_AUTHENTIFICATION_REGISTER = "user.authentification.register";
+    public static final String ROUTING_USER_AUTHENTIFICATION_SUCCESS = "user.authentification.success";
+    public static final String ROUTING_USER_AUTHENTIFICATION_FAILED = "user.authentification.failed";
+
 
     ///─── LES QUEUES ────────────────────────────────────────────────
     //
@@ -119,4 +125,7 @@ public final class RabbitMQConstants {
 
     ///Queue services/audit pour actions admin sur comptes utilisateurs
     public static final String QUEUE_NOTIFICATION_ADMIN_USER   = "notif.admin.user.queue";
+
+    /// Queue ecoutee par service pour les evenements d'authentification
+    public static final String QUEUE_NOTIFICATION_AUTHENTIFICATION = "notif.authentification.queue";
 }

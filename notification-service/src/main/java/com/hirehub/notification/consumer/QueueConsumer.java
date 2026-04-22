@@ -3,7 +3,9 @@ package com.hirehub.notification.consumer;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.hirehub.common.constants.RabbitMQConstants;
-import com.hirehub.notification.services.MailService;
+import com.hirehub.notification.dtos.CandidatureDTO;
+import com.hirehub.notification.services.email.BusinessMailService;
+import com.hirehub.notification.services.email.MailService;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.stereotype.Component;
@@ -28,7 +30,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class QueueConsumer {
 
-    private final MailService mailService;
+    private final BusinessMailService businessMailService;
     private final ObjectMapper objectMapper;
 
     /**
@@ -58,7 +60,7 @@ public class QueueConsumer {
             // Implémenter la logique d'envoi d'email ici
             // - Récupérer les détails du candidat
             // - Récupérer les détails de l'offre
-            // - Générer le template email
+            // - Générer le templates email
             // - Envoyer via MailPit (ou service d'email)
             // Parser le JSON
             JsonNode jsonNode = objectMapper.readTree(message);
@@ -68,7 +70,7 @@ public class QueueConsumer {
             Long offreId = jsonNode.get("offreId").asLong();
 
             // Envoyer l'email
-            mailService.sendCandidatureConfirmation(candidatEmail, candidatName, offreTitle, offreId);
+            businessMailService.sendCandidatureConfirmation(new CandidatureDTO( candidatEmail, candidatName, offreTitle, offreId));
 
             log.info("[✅ CANDIDATURE] Email de confirmation envoyé à: {}", candidatEmail);
         } catch (Exception e) {
@@ -113,7 +115,7 @@ public class QueueConsumer {
             String commentaire = jsonNode.has("commentaire") ? jsonNode.get("commentaire").asText() : null;
 
             // Envoyer l'email de notification
-            mailService.sendStatutChangedNotification(candidatEmail, candidatName, offreTitle,
+            businessMailService.sendStatutChangedNotification(candidatEmail, candidatName, offreTitle,
                                                      ancienStatut, nouveauStatut, commentaire);
 
             log.info("[✅ STATUT] Email de notification envoyé à: {} | Nouveau statut: {}",
@@ -159,7 +161,7 @@ public class QueueConsumer {
             String interviewerName = jsonNode.get("interviewerName").asText();
 
             // Envoyer l'email avec les détails de l'entretien
-            mailService.sendEntretienPlanification(candidatEmail, candidatName, offreTitle,
+            businessMailService.sendEntretienPlanification(candidatEmail, candidatName, offreTitle,
                                                   dateEntretien, lieu, interviewerName);
 
             log.info("[✅ ENTRETIEN] Email de planification envoyé à: {} pour le: {}",
@@ -174,7 +176,7 @@ public class QueueConsumer {
      * ╔────────────────────────────────────────────────────────────╗
      * ║  LISTENER 4: Messages recruteur (routings legacy / notif)     ║
      * ╚────────────────────────────────────────────────────────────╝
-     *
+     *<pre>
      * Événements:
      * - recruiter.request.approved / rejected (routings historiques)
      *
@@ -182,13 +184,14 @@ public class QueueConsumer {
      * Action: Envoyer email si ces routings sont encore utilisés
      *
      * Exemple de message JSON attendu:
+     *
      * {
      *   "requestId": 7,
      *   "email": "newrecruiter@company.com",
      *   "name": "Alice Dupont",
      *   "status": "APPROVED" ou "REJECTED",
      *   "message": "Bienvenue!" ou "Désolé, votre demande n'a pas été acceptée"
-     * }
+     * }</pre>
      */
     @RabbitListener(queues = RabbitMQConstants.QUEUE_NOTIFICATION_RECRUITER)
     public void handleRecruiterDecision(@Payload String message) {
@@ -207,7 +210,7 @@ public class QueueConsumer {
             String body = buildRecruiterDecisionEmail(name, status, statusMessage);
 
             // Envoyer l'email
-            mailService.sendHtmlEmail(email, subject, body);
+            businessMailService.sendHtmlEmail(email, subject, body);
 
             log.info("[✅ RECRUTEUR] Email de décision envoyé à: {}", email);
         } catch (Exception e) {

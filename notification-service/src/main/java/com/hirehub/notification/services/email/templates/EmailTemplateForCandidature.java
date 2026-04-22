@@ -1,11 +1,12 @@
-package com.hirehub.notification.services;
+package com.hirehub.notification.services.email.templates;
 
-public class EmailTemplate {
+public class EmailTemplateForCandidature {
+
     // ═══════════════════════════════════════════════════════════════
-    // TEMPLATES HTML BUILDERS
+    // TEMPLATES HTML BUILDERS FOR CANDIDATURE-RELATED EMAILS
     // ═══════════════════════════════════════════════════════════════
 
-     static String buildCandidatureConfirmationTemplate(String candidatName, String offreTitle) {
+    public static String buildCandidatureConfirmationTemplate(String candidatName, String offreTitle) {
         return """
             <!DOCTYPE html>
             <html lang="fr">
@@ -41,8 +42,8 @@ public class EmailTemplate {
             """.formatted(candidatName, offreTitle);
     }
 
-     static String buildStatutChangedTemplate(String candidatName, String offreTitle,
-                                              String nouveauStatut, String commentaire) {
+    public static String buildCandidatureStatutChangedTemplate(String candidatName, String offreTitle,
+                                                               String nouveauStatut, String commentaire) {
         String statusColor = switch (nouveauStatut.toUpperCase()) {
             case "ACCEPTÉ" -> "#10b981";
             case "REJETÉ" -> "#ef4444";
@@ -97,8 +98,8 @@ public class EmailTemplate {
                         : "");
     }
 
-     static String buildEntretienTemplate(String candidatName, String offreTitle,
-                                          String dateEntretien, String lieux, String interviewer) {
+    public static String buildCandidatureEntretienTemplate(String candidatName, String offreTitle,
+                                                           String dateEntretien, String lieux, String interviewer) {
         return """
             <!DOCTYPE html>
             <html lang="fr">
@@ -140,7 +141,7 @@ public class EmailTemplate {
             """.formatted(candidatName, offreTitle, dateEntretien, lieux, interviewer);
     }
 
-    static String buildEntretienAnnulationTemplate(String candidatName, String offreTitle, String raison) {
+    public static String buildCandidatureEntretienAnnulationTemplate(String candidatName, String offreTitle, String raison) {
         return """
             <!DOCTYPE html>
             <html lang="fr">
@@ -178,4 +179,5 @@ public class EmailTemplate {
                         ? "<p><strong>Raison:</strong> " + raison + "</p>"
                         : "");
     }
+
 }

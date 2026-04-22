@@ -1,4 +1,4 @@
-package com.hirehub.notification.services;
+package com.hirehub.notification.services.email.interfaces;
 
 /**
  * ╔══════════════════════════════════════════════════════════════╗
@@ -35,29 +35,4 @@ public interface EmailService {
      */
     void sendHtmlEmailMultiple(String[] to, String subject, String htmlBody);
 
-    /**
-     * Template: Confirmation de candidature
-     */
-    void sendCandidatureConfirmation(String candidatEmail, String candidatName,
-                                     String offreTitle, Long offreId);
-
-    /**
-     * Template: Changement de statut
-     */
-    void sendStatutChangedNotification(String candidatEmail, String candidatName,
-                                      String offreTitle, String ancienStatut,
-                                      String nouveauStatut, String commentaire);
-
-    /**
-     * Template: Planification d'entretien
-     */
-    void sendEntretienPlanification(String candidatEmail, String candidatName,
-                                   String offreTitle, String dateEntretien,
-                                   String lieux, String interviewer);
-
-    /**
-     * Template: Annulation d'entretien
-     */
-    void sendEntretienAnnulation(String candidatEmail, String candidatName,
-                                String offreTitle, String raison);
 }
