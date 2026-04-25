@@ -22,6 +22,8 @@ public interface EmailBusinessService {
                                     String offreTitle, String dateEntretien,
                                     String lieux, String interviewer);
 
+    public void sendCandidatureCreatedEmail(String email, String offerTitle);
+
     /**
      * Template: Annulation d'entretien
      */

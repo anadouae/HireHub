@@ -172,5 +172,7 @@ public class BusinessMailService extends MailService implements EmailBusinessSer
         }
     }
 
+    public void sendCandidatureCreatedEmail(String email, String offerTitle) {
+    }
 }
 
