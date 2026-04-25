@@ -1,6 +1,6 @@
 package com.hirehub.notification.email.interfaces;
 
-import com.hirehub.notification.dto.CandidatureDTO;
+import com.hirehub.common.dtos.candidatures.CandidatureDTO;
 
 public interface EmailBusinessService {
     /**

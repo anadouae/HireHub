@@ -1,10 +1,10 @@
 package com.hirehub.notification.controller;
 
 import com.hirehub.notification.BusinessMailService;
-import com.hirehub.notification.dto.CandidatureDTO;
-import com.hirehub.notification.dto.CandidatureStatutChangedDTO;
-import com.hirehub.notification.dto.EntretienPlanifiedDTO;
-import com.hirehub.notification.dto.HtmlContentDTO;
+import com.hirehub.common.dtos.candidatures.CandidatureDTO;
+import com.hirehub.common.dtos.candidatures.CandidatureStatutChangedDTO;
+import com.hirehub.common.dtos.entretiens.EntretienPlanifiedDTO;
+import com.hirehub.common.dtos.notifications.email.HtmlContentDTO;
 import com.hirehub.notification.utils.Utils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;

@@ -1,8 +1,9 @@
 package com.hirehub.notification;
 
-import com.hirehub.notification.dto.CandidatureDTO;
 import com.hirehub.notification.email.interfaces.EmailBusinessService;
 import com.hirehub.notification.template.EmailTemplateForAuthentification;
+import com.hirehub.common.dtos.notifications.email.HtmlContentDTO;
+import com.hirehub.common.dtos.candidatures.CandidatureDTO;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;

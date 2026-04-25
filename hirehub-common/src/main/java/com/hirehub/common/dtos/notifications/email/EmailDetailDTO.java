@@ -1,4 +1,4 @@
-package com.hirehub.common.dtos;
+package com.hirehub.common.dtos.notifications.email;
 
 import lombok.Builder;
 import lombok.Data;

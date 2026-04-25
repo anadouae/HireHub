@@ -1,4 +1,4 @@
-package com.hirehub.notification.dto;
+package com.hirehub.common.dtos.entretiens;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
