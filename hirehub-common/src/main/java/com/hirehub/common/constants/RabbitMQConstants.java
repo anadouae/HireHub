@@ -39,30 +39,30 @@ public final class RabbitMQConstants {
     ///Le publisher (candidature-service) utilise cette constante ici :
     ///  rabbitTemplate.convertAndSend(EXCHANGE, ROUTING_CANDIDATURE_CREATED, event)
     //
-    ///Le consumer (notification-service) l'utilise pour configurer son binding :
+    ///Le consumer (event-service) l'utilise pour configurer son binding :
     ///  @RabbitListener(bindings = @QueueBinding(
     ///      value = @Queue(QUEUE_NOTIFICATION_CANDIDATURE),
     ///      exchange = @Exchange(EXCHANGE),
     ///      key = ROUTING_CANDIDATURE_CREATED))
 
     ///Publié par : candidature-service, quand un candidat soumet sa candidature
-    ///Consommé par : notification-service → envoie email "Candidature reçue"
+    ///Consommé par : event-service → envoie email "Candidature reçue"
     public static final String ROUTING_CANDIDATURE_CREATED  = "candidature.created";
 
     ///Publié par : candidature-service, quand le recruteur change le statut
-    ///Consommé par : notification-service → envoie email "Statut mis à jour"
+    ///Consommé par : event-service → envoie email "Statut mis à jour"
     public static final String ROUTING_STATUT_CHANGED       = "candidature.statut.changed";
 
     ///Publié par : entretien-service, quand un entretien est planifié ou annulé
-    ///Consommé par : notification-service → envoie email date/heure/lieu
+    ///Consommé par : event-service → envoie email date/heure/lieu
     public static final String ROUTING_ENTRETIEN_PLANIFIE   = "entretien.planifie";
 
     ///(Legacy / optionnel) Publié si le produit notifie un passage en "recruteur actif" — pas une etape admin "approuver inscription".
-    ///Consommé par : notification-service → email eventuel
+    ///Consommé par : event-service → email eventuel
     public static final String ROUTING_RECRUITER_APPROVED   = "recruiter.request.approved";
 
     ///(Legacy / optionnel) Publié si le produit notifie un refus / restriction — pas une file admin d'inscription.
-    ///Consommé par : notification-service → email eventuel
+    ///Consommé par : event-service → email eventuel
     public static final String ROUTING_RECRUITER_REJECTED   = "recruiter.request.rejected";
 
     ///Publié par : auth-service, quand un recruteur finit l'inscription
@@ -74,11 +74,11 @@ public final class RabbitMQConstants {
     public static final String ROUTING_RECRUITER_VERIFIED    = "recruiter.verified";
 
     ///Publié par : frontend-service (espace admin), lors d'un blocage utilisateur
-    ///Consommé par : notification-service pour audit / notification
+    ///Consommé par : event-service pour audit / event
     public static final String ROUTING_USER_BLOCKED          = "user.blocked";
 
     ///Publié par : frontend-service (espace admin), lors d'une suppression utilisateur
-    ///Consommé par : notification-service pour audit / notification
+    ///Consommé par : event-service pour audit / event
     public static final String ROUTING_USER_DELETED          = "user.deleted";
 
     public static final String ROUTING_USER_AUTHENTIFICATION_LOGIN = "user.authentification.login";
@@ -92,10 +92,10 @@ public final class RabbitMQConstants {
     //
     ///Une queue est la "boîte aux lettres" d'un consumer.
     ///Chaque queue est bindée à l'exchange + une routing key spécifique.
-    ///Quand notification-service démarre, Spring crée ces queues dans RabbitMQ
+    ///Quand event-service démarre, Spring crée ces queues dans RabbitMQ
     ///si elles n'existent pas encore — via la config @Bean dans RabbitConfig.java.
     //
-    ///Règle : UNE queue par type d'event consommé par notification-service.
+    ///Règle : UNE queue par type d'event consommé par event-service.
     ///Si demain un 2e service veut aussi consommer "candidature.created",
     ///il aura SA propre queue — chaque consumer a sa boîte aux lettres indépendante.
     ///Ainsi, les deux consumers reçoivent chacun leur copie du message.

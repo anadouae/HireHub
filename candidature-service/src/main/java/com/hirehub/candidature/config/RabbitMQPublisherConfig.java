@@ -16,7 +16,7 @@ public class RabbitMQPublisherConfig {
 
     /**
      * Définit l'exchange global utilisé par tous les services
-     * Note : Cet exchange est créé lors du démarrage du notification-service
+     * Note : Cet exchange est créé lors du démarrage du event-service
      * Mais on le redéfinit ici pour être sûr qu'il existe
      */
     @Bean

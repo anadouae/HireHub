@@ -20,6 +20,7 @@
         <module>verification-service</module>
         <module>offre-service</module>
         <module>candidature-service</module>
+        <module>event-service</module>
         <module>notification-service</module>
         <module>entretien-service</module>
         <module>frontend-service</module>

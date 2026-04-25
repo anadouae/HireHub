@@ -40,3 +40,7 @@ SERVICES_STARTUP.md
 
 # Docker
 DOCKER.md
+
+# Postman
+postman/
+.postman/

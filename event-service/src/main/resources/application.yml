@@ -1,0 +1,55 @@
+server:
+  port: 8084
+spring:
+  application:
+    name: event-service
+
+  rabbitmq:
+    host: localhost
+    port: 5672
+    username: hirehub
+    password: hirehub
+    virtual-host: /
+    connection-timeout: 10000
+    listener:
+      simple:
+        prefetch: 1
+        default-requeue-rejected: true
+        retry:
+          enabled: true
+          initial-interval: 1000
+          max-attempts: 3
+          multiplier: 1.0
+
+  datasource:
+    url: jdbc:postgresql://localhost:55432/hirehub_notification
+    username: hirehub
+    password: hirehub
+    driver-class-name: org.postgresql.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+    open-in-view: false
+
+  mail:
+    host: ${MAIL_HOST:smtp.gmail.com}
+    port: ${MAIL_PORT:587}
+    username: ${MAIL_USERNAME:lydivinemerveille.magnetsafack@etu.uae.ac.ma}
+    password: ${MAIL_PASSWORD:kyqdslkemcrnbjzg}
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka/
+
+
