@@ -5,7 +5,7 @@ spring:
   application:
     name: offre-service
   datasource:
-    url: jdbc:postgresql://localhost:5433/hirehub_offre
+    url: jdbc:postgresql://localhost:55432/hirehub_offre
     username: hirehub
     password: hirehub
     driver-class-name: org.postgresql.Driver
