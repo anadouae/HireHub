@@ -117,10 +117,6 @@ public final class RabbitMQConstants {
     ///binding : EXCHANGE + ROUTING_ENTRETIEN_PLANIFIE → cette queue
     public static final String QUEUE_NOTIFICATION_ENTRETIEN   = "notif.entretien.queue";
 
-    ///Queue écoutée pour les annulations d'entretien
-    ///binding : EXCHANGE + ROUTING_ENTRETIEN_ANNULATION → cette queue
-    public static final String QUEUE_NOTIFICATION_ENTRETIEN_ANNULATION = "notif.entretien.annulation.queue";
-
     ///Queue écoutée pour les décisions admin sur les demandes recruteur
     ///binding : EXCHANGE + ROUTING_RECRUITER_APPROVED/REJECTED → cette queue
     ///(les deux routing keys vont dans la même queue — un seul listener gère les deux)

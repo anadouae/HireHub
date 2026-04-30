@@ -68,7 +68,7 @@ public class EntretienPlanifieListenerImpl {
     /**
      * Écoute les événements d'annulation d'entretien.
      */
-    @RabbitListener(queues = RabbitMQConstants.QUEUE_NOTIFICATION_ENTRETIEN_ANNULATION)
+    @RabbitListener(queues = RabbitMQConstants.QUEUE_NOTIFICATION_ENTRETIEN)
     public void handleEntretienAnnulation(@Payload EmailEventDTO event) {
         try {
             String eventId = event.getEventId();

@@ -1,8 +1,27 @@
 spring:
+
   application:
     name: notification-service
   profiles:
     active: ${SPRING_PROFILES_ACTIVE:dev}
+
+  rabbitmq:
+    host: localhost
+    port: 5672
+    username: hirehub
+    password: hirehub
+    virtual-host: /
+    connection-timeout: 10000
+    listener:
+      simple:
+        prefetch: 1
+        default-requeue-rejected: true
+        retry:
+          enabled: true
+          initial-interval: 1000
+          max-attempts: 3
+          multiplier: 1.0
+
   mail:
     host: ${MAIL_HOST}
     port: ${MAIL_PORT}

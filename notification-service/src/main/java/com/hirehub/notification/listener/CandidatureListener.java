@@ -30,18 +30,15 @@ public class CandidatureListener {
     public void handleCandidatureCreated(@Payload EmailEventDTO event) {
         try {
             String eventId = event.getEventId();
-
-            // Vérifier l'idempotence
-            if (idempotenceService.isAlreadyProcessed(eventId)) {
-                log.warn("[CANDIDATURE.CREATED] Événement {} déjà traité, abandon", eventId);
-                return;
-            }
-
             log.info("[CANDIDATURE.CREATED] Traitement de l'événement {} pour: {}", eventId, event.getRecipientEmail());
 
             // Extraire les données du payload
+            log.info("Contenu complet du payload : {}", event.getPayload());
+            //log.info("Valeur de offerId : '{}'", event.getPayload().get("offerId"));
+
             String offerTitle = (String) event.getPayload().get("offerTitle");
-            Long offerId = ((Number) event.getPayload().get("offerId")).longValue();
+            //Long offerId = ((Long) event.getPayload().get("offerId")).longValue();
+            Long offerId = Long.valueOf(event.getPayload().get("offerId").toString());
 
             emailService.sendCandidatureConfirmation(
                     new com.hirehub.common.dtos.candidatures.CandidatureDTO(
@@ -52,13 +49,10 @@ public class CandidatureListener {
                     )
             );
 
-            // Marquer comme traité avec succès
-            idempotenceService.markAsProcessed(eventId, event.getEventType(), event.getRecipientEmail());
             log.info("[✅ CANDIDATURE.CREATED] Email envoyé avec succès à: {}", event.getRecipientEmail());
 
         } catch (Exception e) {
             log.error("[❌ CANDIDATURE.CREATED] Erreur lors du traitement: {}", e.getMessage(), e);
-            idempotenceService.markAsFailed(event.getEventId(), event.getEventType(), event.getRecipientEmail(), e.getMessage());
             throw new RuntimeException("Erreur traitement création candidature", e);
         }
     }
@@ -70,13 +64,6 @@ public class CandidatureListener {
     public void handleCandidatureStatutChanged(@Payload EmailEventDTO event) {
         try {
             String eventId = event.getEventId();
-
-            // Vérifier l'idempotence
-            if (idempotenceService.isAlreadyProcessed(eventId)) {
-                log.warn("[CANDIDATURE.STATUT.CHANGED] Événement {} déjà traité, abandon", eventId);
-                return;
-            }
-
             log.info("[CANDIDATURE.STATUT.CHANGED] Traitement de l'événement {} pour: {}", eventId, event.getRecipientEmail());
 
             // Extraire les données du payload
@@ -94,13 +81,10 @@ public class CandidatureListener {
                     comment
             );
 
-            // Marquer comme traité avec succès
-            idempotenceService.markAsProcessed(eventId, event.getEventType(), event.getRecipientEmail());
             log.info("[✅ CANDIDATURE.STATUT.CHANGED] Email envoyé avec succès à: {}", event.getRecipientEmail());
 
         } catch (Exception e) {
             log.error("[❌ CANDIDATURE.STATUT.CHANGED] Erreur lors du traitement: {}", e.getMessage(), e);
-            idempotenceService.markAsFailed(event.getEventId(), event.getEventType(), event.getRecipientEmail(), e.getMessage());
             throw new RuntimeException("Erreur traitement changement statut", e);
         }
     }
