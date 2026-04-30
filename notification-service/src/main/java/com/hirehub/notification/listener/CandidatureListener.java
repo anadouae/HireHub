@@ -30,14 +30,18 @@ public class CandidatureListener {
     public void handleCandidatureCreated(@Payload EmailEventDTO event) {
         try {
             String eventId = event.getEventId();
+
+            // Vérifier l'idempotence
+            if (idempotenceService.isAlreadyProcessed(eventId)) {
+                log.warn("[CANDIDATURE.CREATED] Événement {} déjà traité, abandon", eventId);
+                return;
+            }
+
             log.info("[CANDIDATURE.CREATED] Traitement de l'événement {} pour: {}", eventId, event.getRecipientEmail());
 
             // Extraire les données du payload
             log.info("Contenu complet du payload : {}", event.getPayload());
-            //log.info("Valeur de offerId : '{}'", event.getPayload().get("offerId"));
-
             String offerTitle = (String) event.getPayload().get("offerTitle");
-            //Long offerId = ((Long) event.getPayload().get("offerId")).longValue();
             Long offerId = Long.valueOf(event.getPayload().get("offerId").toString());
 
             emailService.sendCandidatureConfirmation(
@@ -49,10 +53,17 @@ public class CandidatureListener {
                     )
             );
 
+            // Marquer comme traité avec succès
+            idempotenceService.markAsProcessed(eventId, event.getEventType(), event.getRecipientEmail());
             log.info("[✅ CANDIDATURE.CREATED] Email envoyé avec succès à: {}", event.getRecipientEmail());
 
         } catch (Exception e) {
             log.error("[❌ CANDIDATURE.CREATED] Erreur lors du traitement: {}", e.getMessage(), e);
+            try {
+                idempotenceService.markAsFailed(event.getEventId(), event.getEventType(), event.getRecipientEmail(), e.getMessage());
+            } catch (Exception ex) {
+                log.error("[IDEMPOTENCE ERROR] Impossible de marquer l'événement comme échoué: {}", ex.getMessage());
+            }
             throw new RuntimeException("Erreur traitement création candidature", e);
         }
     }
