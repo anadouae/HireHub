@@ -10,10 +10,16 @@ spring:
         locator:
           enabled: true
           lower-case-service-id: true
+      routes:
+        - id: offre-service
+          uri: lb://OFFRE-SERVICE
+          predicates:
+            - Path=/api/offres/**
+          filters:
+            - AddRequestHeader=X-User-Id, 1
+            - AddRequestHeader=X-User-Email, test@test.com
 
 eureka:
   client:
     service-url:
       defaultZone: http://localhost:8761/eureka/
-
-# Filtres JWT et routes explicites : à ajouter dans ce module (voir docs/ARCHITECTURE.md)

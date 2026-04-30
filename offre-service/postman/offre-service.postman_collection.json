@@ -1,0 +1,124 @@
+{
+  "info": {
+    "name": "HireHub - Offre Service",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:8082"
+    },
+    {
+      "key": "offreId",
+      "value": "1"
+    }
+  ],
+  "item": [
+    {
+      "name": "Creer offre",
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "X-User-Id",
+            "value": "10"
+          },
+          {
+            "key": "X-User-Email",
+            "value": "rh@example.com"
+          }
+        ],
+        "url": "{{baseUrl}}/api/offres",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"titre\": \"Developpeur Java\",\n  \"description\": \"Developpement backend Spring Boot\",\n  \"typeContrat\": \"CDI\",\n  \"ville\": \"Casablanca\",\n  \"salaire\": 12000,\n  \"dateExpiration\": \"2026-12-31T23:59:00\"\n}"
+        }
+      }
+    },
+    {
+      "name": "Lister offres publiees",
+      "request": {
+        "method": "GET",
+        "url": "{{baseUrl}}/api/offres?ville=Casa&typeContrat=CDI&motCle=java&page=0&size=10"
+      }
+    },
+    {
+      "name": "Detail offre",
+      "request": {
+        "method": "GET",
+        "url": "{{baseUrl}}/api/offres/{{offreId}}"
+      }
+    },
+    {
+      "name": "Mes offres recruteur",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "X-User-Id",
+            "value": "10"
+          }
+        ],
+        "url": "{{baseUrl}}/api/offres/mes-offres?page=0&size=10"
+      }
+    },
+    {
+      "name": "Modifier offre",
+      "request": {
+        "method": "PUT",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          },
+          {
+            "key": "X-User-Id",
+            "value": "10"
+          }
+        ],
+        "url": "{{baseUrl}}/api/offres/{{offreId}}",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"titre\": \"Developpeur Java Senior\",\n  \"description\": \"Developpement backend Spring Boot et APIs REST\",\n  \"typeContrat\": \"CDI\",\n  \"ville\": \"Casablanca\",\n  \"salaire\": 15000,\n  \"dateExpiration\": \"2026-12-31T23:59:00\"\n}"
+        }
+      }
+    },
+    {
+      "name": "Publier offre",
+      "request": {
+        "method": "PATCH",
+        "header": [
+          {
+            "key": "X-User-Id",
+            "value": "10"
+          }
+        ],
+        "url": "{{baseUrl}}/api/offres/{{offreId}}/publier"
+      }
+    },
+    {
+      "name": "Fermer offre",
+      "request": {
+        "method": "PATCH",
+        "header": [
+          {
+            "key": "X-User-Id",
+            "value": "10"
+          }
+        ],
+        "url": "{{baseUrl}}/api/offres/{{offreId}}/fermer"
+      }
+    },
+    {
+      "name": "Verifier offre valide pour candidature",
+      "request": {
+        "method": "GET",
+        "url": "{{baseUrl}}/api/offres/{{offreId}}/valide"
+      }
+    }
+  ]
+}
