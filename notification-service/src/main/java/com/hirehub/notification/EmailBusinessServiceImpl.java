@@ -14,6 +14,7 @@ import static com.hirehub.notification.template.EmailTemplateForCandidature.*;
 public class EmailBusinessServiceImpl extends MailService implements EmailBusinessService {
 
     public EmailBusinessServiceImpl(JavaMailSender mailSender) {
+
         super(mailSender);
     }
 

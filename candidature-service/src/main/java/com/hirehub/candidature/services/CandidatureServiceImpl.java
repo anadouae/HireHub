@@ -222,7 +222,7 @@ public class CandidatureServiceImpl implements CandidatureService {
                     EventType.CANDIDATURE_STATUT_CHANGED,
                     candidateEmail,
                     candidateName,
-                    RabbitMQConstants.ROUTING_STATUT_CHANGED,
+                    RabbitMQConstants.ROUTING_CANDIDATURE_STATUT_CHANGED,
                     payload
             );
 

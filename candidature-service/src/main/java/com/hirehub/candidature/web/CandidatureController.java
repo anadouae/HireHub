@@ -101,18 +101,18 @@ public class CandidatureController {
     }
 
     /**
-     * PUT /candidatures/{id}/status?status=ACCEPTEE
+     * PUT /candidatures/{candidatureId}/status?status=ACCEPTEE
      */
-    @PutMapping("/{id}/status")
-    public ResponseEntity<ApiResponse<Candidature>> updateStatus(@PathVariable String id,
+    @PutMapping("/{candidatureId}/status")
+    public ResponseEntity<ApiResponse<Candidature>> updateStatus(@PathVariable String candidatureId,
                                                                  @RequestParam("status") String status) {
         try {
             // TODO: vérifier rôle recruteur
-            candidatureService.updateCandidatureStatusByRecruiter(id, status);
-            Candidature updated = candidatureService.getCandidatureById(id);
+            candidatureService.updateCandidatureStatusByRecruiter(candidatureId, status);
+            Candidature updated = candidatureService.getCandidatureById(candidatureId);
             return ResponseEntity.ok(ApiResponse.ok("Statut mis à jour", updated));
         } catch (Exception e) {
-            log.error("Erreur update statut candidature {}: {}", id, e.getMessage(), e);
+            log.error("Erreur update statut candidature {}: {}", candidatureId, e.getMessage(), e);
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                     .body(ApiResponse.error(e.getMessage()));
         }

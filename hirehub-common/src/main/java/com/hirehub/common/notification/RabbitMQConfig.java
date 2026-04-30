@@ -1,16 +1,10 @@
 package com.hirehub.common.notification;
 
-import lombok.RequiredArgsConstructor;
 import org.springframework.amqp.core.*;
-import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Service;
-
-import java.util.Map;
-import java.util.UUID;
 
 /**
  * ╔══════════════════════════════════════════════════════════════╗
@@ -214,12 +208,12 @@ public class RabbitMQConfig {
             TopicExchange exchange
     ) {
         log.info("[BINDING] {} -> {}",
-            RabbitMQConstants.ROUTING_STATUT_CHANGED,
+            RabbitMQConstants.ROUTING_CANDIDATURE_STATUT_CHANGED,
             RabbitMQConstants.QUEUE_NOTIFICATION_STATUT);
         return BindingBuilder
             .bind(queue)
             .to(exchange)
-            .with(RabbitMQConstants.ROUTING_STATUT_CHANGED);
+            .with(RabbitMQConstants.ROUTING_CANDIDATURE_STATUT_CHANGED);
     }
 
     @Bean

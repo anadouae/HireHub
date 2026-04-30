@@ -7,17 +7,25 @@ import com.hirehub.notification.EmailBusinessServiceImpl;
 import com.hirehub.notification.utils.Utils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/notification-service/notifications")
 public class EmailController {
 
-    @Autowired
-    EmailBusinessServiceImpl businessMailService;
+    private final EmailBusinessServiceImpl businessMailService;
+
+    public EmailController(EmailBusinessServiceImpl businessMailService) {
+        this.businessMailService = businessMailService;
+    }
+
+    /*@PostMapping("/envoyer")
+    public ResponseEntity<String> envoyerEmail(
+            @RequestParam String typeEmail,
+            @RequestBody Ca
+            ){
+
+    }*/
 
     @PostMapping("/candidature-confirmation")
     public ResponseEntity<Void> sendCandidatureConfirmation(@RequestBody CandidatureDTO candidature) {
