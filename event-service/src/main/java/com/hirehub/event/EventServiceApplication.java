@@ -25,7 +25,10 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
  * ╚══════════════════════════════════════════════════════════════╝
  */
 @EnableRabbit
-@SpringBootApplication
+@SpringBootApplication(scanBasePackages = {
+        "com.hirehub.event",
+        "com.hirehub.common"
+})
 public class EventServiceApplication {
 
     public static void main(String[] args) {

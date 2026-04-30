@@ -1,6 +1,6 @@
 package com.hirehub.verification.service;
 
-import com.hirehub.common.constants.RabbitMQConstants;
+import com.hirehub.common.notification.RabbitMQConstants;
 import com.hirehub.common.events.RecruiterRegisteredEvent;
 import com.hirehub.common.events.RecruiterVerifiedEvent;
 import com.hirehub.verification.client.OcrSpaceClient;

@@ -2,7 +2,6 @@ package com.hirehub.notification;
 
 import com.hirehub.notification.email.interfaces.EmailBusinessService;
 import com.hirehub.notification.template.EmailTemplateForAuthentification;
-import com.hirehub.common.dtos.notifications.email.HtmlContentDTO;
 import com.hirehub.common.dtos.candidatures.CandidatureDTO;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.mail.javamail.JavaMailSender;
@@ -12,9 +11,9 @@ import static com.hirehub.notification.template.EmailTemplateForCandidature.*;
 
 @Slf4j
 @Service
-public class BusinessMailService extends MailService implements EmailBusinessService {
+public class EmailBusinessServiceImpl extends MailService implements EmailBusinessService {
 
-    public BusinessMailService(JavaMailSender mailSender) {
+    public EmailBusinessServiceImpl(JavaMailSender mailSender) {
         super(mailSender);
     }
 
@@ -57,9 +56,9 @@ public class BusinessMailService extends MailService implements EmailBusinessSer
      * @param nouveauStatut Nouveau statut
      * @param commentaire   Commentaire optionnel (peut être null)
      */
-    public void sendStatutChangedNotification(String candidatEmail, String candidatName,
-                                              String offreTitle, String ancienStatut,
-                                              String nouveauStatut, String commentaire) {
+    public void sendCandidatureStatutChangedNotification(String candidatEmail, String candidatName,
+                                                         String offreTitle, String ancienStatut,
+                                                         String nouveauStatut, String commentaire) {
         try {
             String subject = "Mise à jour de votre candidature - HireHub";
 
@@ -172,7 +171,22 @@ public class BusinessMailService extends MailService implements EmailBusinessSer
         }
     }
 
+    /**
+     * Template: Email de création/confirmation de candidature
+     *
+     * @param email Email du candidat
+     * @param offerTitle Titre de l'offre
+     */
     public void sendCandidatureCreatedEmail(String email, String offerTitle) {
+        try {
+            String subject = "Candidature reçue - HireHub";
+            String htmlBody = buildCandidatureConfirmationTemplate("Candidat", offerTitle);
+            sendHtmlEmail(email, subject, htmlBody);
+            log.info("[📧 CANDIDATURE CREATED] Email envoyé à: {}", email);
+        } catch (Exception e) {
+            log.error("[❌ CANDIDATURE CREATED] Erreur lors de l'envoi à {}: {}", email, e.getMessage(), e);
+            throw new RuntimeException("Erreur lors de l'envoi de la création de candidature", e);
+        }
     }
 }
 

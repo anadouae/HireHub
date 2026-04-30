@@ -1,6 +1,6 @@
 package com.hirehub.frontend.config;
 
-import com.hirehub.common.constants.RabbitMQConstants;
+import com.hirehub.common.notification.RabbitMQConstants;
 import org.springframework.amqp.core.TopicExchange;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

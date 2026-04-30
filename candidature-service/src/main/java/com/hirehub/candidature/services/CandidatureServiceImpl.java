@@ -4,15 +4,11 @@ import com.hirehub.candidature.entities.Candidature;
 import com.hirehub.candidature.entities.HistoriqueStatus;
 import com.hirehub.candidature.repository.CandidatureRepository;
 import com.hirehub.candidature.repository.HistoriqueStatusRepository;
-
-import com.hirehub.common.constants.RabbitMQConstants;
+import com.hirehub.common.constants.EventType;
 import com.hirehub.common.enums.CandidatureStatus;
-import com.hirehub.common.events.CandidatureCreatedEvent;
-import com.hirehub.common.events.StatutChangedEvent;
-
+import com.hirehub.common.notification.NotificationPublisher;
+import com.hirehub.common.notification.RabbitMQConstants;
 import lombok.extern.slf4j.Slf4j;
-
-import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
 
@@ -31,16 +27,16 @@ public class CandidatureServiceImpl implements CandidatureService {
 
     private final CandidatureRepository candidatureRepository;
     private final HistoriqueStatusRepository historiqueStatusRepository;
-    private final RabbitTemplate rabbitTemplate;
+    private final NotificationPublisher notificationPublisher;
 
     public CandidatureServiceImpl(
             CandidatureRepository candidatureRepository,
             HistoriqueStatusRepository historiqueStatusRepository,
-            RabbitTemplate rabbitTemplate
+            NotificationPublisher notificationPublisher
     ) {
         this.candidatureRepository = candidatureRepository;
         this.historiqueStatusRepository = historiqueStatusRepository;
-        this.rabbitTemplate = rabbitTemplate;
+        this.notificationPublisher = notificationPublisher;
     }
 
     @Override
@@ -178,48 +174,61 @@ public class CandidatureServiceImpl implements CandidatureService {
     }
 
     /**
-     * Publie un événement "candidature.created" dans RabbitMQ
+     * Publie un événement "candidature.created" dans RabbitMQ (contrat EmailEventDTO)
      */
     private void publishCandidatureCreatedEvent(Candidature candidature) {
         try {
-            CandidatureCreatedEvent event = new CandidatureCreatedEvent();
-            event.setCandidatureId(candidature.getId());
-            event.setCandidatId(candidature.getCandidatId());
-            event.setOffreId(candidature.getOffreId());
-            event.setDateSoumission(candidature.getDateSoumission());
+            // TODO: en attendant l'intégration auth, on n'a pas l'email ici.
+            // On met des placeholders pour tester le flux.
+            String candidateEmail = "test@hirehub.local";
+            String candidateName = "Candidat";
 
-            rabbitTemplate.convertAndSend(
-                    RabbitMQConstants.EXCHANGE,
+            java.util.Map<String, Object> payload = new java.util.HashMap<>();
+            payload.put("candidatureId", candidature.getId());
+            payload.put("offerId", candidature.getOffreId());
+            payload.put("offerTitle", "Offre");
+
+            notificationPublisher.publishEmailEvent(
+                    EventType.CANDIDATURE_CREATED,
+                    candidateEmail,
+                    candidateName,
                     RabbitMQConstants.ROUTING_CANDIDATURE_CREATED,
-                    event
+                    payload
             );
-            log.info("Événement 'candidature.created' publié pour la candidature: {}", candidature.getId());
+
+            log.info("Événement 'candidature.created' (EmailEventDTO) publié pour la candidature: {}", candidature.getId());
         } catch (Exception e) {
-            log.error("Erreur lors de la publication de l'événement: {}", e.getMessage(), e);
+            log.error("Erreur lors de la publication de l'événement candidature.created: {}", e.getMessage(), e);
         }
     }
 
     /**
-     * Publie un événement "candidature.statut.changed" dans RabbitMQ
+     * Publie un événement "candidature.statut.changed" dans RabbitMQ (contrat EmailEventDTO)
      */
     private void publishStatutChangedEvent(Candidature candidature, CandidatureStatus oldStatus, CandidatureStatus newStatus) {
         try {
-            StatutChangedEvent event = new StatutChangedEvent();
-            event.setCandidatureId(candidature.getId());
-            event.setCandidatId(candidature.getCandidatId());
-            event.setOffreId(candidature.getOffreId());
-            event.setAncienStatut(oldStatus);
-            event.setNouveauStatut(newStatus);
-            event.setDateChangement(LocalDateTime.now());
+            String candidateEmail = "test@hirehub.local";
+            String candidateName = "Candidat";
 
-            rabbitTemplate.convertAndSend(
-                    RabbitMQConstants.EXCHANGE,
+            java.util.Map<String, Object> payload = new java.util.HashMap<>();
+            payload.put("candidatureId", candidature.getId());
+            payload.put("offerId", candidature.getOffreId());
+            payload.put("offerTitle", "Offre");
+            payload.put("oldStatus", oldStatus.name());
+            payload.put("newStatus", newStatus.name());
+            payload.put("comment", "");
+
+            notificationPublisher.publishEmailEvent(
+                    EventType.CANDIDATURE_STATUT_CHANGED,
+                    candidateEmail,
+                    candidateName,
                     RabbitMQConstants.ROUTING_STATUT_CHANGED,
-                    event
+                    payload
             );
-            log.info("Événement 'candidature.statut.changed' publié pour la candidature: {}", candidature.getId());
+
+            log.info("Événement 'candidature.statut.changed' (EmailEventDTO) publié pour la candidature: {}", candidature.getId());
         } catch (Exception e) {
-            log.error("Erreur lors de la publication de l'événement: {}", e.getMessage(), e);
+            log.error("Erreur lors de la publication de l'événement statut.changed: {}", e.getMessage(), e);
         }
     }
 }

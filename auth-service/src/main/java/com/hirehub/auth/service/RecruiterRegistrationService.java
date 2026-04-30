@@ -2,7 +2,7 @@ package com.hirehub.auth.service;
 
 import com.hirehub.auth.dto.RegisterRecruiterForm;
 import com.hirehub.auth.model.RecruiterRegistrationStatusSnapshot;
-import com.hirehub.common.constants.RabbitMQConstants;
+import com.hirehub.common.notification.RabbitMQConstants;
 import com.hirehub.common.enums.RecruiterVerificationStatus;
 import com.hirehub.common.events.RecruiterRegisteredEvent;
 import com.hirehub.common.events.RecruiterVerifiedEvent;

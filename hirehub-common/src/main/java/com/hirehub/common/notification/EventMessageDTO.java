@@ -1,4 +1,4 @@
-package com.hirehub.common.dtos.events;
+package com.hirehub.common.notification;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -16,7 +16,7 @@ import java.util.Map;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class EventMessage {
+public class EventMessageDTO {
     private String eventType;
     private String sourceService;
     private String targetService;
@@ -24,4 +24,7 @@ public class EventMessage {
     private Instant createdAt;
     private Map<String, Object> payload;
 
+    public String getEventId() {
+        return this.correlationId;
+    }
 }

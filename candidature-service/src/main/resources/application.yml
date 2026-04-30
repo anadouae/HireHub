@@ -5,7 +5,7 @@ spring:
   application:
     name: candidature-service
   profiles:
-    active: mock
+    active: dev
 
   # PostgreSQL Configuration
   datasource:
