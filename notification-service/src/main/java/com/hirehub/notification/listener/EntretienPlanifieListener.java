@@ -1,8 +1,8 @@
 package com.hirehub.notification.listener;
 
-import com.hirehub.common.constants.RabbitMQConstants;
-import com.hirehub.common.dtos.events.EventMessage;
-import com.hirehub.notification.BusinessMailService;
+import com.hirehub.common.notification.EventMessageDTO;
+import com.hirehub.common.notification.RabbitMQConstants;
+import com.hirehub.notification.EmailBusinessServiceImpl;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
@@ -36,10 +36,10 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class EntretienPlanifieListener {
 
-    private final BusinessMailService emailService;
+    private final EmailBusinessServiceImpl emailService;
 
     @RabbitListener(queues = RabbitMQConstants.QUEUE_NOTIFICATION_ENTRETIEN)
-    public void handleEntretienPlanifie(@Payload EventMessage message) {
+    public void handleEntretienPlanifie(@Payload EventMessageDTO message) {
         try {
             Map<String, Object> payload = message.getPayload();
 

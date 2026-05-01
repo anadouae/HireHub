@@ -11,9 +11,9 @@ public interface EmailBusinessService {
     /**
      * Template: Changement de statut
      */
-    void sendStatutChangedNotification(String candidatEmail, String candidatName,
-                                       String offreTitle, String ancienStatut,
-                                       String nouveauStatut, String commentaire);
+    void sendCandidatureStatutChangedNotification(String candidatEmail, String candidatName,
+                                                  String offreTitle, String ancienStatut,
+                                                  String nouveauStatut, String commentaire);
 
     /**
      * Template: Planification d'entretien

@@ -45,8 +45,53 @@ services:
       - hirehub-rabbitmq-data:/var/lib/rabbitmq
       - hirehub-rabbitmq-logs:/var/log/rabbitmq
 
+  #notification-service:
+    #build:
+      #context: .
+      #dockerfile: notification-service/Dockerfile
+    #container_name: hirehub-notification-service
+    #restart: unless-stopped
+    #depends_on:
+      #postgres:
+        #condition: service_healthy
+      #rabbitmq:
+        #condition: service_healthy
+      #mailpit:
+        #condition: service_started
+    #environment:
+      #SPRING_PROFILES_ACTIVE: docker
+      #DB_HOST: postgres
+      #DB_PORT: 5432
+      #DB_USERNAME: hirehub
+      #DB_PASSWORD: hirehub
+      #RABBITMQ_HOST: rabbitmq
+      #RABBITMQ_PORT: 5672
+      #RABBITMQ_USERNAME: hirehub
+      #RABBITMQ_PASSWORD: hirehub
+      #RABBITMQ_VHOST: /
+      #MAIL_HOST: mailpit
+      #MAIL_PORT: 1025
+      #MAIL_FROM: noreply@hirehub.com
+      #EUREKA_HOST: eureka-server
+      #EUREKA_PORT: 8761
+    #ports:
+     # - "8093:8080"
+    #networks:
+     # - hirehub-network
+    #healthcheck:
+     # test: ["CMD", "curl", "-f", "http://localhost:8080/actuator/health"]
+      #interval: 30s
+      #timeout: 10s
+      #start_period: 40s
+      #retries: 3
+
 
 volumes:
   hirehub-pg-data:
   hirehub-rabbitmq-data:
   hirehub-rabbitmq-logs:
+
+networks:
+  hirehub-network:
+    driver: bridge
+

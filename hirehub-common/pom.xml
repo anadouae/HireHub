@@ -32,7 +32,7 @@
             <artifactId>spring-web</artifactId>
             <version>7.0.6</version>
         </dependency>
-
+        
         <!-- RabbitMQ pour la configuration centralisée -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -46,7 +46,7 @@
             <version>6.1.6</version>
             <scope>provided</scope>
         </dependency>
-
+        
         <!-- SLF4J pour les logs -->
         <dependency>
             <groupId>org.slf4j</groupId>
@@ -54,5 +54,10 @@
             <version>2.0.13</version>
             <scope>provided</scope>
         </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-databind</artifactId>
+        </dependency>
+
     </dependencies>
 </project>

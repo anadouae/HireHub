@@ -1,24 +1,31 @@
 package com.hirehub.notification.controller;
 
-import com.hirehub.notification.BusinessMailService;
 import com.hirehub.common.dtos.candidatures.CandidatureDTO;
 import com.hirehub.common.dtos.candidatures.CandidatureStatutChangedDTO;
 import com.hirehub.common.dtos.entretiens.EntretienPlanifiedDTO;
-import com.hirehub.common.dtos.notifications.email.HtmlContentDTO;
+import com.hirehub.notification.EmailBusinessServiceImpl;
 import com.hirehub.notification.utils.Utils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/notification-service/notifications")
 public class EmailController {
 
-    @Autowired
-    BusinessMailService businessMailService;
+    private final EmailBusinessServiceImpl businessMailService;
+
+    public EmailController(EmailBusinessServiceImpl businessMailService) {
+        this.businessMailService = businessMailService;
+    }
+
+    /*@PostMapping("/envoyer")
+    public ResponseEntity<String> envoyerEmail(
+            @RequestParam String typeEmail,
+            @RequestBody Ca
+            ){
+
+    }*/
 
     @PostMapping("/candidature-confirmation")
     public ResponseEntity<Void> sendCandidatureConfirmation(@RequestBody CandidatureDTO candidature) {
@@ -37,7 +44,7 @@ public class EmailController {
                 || Utils.isBlank(candidatureChangedDTO.getAncienStatut()) || Utils.isBlank(candidatureChangedDTO.getNouveauStatut())){
             return ResponseEntity.badRequest().build();
         }
-        businessMailService.sendStatutChangedNotification(
+        businessMailService.sendCandidatureStatutChangedNotification(
                 candidatureChangedDTO.getCandidatEmail(),
                 candidatureChangedDTO.getCandidatName(),
                 candidatureChangedDTO.getOffreTitle(),
@@ -65,8 +72,5 @@ public class EmailController {
         );
         return ResponseEntity.ok().build();
     }
-
-    @PostMapping("/notifications/html-email")
-    void sendHtmlEmail(@RequestBody HtmlContentDTO htmlContentDTO){}
 
 }

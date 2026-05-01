@@ -1,6 +1,6 @@
 package com.hirehub.auth.messaging;
 
-import com.hirehub.common.constants.RabbitMQConstants;
+import com.hirehub.common.notification.RabbitMQConstants;
 import org.springframework.amqp.core.Binding;
 import org.springframework.amqp.core.BindingBuilder;
 import org.springframework.amqp.core.Queue;

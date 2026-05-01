@@ -1,6 +1,5 @@
-package com.hirehub.common.config;
+package com.hirehub.common.notification;
 
-import com.hirehub.common.constants.RabbitMQConstants;
 import org.springframework.amqp.core.*;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
@@ -58,6 +57,17 @@ public class RabbitMQConfig {
             true,      // durable
             false,     // exclusive
             false      // autoDelete
+        );
+    }
+
+    @Bean
+    public Queue auditCandidatureQueue() {
+        log.info("[QUEUE] Création: {}", RabbitMQConstants.QUEUE_AUDIT_CANDIDATURE);
+        return new Queue(
+            RabbitMQConstants.QUEUE_AUDIT_CANDIDATURE,
+            true,
+                false,
+                false
         );
     }
 
@@ -179,17 +189,31 @@ public class RabbitMQConfig {
     }
 
     @Bean
+    public Binding bindingCandidatureCreatedAudit(
+            @Qualifier("auditCandidatureQueue") Queue queue,
+            TopicExchange exchange
+    ) {
+        log.info("[BINDING] {} -> {}",
+                RabbitMQConstants.ROUTING_CANDIDATURE_CREATED,
+                RabbitMQConstants.QUEUE_AUDIT_CANDIDATURE);
+        return BindingBuilder
+                .bind(queue)
+                .to(exchange)
+                .with(RabbitMQConstants.ROUTING_CANDIDATURE_CREATED);
+    }
+
+    @Bean
     public Binding bindingStatutChanged(
             @Qualifier("notificationStatutQueue") Queue queue,
             TopicExchange exchange
     ) {
         log.info("[BINDING] {} -> {}",
-            RabbitMQConstants.ROUTING_STATUT_CHANGED,
+            RabbitMQConstants.ROUTING_CANDIDATURE_STATUT_CHANGED,
             RabbitMQConstants.QUEUE_NOTIFICATION_STATUT);
         return BindingBuilder
             .bind(queue)
             .to(exchange)
-            .with(RabbitMQConstants.ROUTING_STATUT_CHANGED);
+            .with(RabbitMQConstants.ROUTING_CANDIDATURE_STATUT_CHANGED);
     }
 
     @Bean

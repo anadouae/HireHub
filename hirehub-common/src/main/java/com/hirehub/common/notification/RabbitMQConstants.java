@@ -1,11 +1,10 @@
-
 ///╔══════════════════════════════════════════════════════════════╗
 ///║  Ce fichier EST le contrat RabbitMQ de tout le projet.       ║
 ///║  Tout service qui publie OU consomme un message              ║
 ///║  DOIT utiliser ces constantes — jamais de String en dur.     ║
 ///╚══════════════════════════════════════════════════════════════╝
 
-package com.hirehub.common.constants;
+package com.hirehub.common.notification;
 
 ///"final" = cette classe ne peut pas être étendue (héritée)
 ///Ce n'est pas une entité métier — c'est un répertoire de constantes
@@ -51,7 +50,7 @@ public final class RabbitMQConstants {
 
     ///Publié par : candidature-service, quand le recruteur change le statut
     ///Consommé par : event-service → envoie email "Statut mis à jour"
-    public static final String ROUTING_STATUT_CHANGED       = "candidature.statut.changed";
+    public static final String ROUTING_CANDIDATURE_STATUT_CHANGED = "candidature.statut.changed";
 
     ///Publié par : entretien-service, quand un entretien est planifié ou annulé
     ///Consommé par : event-service → envoie email date/heure/lieu
@@ -104,8 +103,14 @@ public final class RabbitMQConstants {
     ///binding : EXCHANGE + ROUTING_CANDIDATURE_CREATED → cette queue
     public static final String QUEUE_NOTIFICATION_CANDIDATURE = "notif.candidature.queue";
 
+    /**
+     * Queue pour l'audit des nouvelles candidatures
+     * Écoutée par: event-service
+     */
+    public static final String QUEUE_AUDIT_CANDIDATURE = "audit.candidature.queue";
+
     ///Queue écoutée pour les changements de statut
-    ///binding : EXCHANGE + ROUTING_STATUT_CHANGED → cette queue
+    ///binding : EXCHANGE + ROUTING_CANDIDATURE_STATUT_CHANGED → cette queue
     public static final String QUEUE_NOTIFICATION_STATUT      = "notif.statut.queue";
 
     ///Queue écoutée pour les entretiens planifiés/annulés

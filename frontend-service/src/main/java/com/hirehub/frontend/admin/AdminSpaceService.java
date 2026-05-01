@@ -4,7 +4,7 @@ import com.hirehub.common.enums.UserRole;
 import com.hirehub.common.events.UserAdminActionEvent;
 import com.hirehub.frontend.auth.FrontendUserAccount;
 import com.hirehub.frontend.auth.FrontendUserRepository;
-import com.hirehub.common.constants.RabbitMQConstants;
+import com.hirehub.common.notification.RabbitMQConstants;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

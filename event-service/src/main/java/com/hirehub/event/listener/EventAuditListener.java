@@ -1,6 +1,10 @@
 package com.hirehub.event.listener;
 
-import com.hirehub.common.constants.RabbitMQConstants;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.hirehub.common.notification.EmailEventDTO;
+import com.hirehub.common.notification.RabbitMQConstants;
+import com.hirehub.event.service.EventLogService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
@@ -8,111 +12,69 @@ import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.stereotype.Component;
 
 /**
- * ╔══════════════════════════════════════════════════════════════╗
- * ║        Event Audit Listener - Tracking & Logging              ║
- * ║                                                                ║
- * ║  Rôle: Audit passif des événements pour logging               ║
- * ║  - Consomme les événements sans action métier                ║
- * ║  - Persiste les événements en DB (EventLog table)            ║
- * ║  - Expose les métriques                                      ║
- * ║                                                                ║
- * ║  ⚠️  N'interfère PAS avec les autres consumers                ║
- * ║  Chaque queue peut avoir plusieurs consumers                  ║
- * ║  (event-service pour audit, notification-service pour mail)   ║
- * ║                                                                ║
- * ║  Pattern: "competing consumers" dans RabbitMQ                ║
- * ║  = plusieurs services écoutent la même queue                 ║
- * ║  = chacun reçoit une copie du message                        ║
- * ╚══════════════════════════════════════════════════════════════╝
+ * Audit passif des événements (logging + persistance).
+ * Consomme le contrat standard EmailEventDTO.
  */
 @Component
 @Slf4j
 @RequiredArgsConstructor
 public class EventAuditListener {
 
-    /**
-     * Audit des événements "candidature créée"
-     * Consomme en parallèle avec notification-service
-     * (chacun a sa propre queue = deux copies du message)
-     */
-    @RabbitListener(queues = RabbitMQConstants.QUEUE_NOTIFICATION_CANDIDATURE)
-    public void auditCandidatureCreated(@Payload String message) {
-        try {
-            log.info("[AUDIT] Événement candidature.created reçu: {}", message);
-            // TODO: Persister en EventLog table
-            // TODO: Incrémenter les métriques
-        } catch (Exception e) {
-            log.error("[AUDIT ERROR] Erreur lors de l'audit candidature.created: {}", e.getMessage(), e);
-            // L'erreur d'audit ne doit pas bloquer le traitement du message
-            // donc on ne relance pas l'exception
-        }
+    private final EventLogService eventLogService;
+    private final ObjectMapper objectMapper;
+
+    @RabbitListener(queues = RabbitMQConstants.QUEUE_AUDIT_CANDIDATURE)
+    public void auditCandidatureCreated(@Payload EmailEventDTO message) {
+        auditCommon(message, "[AUDIT] Événement candidature.created reçu");
     }
 
-    /**
-     * Audit des événements "statut changé"
-     */
     @RabbitListener(queues = RabbitMQConstants.QUEUE_NOTIFICATION_STATUT)
-    public void auditStatutChanged(@Payload String message) {
-        try {
-            log.info("[AUDIT] Événement candidature.statut.changed reçu: {}", message);
-            // TODO: Persister en EventLog table
-        } catch (Exception e) {
-            log.error("[AUDIT ERROR] Erreur lors de l'audit statut.changed: {}", e.getMessage(), e);
-        }
+    public void auditStatutChanged(@Payload EmailEventDTO message) {
+        auditCommon(message, "[AUDIT] Événement candidature.statut.changed reçu");
     }
 
-    /**
-     * Audit des événements "entretien planifié"
-     */
     @RabbitListener(queues = RabbitMQConstants.QUEUE_NOTIFICATION_ENTRETIEN)
-    public void auditEntretienPlanifie(@Payload String message) {
-        try {
-            log.info("[AUDIT] Événement entretien.planifie reçu: {}", message);
-            // TODO: Persister en EventLog table
-        } catch (Exception e) {
-            log.error("[AUDIT ERROR] Erreur lors de l'audit entretien.planifie: {}", e.getMessage(), e);
-        }
+    public void auditEntretienPlanifie(@Payload EmailEventDTO message) {
+        auditCommon(message, "[AUDIT] Événement entretien.planifie reçu");
     }
 
-    /**
-     * Audit des événements "décision recruteur"
-     */
     @RabbitListener(queues = RabbitMQConstants.QUEUE_NOTIFICATION_RECRUITER)
-    public void auditRecruiterDecision(@Payload String message) {
-        try {
-            log.info("[AUDIT] Événement recruteur (approved/rejected) reçu: {}", message);
-            // TODO: Persister en EventLog table
-        } catch (Exception e) {
-            log.error("[AUDIT ERROR] Erreur lors de l'audit recruteur decision: {}", e.getMessage(), e);
-        }
+    public void auditRecruiterDecision(@Payload EmailEventDTO message) {
+        auditCommon(message, "[AUDIT] Événement recruteur (approved/rejected) reçu");
     }
 
-    /**
-     * Audit des événements "authentification"
-     * register, login, logout, etc.
-     */
     @RabbitListener(queues = RabbitMQConstants.QUEUE_NOTIFICATION_AUTHENTIFICATION)
-    public void auditAuthentication(@Payload String message) {
+    public void auditAuthentication(@Payload EmailEventDTO message) {
+        auditCommon(message, "[AUDIT] Événement authentification reçu");
+    }
+
+    @RabbitListener(queues = RabbitMQConstants.QUEUE_NOTIFICATION_ADMIN_USER)
+    public void auditAdminAction(@Payload EmailEventDTO message) {
+        auditCommon(message, "[AUDIT] Événement admin (user blocked/deleted) reçu");
+    }
+
+    private void auditCommon(EmailEventDTO message, String logPrefix) {
         try {
-            log.info("[AUDIT] Événement authentification reçu: {}", message);
-            // TODO: Persister en EventLog table
+            String eventId = message.getEventId();
+            String eventType = message.getEventType();
+            String json = safeToJson(message);
+
+            log.info("{}: eventId={}, eventType={}", logPrefix, eventId, eventType);
+
+            // Les services source/destination ne sont pas dans EmailEventDTO, on met des placeholders
+            eventLogService.logEvent(
+                    eventId,
+                    eventType,
+                    json,
+                    "UNKNOWN_SOURCE",
+                    "UNKNOWN_DESTINATION"
+            );
         } catch (Exception e) {
-            log.error("[AUDIT ERROR] Erreur lors de l'audit authentification: {}", e.getMessage(), e);
+            log.error("[AUDIT ERROR] Erreur lors de l'audit de l'événement {}: {}", message.getEventType(), e.getMessage(), e);
         }
     }
 
-    /**
-     * Audit des événements "actions admin"
-     * user.blocked, user.deleted
-     */
-    @RabbitListener(queues = RabbitMQConstants.QUEUE_NOTIFICATION_ADMIN_USER)
-    public void auditAdminAction(@Payload String message) {
-        try {
-            log.info("[AUDIT] Événement admin (user blocked/deleted) reçu: {}", message);
-            // TODO: Persister en EventLog table
-        } catch (Exception e) {
-            log.error("[AUDIT ERROR] Erreur lors de l'audit admin action: {}", e.getMessage(), e);
-        }
+    private String safeToJson(Object obj) throws JsonProcessingException {
+        return objectMapper.writeValueAsString(obj);
     }
 }
-

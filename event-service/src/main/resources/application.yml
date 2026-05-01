@@ -22,18 +22,23 @@ spring:
           multiplier: 1.0
 
   datasource:
-    url: jdbc:postgresql://localhost:55432/hirehub_notification
-    username: hirehub
-    password: hirehub
+    url: jdbc:postgresql://${DB_HOST:localhost}:${DB_PORT:55432}/hirehub_event
+    username: ${DB_USERNAME:hirehub}
+    password: ${DB_PASSWORD:hirehub}
     driver-class-name: org.postgresql.Driver
 
   jpa:
     hibernate:
-      ddl-auto: update
+      ddl-auto: validate # flyway gère les migrations, pas besoin de laisser Hibernate créer ou mettre à jour la structure
     properties:
       hibernate:
         dialect: org.hibernate.dialect.PostgreSQLDialect
     open-in-view: false
+  
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
+    baseline-on-migrate: true
 
   mail:
     host: ${MAIL_HOST:smtp.gmail.com}

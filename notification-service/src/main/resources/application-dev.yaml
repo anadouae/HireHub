@@ -1,0 +1,13 @@
+spring:
+  mail:
+    host: sandbox.smtp.mailtrap.io
+    port: 2525
+    username: ${MAILTRAP_USERNAME:eda14a012f001e}
+    password: ${MAILTRAP_PASSWORD:1e6d31d3230244}
+    from: dev@hirehub.local
+
+logging:
+  level:
+    com.hirehub.notification: DEBUG
+    org.springframework.mail: DEBUG
+

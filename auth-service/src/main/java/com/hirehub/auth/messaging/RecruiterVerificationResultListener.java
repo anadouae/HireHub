@@ -1,7 +1,7 @@
 package com.hirehub.auth.messaging;
 
 import com.hirehub.auth.service.RecruiterRegistrationService;
-import com.hirehub.common.constants.RabbitMQConstants;
+import com.hirehub.common.notification.RabbitMQConstants;
 import com.hirehub.common.events.RecruiterVerifiedEvent;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.stereotype.Component;
