@@ -41,8 +41,8 @@ public class Offre {
     @Column(nullable = false)
     private StatutOffre statut;
 
-    @Column(nullable = false)
-    private Long recruteurId;
+    @Column(nullable = false, length = 64)
+    private String recruteurId;
 
     private String recruteurEmail;
 

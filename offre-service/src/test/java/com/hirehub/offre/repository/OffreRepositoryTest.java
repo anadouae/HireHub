@@ -52,7 +52,7 @@ class OffreRepositoryTest {
                 .ville(ville)
                 .salaire(10000.0)
                 .statut(statut)
-                .recruteurId(10L)
+                .recruteurId("recruteur-10")
                 .recruteurEmail("rh@example.com")
                 .build();
     }

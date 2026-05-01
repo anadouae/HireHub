@@ -22,7 +22,7 @@ public class OffreService {
 
     private final OffreRepository offreRepository;
 
-    public OffreResponse creerOffre(OffreRequest request, Long recruteurId, String recruteurEmail) {
+    public OffreResponse creerOffre(OffreRequest request, String recruteurId, String recruteurEmail) {
         Offre offre = Offre.builder()
                 .titre(request.getTitre())
                 .description(request.getDescription())
@@ -49,12 +49,12 @@ public class OffreService {
                 .map(OffreResponse::from);
     }
 
-    public Page<OffreResponse> listerOffresRecruteur(Long recruteurId, Pageable pageable) {
+    public Page<OffreResponse> listerOffresRecruteur(String recruteurId, Pageable pageable) {
         return offreRepository.findByRecruteurId(recruteurId, pageable)
                 .map(OffreResponse::from);
     }
 
-    public OffreResponse modifierOffre(Long id, OffreRequest request, Long recruteurId) {
+    public OffreResponse modifierOffre(Long id, OffreRequest request, String recruteurId) {
         Offre offre = findOffre(id);
         verifierProprietaire(offre, recruteurId);
 
@@ -68,7 +68,7 @@ public class OffreService {
         return OffreResponse.from(offreRepository.save(offre));
     }
 
-    public OffreResponse publierOffre(Long id, Long recruteurId) {
+    public OffreResponse publierOffre(Long id, String recruteurId) {
         Offre offre = findOffre(id);
         verifierProprietaire(offre, recruteurId);
 
@@ -76,7 +76,7 @@ public class OffreService {
         return OffreResponse.from(offreRepository.save(offre));
     }
 
-    public OffreResponse fermerOffre(Long id, Long recruteurId) {
+    public OffreResponse fermerOffre(Long id, String recruteurId) {
         Offre offre = findOffre(id);
         verifierProprietaire(offre, recruteurId);
 
@@ -93,7 +93,7 @@ public class OffreService {
                 .orElseThrow(() -> new IllegalArgumentException("Offre non trouvee : " + id));
     }
 
-    private void verifierProprietaire(Offre offre, Long recruteurId) {
+    private void verifierProprietaire(Offre offre, String recruteurId) {
         if (!offre.getRecruteurId().equals(recruteurId)) {
             throw new SecurityException("Acces refuse : vous n'etes pas proprietaire de cette offre");
         }

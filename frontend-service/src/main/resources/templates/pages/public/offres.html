@@ -2,82 +2,73 @@
 <html lang="fr" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
       layout:decorate="~{layout}">
 <head>
-    <title>Offres d’emploi</title>
+    <title>Offres d'emploi</title>
 </head>
 <body>
 <section layout:fragment="content" class="page-inner">
     <div class="container">
-        <h1 class="page-hero-title">Offres d’emploi</h1>
-        <p class="page-hero-sub">Filtrez par ville et type de contrat — données de démonstration en attendant l’API <code>offre-service</code>.</p>
+        <h1 class="page-hero-title">Offres d'emploi</h1>
+        <p class="page-hero-sub">Offres publiees depuis <code>offre-service</code>.</p>
 
-        <div class="row g-3 mb-4">
+        <form class="row g-3 mb-4" method="get" th:action="@{/offres}">
             <div class="col-md-4">
-                <label class="hh-form-label">Ville</label>
-                <select class="form-select rounded-3 border-0 shadow-sm">
-                    <option>Toutes</option>
-                    <option>Tétouan</option>
-                    <option>Tanger</option>
-                    <option>Rabat</option>
+                <label class="hh-form-label" for="ville">Ville</label>
+                <input id="ville" name="ville" type="text" class="form-control rounded-3 border-0 shadow-sm"
+                       th:value="${filtreVille}" placeholder="Casablanca"/>
+            </div>
+            <div class="col-md-3">
+                <label class="hh-form-label" for="typeContrat">Type de contrat</label>
+                <select id="typeContrat" name="typeContrat" class="form-select rounded-3 border-0 shadow-sm">
+                    <option value="" th:selected="${filtreTypeContrat == ''}">Tous</option>
+                    <option value="CDI" th:selected="${filtreTypeContrat == 'CDI'}">CDI</option>
+                    <option value="CDD" th:selected="${filtreTypeContrat == 'CDD'}">CDD</option>
+                    <option value="STAGE" th:selected="${filtreTypeContrat == 'STAGE'}">Stage</option>
+                    <option value="ALTERNANCE" th:selected="${filtreTypeContrat == 'ALTERNANCE'}">Alternance</option>
+                    <option value="FREELANCE" th:selected="${filtreTypeContrat == 'FREELANCE'}">Freelance</option>
                 </select>
             </div>
-            <div class="col-md-4">
-                <label class="hh-form-label">Type de contrat</label>
-                <select class="form-select rounded-3 border-0 shadow-sm">
-                    <option>Tous</option>
-                    <option>CDI</option>
-                    <option>CDD</option>
-                    <option>Stage</option>
-                </select>
+            <div class="col-md-3">
+                <label class="hh-form-label" for="motCle">Mot-cle</label>
+                <input id="motCle" name="motCle" type="text" class="form-control rounded-3 border-0 shadow-sm"
+                       th:value="${filtreMotCle}" placeholder="java"/>
             </div>
-            <div class="col-md-4 d-flex align-items-end">
-                <button type="button" class="btn hh-btn-primary w-100 rounded-pill">Filtrer</button>
+            <div class="col-md-2 d-flex align-items-end">
+                <button type="submit" class="btn hh-btn-primary w-100 rounded-pill">Filtrer</button>
             </div>
+        </form>
+
+        <div class="alert alert-warning border-0 shadow-sm" th:if="${param.error}">
+            Offre introuvable ou indisponible.
         </div>
 
         <div class="hh-table-wrap">
             <table class="table table-hover mb-0">
                 <thead>
                 <tr>
-                    <th>Intitulé</th>
+                    <th>Intitule</th>
                     <th>Ville</th>
                     <th>Contrat</th>
-                    <th>Publiée le</th>
+                    <th>Salaire</th>
                     <th></th>
                 </tr>
                 </thead>
                 <tbody>
-                <tr>
-                    <td class="fw-medium">Développeur Java / Spring</td>
-                    <td>Tétouan</td>
-                    <td>CDI</td>
-                    <td>12/03/2026</td>
-                    <td><a class="btn btn-sm btn-outline-primary rounded-pill" th:href="@{/offres/1}">Détails</a></td>
+                <tr th:if="${#lists.isEmpty(offresPage.content)}">
+                    <td colspan="5" class="text-center text-muted py-4">Aucune offre publiee ne correspond aux filtres.</td>
                 </tr>
-                <tr>
-                    <td class="fw-medium">Ingénieur DevOps</td>
-                    <td>Tanger</td>
-                    <td>CDI</td>
-                    <td>10/03/2026</td>
-                    <td><a class="btn btn-sm btn-outline-primary rounded-pill" th:href="@{/offres/2}">Détails</a></td>
-                </tr>
-                <tr>
-                    <td class="fw-medium">Stage PFE — Full-stack</td>
-                    <td>Rabat</td>
-                    <td>Stage</td>
-                    <td>05/03/2026</td>
-                    <td><a class="btn btn-sm btn-outline-primary rounded-pill" th:href="@{/offres/3}">Détails</a></td>
+                <tr th:each="offre : ${offresPage.content}">
+                    <td class="fw-medium" th:text="${offre.titre}">Developpeur Java</td>
+                    <td th:text="${offre.ville}">Casablanca</td>
+                    <td><span class="badge bg-primary rounded-pill" th:text="${offre.typeContrat}">CDI</span></td>
+                    <td th:text="${offre.salaire != null ? #numbers.formatDecimal(offre.salaire, 0, 'POINT', 2, 'COMMA') : '-'}">12000</td>
+                    <td class="text-end">
+                        <a class="btn btn-sm btn-outline-primary rounded-pill"
+                           th:href="@{/offres/{id}(id=${offre.id})}">Details</a>
+                    </td>
                 </tr>
                 </tbody>
             </table>
         </div>
-        <nav class="mt-4" aria-label="Pagination">
-            <ul class="pagination justify-content-center mb-0">
-                <li class="page-item disabled"><a class="page-link rounded" href="#">Précédent</a></li>
-                <li class="page-item active"><a class="page-link" href="#">1</a></li>
-                <li class="page-item"><a class="page-link" href="#">2</a></li>
-                <li class="page-item"><a class="page-link rounded" href="#">Suivant</a></li>
-            </ul>
-        </nav>
     </div>
 </section>
 </body>

@@ -35,37 +35,37 @@ class OffreServiceTest {
             return offre;
         });
 
-        OffreResponse response = offreService.creerOffre(request(), 10L, "rh@example.com");
+        OffreResponse response = offreService.creerOffre(request(), "recruteur-10", "rh@example.com");
 
         assertEquals(1L, response.getId());
         assertEquals(StatutOffre.BROUILLON, response.getStatut());
-        assertEquals(10L, response.getRecruteurId());
+        assertEquals("recruteur-10", response.getRecruteurId());
     }
 
     @Test
     void modifierOffreRefuseUnAutreRecruteur() {
-        when(offreRepository.findById(1L)).thenReturn(Optional.of(offre(1L, 10L, StatutOffre.BROUILLON)));
+        when(offreRepository.findById(1L)).thenReturn(Optional.of(offre(1L, "recruteur-10", StatutOffre.BROUILLON)));
 
-        assertThrows(SecurityException.class, () -> offreService.modifierOffre(1L, request(), 99L));
+        assertThrows(SecurityException.class, () -> offreService.modifierOffre(1L, request(), "autre-recruteur"));
         verify(offreRepository, never()).save(any());
     }
 
     @Test
     void publierOffreChangeLeStatut() {
-        when(offreRepository.findById(1L)).thenReturn(Optional.of(offre(1L, 10L, StatutOffre.BROUILLON)));
+        when(offreRepository.findById(1L)).thenReturn(Optional.of(offre(1L, "recruteur-10", StatutOffre.BROUILLON)));
         when(offreRepository.save(any(Offre.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
-        OffreResponse response = offreService.publierOffre(1L, 10L);
+        OffreResponse response = offreService.publierOffre(1L, "recruteur-10");
 
         assertEquals(StatutOffre.PUBLIEE, response.getStatut());
     }
 
     @Test
     void fermerOffreChangeLeStatut() {
-        when(offreRepository.findById(1L)).thenReturn(Optional.of(offre(1L, 10L, StatutOffre.PUBLIEE)));
+        when(offreRepository.findById(1L)).thenReturn(Optional.of(offre(1L, "recruteur-10", StatutOffre.PUBLIEE)));
         when(offreRepository.save(any(Offre.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
-        OffreResponse response = offreService.fermerOffre(1L, 10L);
+        OffreResponse response = offreService.fermerOffre(1L, "recruteur-10");
 
         assertEquals(StatutOffre.FERMEE, response.getStatut());
     }
@@ -93,7 +93,7 @@ class OffreServiceTest {
     void creerOffreEnregistreLesChampsAttendus() {
         when(offreRepository.save(any(Offre.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
-        offreService.creerOffre(request(), 10L, "rh@example.com");
+        offreService.creerOffre(request(), "recruteur-10", "rh@example.com");
 
         ArgumentCaptor<Offre> captor = ArgumentCaptor.forClass(Offre.class);
         verify(offreRepository).save(captor.capture());
@@ -112,7 +112,7 @@ class OffreServiceTest {
         return request;
     }
 
-    private Offre offre(Long id, Long recruteurId, StatutOffre statut) {
+    private Offre offre(Long id, String recruteurId, StatutOffre statut) {
         return Offre.builder()
                 .id(id)
                 .titre("Developpeur Java")

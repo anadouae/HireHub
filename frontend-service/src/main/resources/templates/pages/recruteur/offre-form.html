@@ -8,38 +8,56 @@
 <section layout:fragment="content" class="page-inner">
     <th:block th:insert="~{fragments/recruteur-lock :: top}"/>
     <div th:classappend="${uiRecruteurPending} ? 'hh-recruteur-locked'">
-    <div class="container" style="max-width: 720px;">
-        <h1 class="page-hero-title">Nouvelle offre</h1>
-        <p class="page-hero-sub">Creation et publication vers offre-service.</p>
-        <form class="hh-card">
-            <div class="mb-3">
-                <label class="hh-form-label" for="titre">Intitule</label>
-                <input type="text" id="titre" class="form-control rounded-3 border-0 shadow-sm"/>
-            </div>
-            <div class="row g-3 mb-3">
-                <div class="col-md-6">
-                    <label class="hh-form-label" for="ville">Ville</label>
-                    <input type="text" id="ville" class="form-control rounded-3 border-0 shadow-sm"/>
+        <div class="container" style="max-width: 720px;">
+            <h1 class="page-hero-title">Nouvelle offre</h1>
+            <p class="page-hero-sub">Creation et publication via <code>offre-service</code>.</p>
+
+            <form class="hh-card" method="post" th:action="@{/recruteur/offres}" th:object="${offreForm}">
+                <div class="mb-3">
+                    <label class="hh-form-label" for="titre">Intitule</label>
+                    <input type="text" id="titre" th:field="*{titre}" required
+                           class="form-control rounded-3 border-0 shadow-sm"/>
                 </div>
-                <div class="col-md-6">
-                    <label class="hh-form-label" for="contrat">Contrat</label>
-                    <select id="contrat" class="form-select rounded-3 border-0 shadow-sm">
-                        <option>CDI</option>
-                        <option>CDD</option>
-                        <option>Stage</option>
-                    </select>
+                <div class="row g-3 mb-3">
+                    <div class="col-md-6">
+                        <label class="hh-form-label" for="ville">Ville</label>
+                        <input type="text" id="ville" th:field="*{ville}" required
+                               class="form-control rounded-3 border-0 shadow-sm"/>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="hh-form-label" for="typeContrat">Contrat</label>
+                        <select id="typeContrat" th:field="*{typeContrat}" class="form-select rounded-3 border-0 shadow-sm">
+                            <option value="CDI">CDI</option>
+                            <option value="CDD">CDD</option>
+                            <option value="STAGE">Stage</option>
+                            <option value="ALTERNANCE">Alternance</option>
+                            <option value="FREELANCE">Freelance</option>
+                        </select>
+                    </div>
                 </div>
-            </div>
-            <div class="mb-3">
-                <label class="hh-form-label" for="desc">Description</label>
-                <textarea id="desc" class="form-control rounded-3 border-0 shadow-sm" rows="6"></textarea>
-            </div>
-            <div class="d-flex gap-2 flex-wrap">
-                <button type="button" class="btn hh-btn-primary rounded-pill">Publier</button>
-                <a class="btn btn-link" th:href="@{/recruteur/offres}">Annuler</a>
-            </div>
-        </form>
-    </div>
+                <div class="row g-3 mb-3">
+                    <div class="col-md-6">
+                        <label class="hh-form-label" for="salaire">Salaire</label>
+                        <input type="number" step="0.01" min="0" id="salaire" th:field="*{salaire}"
+                               class="form-control rounded-3 border-0 shadow-sm"/>
+                    </div>
+                    <div class="col-md-6">
+                        <label class="hh-form-label" for="dateExpiration">Date expiration</label>
+                        <input type="datetime-local" id="dateExpiration" th:field="*{dateExpiration}"
+                               class="form-control rounded-3 border-0 shadow-sm"/>
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <label class="hh-form-label" for="description">Description</label>
+                    <textarea id="description" th:field="*{description}" required
+                              class="form-control rounded-3 border-0 shadow-sm" rows="6"></textarea>
+                </div>
+                <div class="d-flex gap-2 flex-wrap">
+                    <button type="submit" class="btn hh-btn-primary rounded-pill">Publier</button>
+                    <a class="btn btn-link" th:href="@{/recruteur/offres}">Annuler</a>
+                </div>
+            </form>
+        </div>
     </div>
 </section>
 </body>

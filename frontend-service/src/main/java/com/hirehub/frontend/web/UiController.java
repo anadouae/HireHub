@@ -3,17 +3,23 @@ package com.hirehub.frontend.web;
 import com.hirehub.frontend.admin.AdminDashboardStats;
 import com.hirehub.frontend.admin.AdminSpaceService;
 import com.hirehub.frontend.admin.AdminUserDetailVm;
+import com.hirehub.frontend.offre.OffreForm;
+import com.hirehub.frontend.offre.OffreFrontendClient;
+import com.hirehub.frontend.offre.OffreView;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
+
 import jakarta.servlet.http.HttpServletRequest;
 import java.util.UUID;
+
 
 /**
  * Routes UI Thymeleaf — toutes les pages par acteur (données mock, branchement API plus tard).
@@ -24,21 +30,37 @@ public class UiController {
     private static final Logger log = LoggerFactory.getLogger(UiController.class);
 
     private final AdminSpaceService adminSpaceService;
+    private final OffreFrontendClient offreFrontendClient;
 
-    public UiController(AdminSpaceService adminSpaceService) {
+    public UiController(AdminSpaceService adminSpaceService, OffreFrontendClient offreFrontendClient) {
         this.adminSpaceService = adminSpaceService;
+        this.offreFrontendClient = offreFrontendClient;
     }
 
     /* ---------- Public ---------- */
 
     @GetMapping("/offres")
-    public String offres() {
+    public String offres(
+            @RequestParam(value = "ville", required = false) String ville,
+            @RequestParam(value = "typeContrat", required = false) String typeContrat,
+            @RequestParam(value = "motCle", required = false) String motCle,
+            Model model
+    ) {
+        model.addAttribute("offresPage", offreFrontendClient.offresPubliees(ville, typeContrat, motCle));
+        model.addAttribute("filtreVille", ville != null ? ville : "");
+        model.addAttribute("filtreTypeContrat", typeContrat != null ? typeContrat : "");
+        model.addAttribute("filtreMotCle", motCle != null ? motCle : "");
         return "pages/public/offres";
     }
 
     @GetMapping("/offres/{id}")
     public String offreDetail(@PathVariable("id") Long id, Model model) {
-        model.addAttribute("offreId", id);
+        OffreView offre = offreFrontendClient.detail(id);
+        if (offre == null) {
+            return "redirect:/offres?error=not_found";
+        }
+        model.addAttribute("offre", offre);
+        model.addAttribute("offreId", offre.getId());
         return "pages/public/offre-detail";
     }
 
@@ -119,13 +141,56 @@ public class UiController {
     }
 
     @GetMapping("/recruteur/offres")
-    public String recruteurOffres() {
+    public String recruteurOffres(
+            @RequestParam(value = "created", required = false) String created,
+            @RequestParam(value = "updated", required = false) String updated,
+            @RequestParam(value = "error", required = false) String error,
+            Model model
+    ) {
+        model.addAttribute("offresPage", offreFrontendClient.mesOffres());
+        model.addAttribute("offreCreated", created != null);
+        model.addAttribute("offreUpdated", updated != null);
+        model.addAttribute("offreError", error != null);
         return "pages/recruteur/offres-list";
     }
 
     @GetMapping("/recruteur/offres/nouvelle")
-    public String recruteurOffreNouvelle() {
+    public String recruteurOffreNouvelle(Model model) {
+        model.addAttribute("offreForm", new OffreForm());
         return "pages/recruteur/offre-form";
+    }
+
+    @PostMapping("/recruteur/offres")
+    public String recruteurCreerOffre(@ModelAttribute OffreForm offreForm) {
+        try {
+            offreFrontendClient.creer(offreForm);
+            return "redirect:/recruteur/offres?created=1";
+        } catch (Throwable ex) {
+            log.warn("Recruiter offer creation failed: {}", ex.toString());
+            return "redirect:/recruteur/offres?error=action_failed";
+        }
+    }
+
+    @PostMapping("/recruteur/offres/{id}/publier")
+    public String recruteurPublierOffre(@PathVariable("id") Long id) {
+        try {
+            offreFrontendClient.publier(id);
+            return "redirect:/recruteur/offres?updated=1";
+        } catch (Throwable ex) {
+            log.warn("Recruiter offer publish failed id={}: {}", id, ex.toString());
+            return "redirect:/recruteur/offres?error=action_failed";
+        }
+    }
+
+    @PostMapping("/recruteur/offres/{id}/fermer")
+    public String recruteurFermerOffre(@PathVariable("id") Long id) {
+        try {
+            offreFrontendClient.fermer(id);
+            return "redirect:/recruteur/offres?updated=1";
+        } catch (Throwable ex) {
+            log.warn("Recruiter offer close failed id={}: {}", id, ex.toString());
+            return "redirect:/recruteur/offres?error=action_failed";
+        }
     }
 
     @GetMapping("/recruteur/offres/{id}/pipeline")

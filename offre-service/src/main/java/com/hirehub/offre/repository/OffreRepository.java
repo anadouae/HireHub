@@ -14,7 +14,7 @@ public interface OffreRepository extends JpaRepository<Offre, Long>, JpaSpecific
 
     Page<Offre> findByStatut(StatutOffre statut, Pageable pageable);
 
-    Page<Offre> findByRecruteurId(Long recruteurId, Pageable pageable);
+    Page<Offre> findByRecruteurId(String recruteurId, Pageable pageable);
 
     boolean existsByIdAndStatut(Long id, StatutOffre statut);
 

@@ -8,58 +8,62 @@
 <section layout:fragment="content" class="page-inner">
     <th:block th:insert="~{fragments/recruteur-lock :: top}"/>
     <div th:classappend="${uiRecruteurPending} ? 'hh-recruteur-locked'">
-    <div class="container">
-        <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
-            <div>
-                <h1 class="page-hero-title mb-0">Mes offres</h1>
-                <p class="page-hero-sub mb-0">CRUD et publication — <code>offre-service</code>.</p>
+        <div class="container">
+            <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
+                <div>
+                    <h1 class="page-hero-title mb-0">Mes offres</h1>
+                    <p class="page-hero-sub mb-0">CRUD et publication via <code>offre-service</code>.</p>
+                </div>
+                <a class="hh-btn-primary" th:href="@{/recruteur/offres/nouvelle}">+ Nouvelle offre</a>
             </div>
-            <a class="hh-btn-primary" th:href="@{/recruteur/offres/nouvelle}">+ Nouvelle offre</a>
-        </div>
 
-        <div class="hh-table-wrap">
-            <table class="table table-hover mb-0">
-                <thead>
-                <tr>
-                    <th>Intitulé</th>
-                    <th>Ville</th>
-                    <th>Statut</th>
-                    <th>Candidatures</th>
-                    <th></th>
-                </tr>
-                </thead>
-                <tbody>
-                <tr>
-                    <td class="fw-medium">Développeur Java / Spring</td>
-                    <td>Tétouan</td>
-                    <td><span class="badge bg-success rounded-pill">Publiée</span></td>
-                    <td>18</td>
-                    <td>
-                        <a class="btn btn-sm btn-outline-primary rounded-pill" th:href="@{/recruteur/offres/1/pipeline}">Pipeline</a>
-                    </td>
-                </tr>
-                <tr>
-                    <td class="fw-medium">Ingénieur DevOps</td>
-                    <td>Tanger</td>
-                    <td><span class="badge bg-success rounded-pill">Publiée</span></td>
-                    <td>9</td>
-                    <td>
-                        <a class="btn btn-sm btn-outline-primary rounded-pill" th:href="@{/recruteur/offres/2/pipeline}">Pipeline</a>
-                    </td>
-                </tr>
-                <tr>
-                    <td class="fw-medium">Stage PFE</td>
-                    <td>Rabat</td>
-                    <td><span class="badge bg-warning text-dark rounded-pill">Brouillon</span></td>
-                    <td>0</td>
-                    <td>
-                        <a class="btn btn-sm btn-outline-secondary rounded-pill" href="#">Modifier</a>
-                    </td>
-                </tr>
-                </tbody>
-            </table>
+            <div class="alert alert-success border-0 shadow-sm" th:if="${offreCreated}">Offre creee et publiee.</div>
+            <div class="alert alert-success border-0 shadow-sm" th:if="${offreUpdated}">Offre mise a jour.</div>
+            <div class="alert alert-danger border-0 shadow-sm" th:if="${offreError}">Action impossible sur l'offre.</div>
+
+            <div class="hh-table-wrap">
+                <table class="table table-hover mb-0 align-middle">
+                    <thead>
+                    <tr>
+                        <th>Intitule</th>
+                        <th>Ville</th>
+                        <th>Contrat</th>
+                        <th>Statut</th>
+                        <th class="text-end">Actions</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:if="${#lists.isEmpty(offresPage.content)}">
+                        <td colspan="5" class="text-center text-muted py-4">Aucune offre pour ce recruteur.</td>
+                    </tr>
+                    <tr th:each="offre : ${offresPage.content}">
+                        <td class="fw-medium" th:text="${offre.titre}">Developpeur Java</td>
+                        <td th:text="${offre.ville}">Casablanca</td>
+                        <td th:text="${offre.typeContrat}">CDI</td>
+                        <td>
+                            <span class="badge rounded-pill"
+                                  th:classappend="${offre.statut == 'PUBLIEE'} ? ' bg-success' : (${offre.statut == 'FERMEE'} ? ' bg-secondary' : ' bg-warning text-dark')"
+                                  th:text="${offre.statut}">BROUILLON</span>
+                        </td>
+                        <td class="text-end">
+                            <div class="d-inline-flex gap-2 flex-wrap justify-content-end">
+                                <form method="post" th:if="${offre.statut != 'PUBLIEE'}"
+                                      th:action="@{/recruteur/offres/{id}/publier(id=${offre.id})}">
+                                    <button type="submit" class="btn btn-sm btn-outline-success rounded-pill">Publier</button>
+                                </form>
+                                <form method="post" th:if="${offre.statut != 'FERMEE'}"
+                                      th:action="@{/recruteur/offres/{id}/fermer(id=${offre.id})}">
+                                    <button type="submit" class="btn btn-sm btn-outline-secondary rounded-pill">Fermer</button>
+                                </form>
+                                <a class="btn btn-sm btn-outline-primary rounded-pill"
+                                   th:href="@{/recruteur/offres/{id}/pipeline(id=${offre.id})}">Pipeline</a>
+                            </div>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
         </div>
-    </div>
     </div>
 </section>
 </body>

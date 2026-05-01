@@ -23,7 +23,7 @@ public class OffreController {
     @PostMapping
     public ResponseEntity<OffreResponse> creerOffre(
             @Valid @RequestBody OffreRequest request,
-            @RequestHeader(name = "X-User-Id") Long recruteurId,
+            @RequestHeader(name = "X-User-Id") String recruteurId,
             @RequestHeader(name = "X-User-Email") String recruteurEmail) {
         return ResponseEntity.ok(offreService.creerOffre(request, recruteurId, recruteurEmail));
     }
@@ -47,7 +47,7 @@ public class OffreController {
     // GET /api/offres/mes-offres — offres du recruteur connecté
     @GetMapping("/mes-offres")
     public ResponseEntity<Page<OffreResponse>> mesOffres(
-            @RequestHeader(name = "X-User-Id") Long recruteurId,
+            @RequestHeader(name = "X-User-Id") String recruteurId,
             Pageable pageable) {
         return ResponseEntity.ok(offreService.listerOffresRecruteur(recruteurId, pageable));
     }
@@ -57,7 +57,7 @@ public class OffreController {
     public ResponseEntity<OffreResponse> modifierOffre(
             @PathVariable(name = "id") Long id,
             @Valid @RequestBody OffreRequest request,
-            @RequestHeader(name = "X-User-Id") Long recruteurId) {
+            @RequestHeader(name = "X-User-Id") String recruteurId) {
         return ResponseEntity.ok(offreService.modifierOffre(id, request, recruteurId));
     }
 
@@ -65,7 +65,7 @@ public class OffreController {
     @PatchMapping("/{id}/publier")
     public ResponseEntity<OffreResponse> publierOffre(
             @PathVariable(name = "id") Long id,
-            @RequestHeader(name = "X-User-Id") Long recruteurId) {
+            @RequestHeader(name = "X-User-Id") String recruteurId) {
         return ResponseEntity.ok(offreService.publierOffre(id, recruteurId));
     }
 
@@ -73,7 +73,7 @@ public class OffreController {
     @PatchMapping("/{id}/fermer")
     public ResponseEntity<OffreResponse> fermerOffre(
             @PathVariable(name = "id") Long id,
-            @RequestHeader(name = "X-User-Id") Long recruteurId) {
+            @RequestHeader(name = "X-User-Id") String recruteurId) {
         return ResponseEntity.ok(offreService.fermerOffre(id, recruteurId));
     }
 

@@ -36,11 +36,11 @@ class OffreControllerTest {
 
     @Test
     void postCreationOffreRetourneOk() throws Exception {
-        when(offreService.creerOffre(any(OffreRequest.class), eq(10L), eq("rh@example.com")))
+        when(offreService.creerOffre(any(OffreRequest.class), eq("recruteur-10"), eq("rh@example.com")))
                 .thenReturn(response(1L, StatutOffre.BROUILLON));
 
         mockMvc.perform(post("/api/offres")
-                        .header("X-User-Id", "10")
+                        .header("X-User-Id", "recruteur-10")
                         .header("X-User-Email", "rh@example.com")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(request())))
@@ -64,9 +64,9 @@ class OffreControllerTest {
 
     @Test
     void patchPublierRetourneOffrePubliee() throws Exception {
-        when(offreService.publierOffre(1L, 10L)).thenReturn(response(1L, StatutOffre.PUBLIEE));
+        when(offreService.publierOffre(1L, "recruteur-10")).thenReturn(response(1L, StatutOffre.PUBLIEE));
 
-        mockMvc.perform(patch("/api/offres/1/publier").header("X-User-Id", "10"))
+        mockMvc.perform(patch("/api/offres/1/publier").header("X-User-Id", "recruteur-10"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.statut").value("PUBLIEE"));
     }
@@ -81,9 +81,9 @@ class OffreControllerTest {
 
     @Test
     void accesRefuseRetourne403() throws Exception {
-        when(offreService.fermerOffre(1L, 99L)).thenThrow(new SecurityException("Acces refuse"));
+        when(offreService.fermerOffre(1L, "autre-recruteur")).thenThrow(new SecurityException("Acces refuse"));
 
-        mockMvc.perform(patch("/api/offres/1/fermer").header("X-User-Id", "99"))
+        mockMvc.perform(patch("/api/offres/1/fermer").header("X-User-Id", "autre-recruteur"))
                 .andExpect(status().isForbidden());
     }
 
@@ -106,7 +106,7 @@ class OffreControllerTest {
         response.setVille("Casablanca");
         response.setSalaire(12000.0);
         response.setStatut(statut);
-        response.setRecruteurId(10L);
+        response.setRecruteurId("recruteur-10");
         response.setRecruteurEmail("rh@example.com");
         return response;
     }

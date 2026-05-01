@@ -18,7 +18,7 @@ public class OffreResponse {
     private LocalDateTime dateCreation;
     private LocalDateTime dateExpiration;
     private StatutOffre statut;
-    private Long recruteurId;
+    private String recruteurId;
     private String recruteurEmail;
 
     public static OffreResponse from(Offre offre) {
