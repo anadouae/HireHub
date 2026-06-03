@@ -53,8 +53,8 @@ public class RecruteurStatsService {
         List<String> labels = new ArrayList<>();
         for (int i = 0; i < offres.size(); i++) {
             String titre = offres.get(i).getTitre();
-            if (titre != null && titre.length() > 18) {
-                titre = titre.substring(0, 18) + "…";
+            if (titre != null && titre.length() > 40) {
+                titre = titre.substring(0, 40) + "…";
             }
             labels.add(titre != null ? titre : "Offre " + (i + 1));
         }

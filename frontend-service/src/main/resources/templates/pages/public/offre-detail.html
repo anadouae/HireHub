@@ -26,7 +26,11 @@
                         </span>
                     </p>
                 </div>
-                <a class="hh-btn-primary" th:href="@{/offres/{id}/postuler(id=${offre.id})}">Postuler</a>
+                <a class="hh-btn-primary" th:if="${uiCanPostuler}"
+                   th:href="@{/offres/{id}/postuler(id=${offre.id})}">Postuler</a>
+                <span class="text-muted small" th:unless="${uiCanPostuler}" th:if="${uiConnecte}">
+                    La candidature est réservée aux comptes candidat.
+                </span>
             </div>
             <hr class="my-4 opacity-25"/>
             <h2 class="h6 text-uppercase" style="color: var(--hh-violet-800);">Description</h2>

@@ -3,13 +3,15 @@ package com.hirehub.auth.messaging;
 import com.hirehub.auth.service.RecruiterRegistrationService;
 import com.hirehub.common.notification.RabbitMQConstants;
 import com.hirehub.common.events.RecruiterVerifiedEvent;
-import lombok.extern.slf4j.Slf4j;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.stereotype.Component;
 
-@Slf4j
 @Component
 public class RecruiterVerificationResultListener {
+
+    private static final Logger log = LoggerFactory.getLogger(RecruiterVerificationResultListener.class);
 
     private final RecruiterRegistrationService recruiterRegistrationService;
 

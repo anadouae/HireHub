@@ -109,6 +109,13 @@ public final class RabbitMQConstants {
      */
     public static final String QUEUE_AUDIT_CANDIDATURE = "audit.candidature.queue";
 
+    /** Audit passif (event-service) — ne pas partager les queues {@code notif.*} avec email-service. */
+    public static final String QUEUE_AUDIT_STATUT = "audit.statut.queue";
+    public static final String QUEUE_AUDIT_ENTRETIEN = "audit.entretien.queue";
+    public static final String QUEUE_AUDIT_RECRUITER = "audit.recruiter.queue";
+    public static final String QUEUE_AUDIT_AUTHENTIFICATION = "audit.auth.queue";
+    public static final String QUEUE_AUDIT_ADMIN_USER = "audit.admin.user.queue";
+
     ///Queue écoutée pour les changements de statut
     ///binding : EXCHANGE + ROUTING_CANDIDATURE_STATUT_CHANGED → cette queue
     public static final String QUEUE_NOTIFICATION_STATUT      = "notif.statut.queue";

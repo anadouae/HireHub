@@ -36,10 +36,16 @@ public final class CandidatureMapper {
         candidatureResponseDTO.setCandidatId(candidature.getCandidatId());
         candidatureResponseDTO.setMessage("Candidature crée");
 
-        candidatureResponseDTO.setCreatedAt(candidature.getDateModification()
-                .format(DateTimeFormatter.ofPattern("yyyy-MM-dd")));
+        DateTimeFormatter iso = DateTimeFormatter.ISO_LOCAL_DATE_TIME;
+        if (candidature.getDateSoumission() != null) {
+            candidatureResponseDTO.setDateSoumission(candidature.getDateSoumission().format(iso));
+            candidatureResponseDTO.setCreatedAt(candidature.getDateSoumission().format(iso));
+        }
+        if (candidature.getDateModification() != null) {
+            candidatureResponseDTO.setDateModification(candidature.getDateModification().format(iso));
+        }
 
-        candidatureResponseDTO.setStatus(candidature.getStatus().getLabel());
+        candidatureResponseDTO.setStatus(candidature.getStatus().name());
         candidatureResponseDTO.setCvPath(candidature.getCvPath());
         candidatureResponseDTO.setLettreMotivationPath(candidature.getLettreMotivationPath());
 

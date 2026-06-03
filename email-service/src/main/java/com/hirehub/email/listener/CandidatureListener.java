@@ -88,21 +88,28 @@ public class CandidatureListener {
             String eventId = event.getEventId();
             log.info("[CANDIDATURE.STATUT.CHANGED] Traitement de l'événement {} pour: {}", eventId, event.getRecipientEmail());
 
-            // Extraire les données du payload
-            String offerTitle = (String) event.getPayload().get("offerTitle");
-            String oldStatus = (String) event.getPayload().get("oldStatus");
-            String newStatus = (String) event.getPayload().get("newStatus");
-            String comment = (String) event.getPayload().get("comment");
+            var payload = event.getPayload() != null ? event.getPayload() : java.util.Map.<String, Object>of();
+            String offerTitle = payload.get("offerTitle") != null ? payload.get("offerTitle").toString() : "Offre";
+            String oldStatus = payload.get("oldStatus") != null ? payload.get("oldStatus").toString() : "";
+            String newStatus = payload.get("newStatus") != null ? payload.get("newStatus").toString() : "";
+            String comment = payload.get("comment") != null ? payload.get("comment").toString() : "";
 
             String candidatEmail = event.getRecipientEmail();
-            String candidatName = event.getRecipientName();
-            if (event.getPayload().get("candidatId") != null) {
-                UserInfoDTO user = authServiceClientAPI.getUserById(
-                        event.getPayload().get("candidatId").toString());
-                if (user != null && user.getEmail() != null && !user.getEmail().isBlank()) {
-                    candidatEmail = user.getEmail();
-                    candidatName = user.getFirstName() != null ? user.getFirstName() : candidatName;
+            String candidatName = event.getRecipientName() != null ? event.getRecipientName() : "Candidat";
+            if (payload.get("candidatId") != null) {
+                try {
+                    UserInfoDTO user = authServiceClientAPI.getUserById(payload.get("candidatId").toString());
+                    if (user != null && user.getEmail() != null && !user.getEmail().isBlank()) {
+                        candidatEmail = user.getEmail();
+                        candidatName = user.getFirstName() != null ? user.getFirstName() : candidatName;
+                    }
+                } catch (Exception ex) {
+                    log.warn("[CANDIDATURE.STATUT] Lookup auth ignoré: {}", ex.getMessage());
                 }
+            }
+            if (candidatEmail == null || candidatEmail.isBlank()) {
+                log.warn("[CANDIDATURE.STATUT] Pas d'email destinataire pour event {}", eventId);
+                return;
             }
 
             emailService.sendCandidatureStatutChangedNotification(

@@ -14,6 +14,7 @@ public class EntretienView {
     private String lienVisio;
     private String type;
     private String status;
+    private String candidatDisplayName;
 
     public String getId() {
         return id;
@@ -85,6 +86,14 @@ public class EntretienView {
 
     public void setStatus(String status) {
         this.status = status;
+    }
+
+    public String getCandidatDisplayName() {
+        return candidatDisplayName;
+    }
+
+    public void setCandidatDisplayName(String candidatDisplayName) {
+        this.candidatDisplayName = candidatDisplayName;
     }
 
     public String getDateHeureFormatted() {

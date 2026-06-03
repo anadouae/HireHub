@@ -10,28 +10,51 @@
     <div class="container" style="max-width: 640px;">
         <h1 class="page-hero-title">Mon profil</h1>
         <p class="page-hero-sub" sec:authorize="hasRole('CANDIDAT')">
-            Compte <strong>candidat</strong> : gérez vos informations depuis cet espace.
+            Téléphone et CV par défaut — réutilisés quand vous postulez avec « Utiliser mon CV par défaut ».
         </p>
 
-        <form class="hh-card">
+        <div class="alert alert-success border-0 shadow-sm" th:if="${success}" th:text="${success}"></div>
+        <div class="alert alert-danger border-0 shadow-sm" th:if="${error}" th:text="${error}"></div>
+
+        <form class="hh-card mb-4" method="post" th:action="@{/candidat/profil}" enctype="multipart/form-data">
             <h2 class="h6 text-uppercase mb-3" style="color: var(--hh-violet-800);">Informations personnelles</h2>
             <div class="mb-3">
                 <label class="hh-form-label" for="nom">Nom complet</label>
-                <input type="text" id="nom" class="form-control rounded-3 border-0 shadow-sm" th:value="${#authentication.principal.fullName}" readonly/>
+                <input type="text" id="nom" class="form-control rounded-3 border-0 shadow-sm"
+                       th:value="${profile.fullName}" readonly/>
             </div>
             <div class="mb-3">
                 <label class="hh-form-label" for="email">Email</label>
-                <input type="email" id="email" class="form-control rounded-3 border-0 shadow-sm" th:value="${#authentication.name}" readonly/>
+                <input type="email" id="email" class="form-control rounded-3 border-0 shadow-sm"
+                       th:value="${profile.email}" readonly/>
             </div>
             <div class="mb-3">
                 <label class="hh-form-label" for="tel">Téléphone</label>
-                <input type="tel" id="tel" class="form-control rounded-3 border-0 shadow-sm" placeholder="+212 …"/>
+                <input type="tel" id="tel" name="phone" class="form-control rounded-3 border-0 shadow-sm"
+                       placeholder="+212 6 00 00 00 00" th:value="${profile.phone}"/>
             </div>
-            <div class="mb-4">
-                <label class="hh-form-label" for="cv">CV par défaut (PDF)</label>
-                <input type="file" id="cv" class="form-control rounded-3 border-0 shadow-sm" accept=".pdf"/>
+            <button type="submit" class="btn hh-btn-primary rounded-pill">Enregistrer le téléphone</button>
+        </form>
+
+        <form class="hh-card" method="post" th:action="@{/candidat/profil}" enctype="multipart/form-data">
+            <h2 class="h6 text-uppercase mb-3" style="color: var(--hh-violet-800);">CV par défaut</h2>
+            <div class="alert alert-info border-0 py-2 small" th:if="${profile.hasDefaultCv}">
+                ✓ Un CV par défaut est enregistré. Lors d'une candidature, choisissez
+                <strong>« Utiliser mon CV par défaut »</strong> ou téléversez un autre fichier.
             </div>
-            <button type="button" class="btn hh-btn-primary rounded-pill">Enregistrer</button>
+            <div class="alert alert-warning border-0 py-2 small" th:unless="${profile.hasDefaultCv}">
+                Aucun CV par défaut. Enregistrez-en un ici pour postuler plus vite.
+            </div>
+            <div class="mb-3">
+                <label class="hh-form-label" for="defaultCv">Fichier PDF (max. 5 Mo)</label>
+                <input type="file" id="defaultCv" name="defaultCv" class="form-control rounded-3 border-0 shadow-sm"
+                       accept=".pdf,application/pdf" required/>
+            </div>
+            <input type="hidden" name="phone" th:value="${profile.phone}"/>
+            <button type="submit" class="btn btn-outline-primary rounded-pill">
+                <span th:if="${profile.hasDefaultCv}">Remplacer mon CV par défaut</span>
+                <span th:unless="${profile.hasDefaultCv}">Enregistrer mon CV par défaut</span>
+            </button>
         </form>
     </div>
 </section>

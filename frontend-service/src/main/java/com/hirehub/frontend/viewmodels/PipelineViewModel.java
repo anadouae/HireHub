@@ -19,7 +19,9 @@ import java.time.format.DateTimeFormatter;
 public class PipelineViewModel {
     private String candidatureId;
     private String candidatId;
+    private String candidatDisplayName;
     private String candidatEmail;
+    private String offreId;
     private String status;
     private LocalDateTime dateSoumission;
     private String cvPath;
@@ -30,6 +32,7 @@ public class PipelineViewModel {
         PipelineViewModel vm = new PipelineViewModel();
         vm.setCandidatureId(dto.getId());
         vm.setCandidatId(dto.getCandidatId());
+        vm.setOffreId(dto.getOffreId());
         vm.setStatus(dto.getStatus());
         vm.setDateSoumission(dto.getDateSoumission());
         vm.setCvPath(dto.getCvPath());

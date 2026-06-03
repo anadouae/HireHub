@@ -10,19 +10,23 @@
         <div th:if="${error}" class="alert alert-danger">
             <span th:text="${error}"></span>
         </div>
+        <div class="alert alert-success" th:if="${success}" th:text="${success}"></div>
 
         <div th:unless="${error}">
-            <div class="mb-3">
-                <a th:href="@{/recruteur/pipeline}" class="btn btn-outline-secondary">
+            <div class="mb-3" th:if="${candidature != null}">
+                <a th:href="@{/recruteur/pipeline/{id}(id=${candidature.offreId})}" class="btn btn-outline-secondary">
                     ← Retour au pipeline
                 </a>
             </div>
 
-            <div class="hh-card">
+            <div class="hh-card" th:if="${candidature != null}">
                 <div class="d-flex justify-content-between align-items-start mb-4">
                     <div>
-                        <h1 class="h3" th:text="${candidature.candidatId}"></h1>
-                        <p class="text-muted mb-0">Offre: <strong th:text="${candidature.offreId}"></strong></p>
+                        <h1 class="h3 mb-1" th:text="${candidature.candidatDisplayName}">Nom candidat</h1>
+                        <p class="text-muted mb-0" th:if="${candidature.candidatEmail != null and !candidature.candidatEmail.isEmpty()}">
+                            <span th:text="${candidature.candidatEmail}">email</span>
+                        </p>
+                        <p class="text-muted mb-0">Offre #<strong th:text="${candidature.offreId}">4</strong></p>
                     </div>
                     <span th:class="${candidature.statusBadgeClass}"
                           th:text="${candidature.statusLabel}"></span>
@@ -31,49 +35,159 @@
                 <div class="row mb-4">
                     <div class="col-md-6">
                         <h5 class="text-muted">Date de soumission</h5>
-                        <p th:text="${candidature.getDateSoumissionFormatted()}"></p>
+                        <p th:text="${candidature.dateSoumissionFormatted}">-</p>
                     </div>
                     <div class="col-md-6">
                         <h5 class="text-muted">Dernière modification</h5>
-                        <p th:text="${candidature.getDateModificationFormatted()}"></p>
+                        <p th:text="${candidature.dateModificationFormatted}">-</p>
                     </div>
                 </div>
 
                 <div class="mt-4 pt-4 border-top">
-                    <h5>Fichiers</h5>
-                    <div class="row">
-                        <div class="col-md-6 mb-2">
+                    <h5>Fichiers &amp; dossier</h5>
+                    <div class="row g-3">
+                        <div class="col-md-6">
                             <span class="badge bg-info">CV</span>
                             <th:block th:if="${candidature.hasCv()}">
                                 <a th:href="@{/recruteur/candidature/{id}/download(id=${candidature.id},type=cv)}"
-                                   class="btn btn-sm btn-outline-primary">
+                                   class="btn btn-sm btn-outline-primary ms-2">
+                                    Télécharger le CV
+                                </a>
+                            </th:block>
+                            <span th:unless="${candidature.hasCv()}" class="text-muted ms-2">Non fourni</span>
+                        </div>
+                        <div class="col-md-6">
+                            <span class="badge bg-secondary">Lettre de motivation</span>
+                            <th:block th:if="${candidature.hasLettre()}">
+                                <a th:href="@{/recruteur/candidature/{id}/download(id=${candidature.id},type=lettre)}"
+                                   class="btn btn-sm btn-outline-primary ms-2">
                                     Télécharger
                                 </a>
                             </th:block>
-                            <span th:unless="${candidature.hasCv()}" class="text-muted">Non fourni</span>
+                            <span th:unless="${candidature.hasLettre()}" class="text-muted ms-2">Non fournie</span>
                         </div>
                     </div>
+                    <div class="mt-3" th:if="${lettreMotivationText != null}">
+                        <h6 class="text-muted">Contenu de la lettre</h6>
+                        <div class="p-3 rounded-3 bg-light border" style="white-space: pre-wrap;"
+                             th:text="${lettreMotivationText}">Lettre…</div>
+                    </div>
+                    <p class="small text-muted mt-2 mb-0" th:if="${candidature.hasLettre() and lettreMotivationText == null}">
+                        La lettre est enregistrée mais le fichier est introuvable sur le serveur.
+                    </p>
                 </div>
 
                 <div class="mt-4 pt-4 border-top">
                     <h5>Changer le statut</h5>
-                    <form th:action="@{/recruteur/candidature/{id}/statut(id=${candidature.id})}" method="POST" class="d-inline">
-                        <div class="input-group">
+                    <p class="small text-muted mb-2">
+                        Parcours : <strong>Soumise</strong> → En cours → <strong>Entretien</strong> (planification) → Acceptée ou Refusée.
+                    </p>
+
+                    <div class="alert alert-info border-0 py-2 small" th:if="${candidature.status == 'ENTRETIEN'}">
+                        Cette candidature est en <strong>Entretien</strong>. Vous ne pouvez pas revenir à « En cours ».
+                        Après l'entretien, choisissez <strong>Acceptée</strong> ou <strong>Refusée</strong>.
+                    </div>
+
+                    <form th:if="${!#lists.isEmpty(allowedNextStatuses)}"
+                          th:action="@{/recruteur/candidature/{id}/statut(id=${candidature.id})}" method="post" class="d-inline">
+                        <div class="input-group" style="max-width: 28rem;">
                             <select name="status" class="form-select" required>
-                                <option value="">-- Sélectionner un statut --</option>
-                                <option value="EN_COURS">En cours</option>
-                                <option value="EN_ATTENTE">En attente</option>
-                                <option value="ACCEPTÉE">Acceptée</option>
-                                <option value="REJETÉE">Rejetée</option>
+                                <option value="">-- Choisir le nouveau statut --</option>
+                                <option th:if="${#lists.contains(allowedNextStatuses, 'EN_COURS')}" value="EN_COURS">En cours</option>
+                                <option th:if="${#lists.contains(allowedNextStatuses, 'ACCEPTEE')}" value="ACCEPTEE">Acceptée</option>
+                                <option th:if="${#lists.contains(allowedNextStatuses, 'REFUSEE')}" value="REFUSEE">Refusée</option>
                             </select>
                             <button type="submit" class="btn btn-primary">Mettre à jour</button>
                         </div>
                     </form>
+                    <p class="small text-muted mt-2 mb-0" th:if="${candidature.status == 'EN_COURS'}">
+                        Pour passer en « Entretien », utilisez le formulaire <strong>Planifier un entretien</strong> ci-dessous (e-mail automatique au candidat).
+                    </p>
+                    <p class="small text-muted mt-2 mb-0" th:if="${candidature.status == 'ACCEPTEE' or candidature.status == 'REFUSEE'}">
+                        Statut final — plus de changement possible.
+                    </p>
+                </div>
+
+                <div class="mt-4 pt-4 border-top" th:if="${!#lists.isEmpty(entretiens)}">
+                    <h5>Entretiens de cette candidature</h5>
+                    <ul class="list-group list-group-flush">
+                        <li class="list-group-item px-0" th:each="e : ${entretiens}">
+                            <strong th:text="${e.dateHeureFormatted}">date</strong>
+                            — <span th:text="${e.type}">type</span>
+                            — <span th:text="${e.lieuOuVisio}">lieu</span>
+                            <span class="badge bg-secondary ms-1" th:text="${e.status}">statut</span>
+                        </li>
+                    </ul>
+                </div>
+
+                <div class="mt-4 pt-4 border-top" th:if="${canPlanEntretien}">
+                    <h5>Planifier un entretien</h5>
+                    <p class="small text-muted">
+                        Renseignez la date et le mode (présentiel, visio ou téléphone).
+                        Le candidat sera notifié par e-mail et la candidature passera au statut « Entretien ».
+                    </p>
+                    <form th:action="@{/recruteur/candidature/{id}/entretien(id=${candidature.id})}" method="post"
+                          class="row g-3" style="max-width: 36rem;" id="planEntretienForm">
+                        <div class="col-12">
+                            <label class="form-label" for="dateHeure">Date et heure</label>
+                            <input type="datetime-local" class="form-control" id="dateHeure" name="dateHeure" required>
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label" for="type">Type d'entretien</label>
+                            <select class="form-select" id="type" name="type" required>
+                                <option value="">-- Choisir --</option>
+                                <option value="PRESENTIEL">Présentiel</option>
+                                <option value="VISIO">Visioconférence</option>
+                                <option value="TELEPHONIQUE">Téléphonique</option>
+                            </select>
+                        </div>
+                        <div class="col-12" id="fieldLieu" style="display:none;">
+                            <label class="form-label" for="lieu">Lieu</label>
+                            <input type="text" class="form-control" id="lieu" name="lieu"
+                                   placeholder="Adresse ou salle de réunion">
+                        </div>
+                        <div class="col-12" id="fieldVisio" style="display:none;">
+                            <label class="form-label" for="lienVisio">Lien visio</label>
+                            <input type="url" class="form-control" id="lienVisio" name="lienVisio"
+                                   placeholder="https://meet.example.com/...">
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label" for="notesInternes">Notes internes (optionnel)</label>
+                            <textarea class="form-control" id="notesInternes" name="notesInternes" rows="2"></textarea>
+                        </div>
+                        <div class="col-12">
+                            <button type="submit" class="btn btn-primary">Planifier l'entretien</button>
+                        </div>
+                    </form>
+                </div>
+
+                <div class="mt-4 pt-4 border-top alert alert-info border-0"
+                     th:if="${candidature.status == 'SOUMISE' and !canPlanEntretien}">
+                    Passez d'abord la candidature en <strong>En cours</strong>, puis planifiez l'entretien.
                 </div>
             </div>
         </div>
     </div>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const typeSelect = document.getElementById('type');
+            const fieldLieu = document.getElementById('fieldLieu');
+            const fieldVisio = document.getElementById('fieldVisio');
+            const lieuInput = document.getElementById('lieu');
+            const visioInput = document.getElementById('lienVisio');
+            if (!typeSelect) return;
+
+            function syncTypeFields() {
+                const t = typeSelect.value;
+                fieldLieu.style.display = t === 'PRESENTIEL' ? 'block' : 'none';
+                fieldVisio.style.display = t === 'VISIO' ? 'block' : 'none';
+                if (lieuInput) lieuInput.required = t === 'PRESENTIEL';
+                if (visioInput) visioInput.required = t === 'VISIO';
+            }
+            typeSelect.addEventListener('change', syncTypeFields);
+            syncTypeFields();
+        });
+    </script>
 </section>
 </body>
 </html>
-

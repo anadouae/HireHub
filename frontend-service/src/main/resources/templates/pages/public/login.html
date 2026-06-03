@@ -63,6 +63,10 @@
             <div class="alert alert-success" th:if="${passwordResetOk}" role="status">
                 Mot de passe mis &agrave; jour. Vous pouvez vous connecter avec votre nouveau mot de passe.
             </div>
+            <div class="alert alert-warning" th:if="${loginOauthNotRegistered}" role="alert">
+                Ce compte Google n&rsquo;est pas inscrit sur HireHub.
+                <a th:href="@{/register}">Cr&eacute;ez un compte</a> (candidat ou recruteur), puis reconnectez-vous avec Google.
+            </div>
             <div class="alert alert-danger" th:if="${loginOauthError}" role="alert">
                 Connexion Google impossible (email non fourni, non v&eacute;rifi&eacute;, ou configuration OAuth &agrave; compl&eacute;ter).
             </div>

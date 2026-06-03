@@ -1,5 +1,6 @@
 package com.hirehub.frontend.oauth;
 
+import com.hirehub.frontend.notification.AuthNotificationService;
 import com.hirehub.frontend.auth.FrontendJwtService;
 import com.hirehub.frontend.auth.HirehubUserDetails;
 import com.hirehub.frontend.auth.SessionAuthSupport;
@@ -24,15 +25,18 @@ public class GoogleOAuth2LoginSuccessHandler implements AuthenticationSuccessHan
     private final GoogleOAuthAccountService googleOAuthAccountService;
     private final SecurityContextRepository securityContextRepository;
     private final FrontendJwtService frontendJwtService;
+    private final AuthNotificationService authNotificationService;
 
     public GoogleOAuth2LoginSuccessHandler(
             GoogleOAuthAccountService googleOAuthAccountService,
             SecurityContextRepository securityContextRepository,
-            FrontendJwtService frontendJwtService
+            FrontendJwtService frontendJwtService,
+            AuthNotificationService authNotificationService
     ) {
         this.googleOAuthAccountService = googleOAuthAccountService;
         this.securityContextRepository = securityContextRepository;
         this.frontendJwtService = frontendJwtService;
+        this.authNotificationService = authNotificationService;
     }
 
     @Override
@@ -56,8 +60,13 @@ public class GoogleOAuth2LoginSuccessHandler implements AuthenticationSuccessHan
             response.sendRedirect(request.getContextPath() + "/login?oauth_error=1");
             return;
         }
-        String name = principal.getAttribute("name");
-        HirehubUserDetails userDetails = googleOAuthAccountService.loadOrCreateFromGoogle(email, name != null ? name : "");
+        HirehubUserDetails userDetails;
+        try {
+            userDetails = googleOAuthAccountService.loadExistingFromGoogle(email);
+        } catch (GoogleOAuthAccountNotRegisteredException ex) {
+            response.sendRedirect(request.getContextPath() + "/login?oauth_error=not_registered");
+            return;
+        }
         if (!userDetails.isEnabled()) {
             response.sendRedirect(request.getContextPath() + "/login?error=blocked");
             return;
@@ -70,6 +79,12 @@ public class GoogleOAuth2LoginSuccessHandler implements AuthenticationSuccessHan
         SecurityContextHolder.setContext(context);
         securityContextRepository.saveContext(context, request, response);
         SessionAuthSupport.storeAccessToken(frontendJwtService.generateAccessToken(userDetails));
+
+        try {
+            authNotificationService.publishLogin(userDetails, request);
+        } catch (Exception ignored) {
+            // Notification best-effort
+        }
 
         response.sendRedirect(request.getContextPath() + "/");
     }

@@ -27,7 +27,7 @@ public interface IOffreServiceClient {
      * @param id l'ID de l'offre
      * @return true si l'offre existe et est publiée, false sinon
      */
-    @GetMapping("/api/offres/{id}/exists")
+    @GetMapping("/api/offres/{id}/valide")
     boolean offreExists(@PathVariable("id") String id);
 
     /**

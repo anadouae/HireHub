@@ -12,8 +12,11 @@ import com.hirehub.frontend.recruteur.RecruteurStatsView;
 import com.hirehub.common.enums.UserRole;
 import com.hirehub.frontend.auth.HirehubUserDetails;
 import com.hirehub.frontend.candidature.ApplicationUploadService;
+import com.hirehub.frontend.candidature.CandidateDisplayService;
+import com.hirehub.frontend.candidature.CandidateProfileService;
 import com.hirehub.frontend.candidature.CandidatureFrontendClient;
 import com.hirehub.frontend.candidature.CandidatureServiceException;
+import com.hirehub.frontend.entretien.EntretienView;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Controller;
@@ -45,6 +48,8 @@ public class UiController {
     private final RecruteurStatsService recruteurStatsService;
     private final CandidatureFrontendClient candidatureFrontendClient;
     private final ApplicationUploadService applicationUploadService;
+    private final CandidateProfileService candidateProfileService;
+    private final CandidateDisplayService candidateDisplayService;
 
     public UiController(
             AdminSpaceService adminSpaceService,
@@ -52,7 +57,9 @@ public class UiController {
             EntretienFrontendClient entretienFrontendClient,
             RecruteurStatsService recruteurStatsService,
             CandidatureFrontendClient candidatureFrontendClient,
-            ApplicationUploadService applicationUploadService
+            ApplicationUploadService applicationUploadService,
+            CandidateProfileService candidateProfileService,
+            CandidateDisplayService candidateDisplayService
     ) {
         this.adminSpaceService = adminSpaceService;
         this.offreFrontendClient = offreFrontendClient;
@@ -60,6 +67,8 @@ public class UiController {
         this.recruteurStatsService = recruteurStatsService;
         this.candidatureFrontendClient = candidatureFrontendClient;
         this.applicationUploadService = applicationUploadService;
+        this.candidateProfileService = candidateProfileService;
+        this.candidateDisplayService = candidateDisplayService;
     }
 
     /* ---------- Public ---------- */
@@ -90,8 +99,17 @@ public class UiController {
     }
 
     @GetMapping("/offres/{id}/postuler")
-    public String postuler(@PathVariable("id") Long id, Model model) {
+    public String postuler(@PathVariable("id") Long id, Model model, Authentication auth) {
+        if (auth != null && auth.getPrincipal() instanceof HirehubUserDetails user
+                && user.getRole() != UserRole.CANDIDAT) {
+            return "redirect:/offres/" + id + "?error=postuler_candidat_only";
+        }
         model.addAttribute("offreId", id);
+        boolean hasDefaultCv = false;
+        if (auth != null && auth.getPrincipal() instanceof HirehubUserDetails user) {
+            hasDefaultCv = candidateProfileService.defaultCvPathForApply(user.getId()) != null;
+        }
+        model.addAttribute("hasDefaultCv", hasDefaultCv);
         return "pages/public/postuler";
     }
 
@@ -100,6 +118,7 @@ public class UiController {
             @PathVariable("id") Long id,
             @RequestParam(value = "lettre", required = false) String lettre,
             @RequestParam(value = "cv", required = false) MultipartFile cv,
+            @RequestParam(value = "useDefaultCv", defaultValue = "false") boolean useDefaultCv,
             Authentication auth,
             RedirectAttributes redirectAttributes
     ) {
@@ -111,7 +130,15 @@ public class UiController {
             return "redirect:/offres/" + id;
         }
         try {
-            String cvPath = applicationUploadService.storeCv(user.getId(), id.toString(), cv);
+            String cvPath;
+            if (useDefaultCv) {
+                cvPath = candidateProfileService.defaultCvPathForApply(user.getId());
+                if (cvPath == null) {
+                    throw new IllegalArgumentException("Aucun CV par défaut enregistré. Ajoutez-en un dans Mon profil ou téléversez un fichier.");
+                }
+            } else {
+                cvPath = applicationUploadService.storeCv(user.getId(), id.toString(), cv);
+            }
             String lettrePath = applicationUploadService.storeLettre(user.getId(), id.toString(), lettre);
             candidatureFrontendClient.create(id.toString(), cvPath, lettrePath, user);
             redirectAttributes.addFlashAttribute("success", "Votre candidature a bien été envoyée.");
@@ -145,8 +172,10 @@ public class UiController {
         model.addAttribute("loginDocMatch", "1".equals(docMatch));
         model.addAttribute("loginRegisterError", registerError != null && !registerError.isBlank());
         model.addAttribute("loginRegisterErrorCode", registerErrorCode != null ? registerErrorCode : "");
-        boolean oauthErr = oauthError != null && !oauthError.isBlank();
+        boolean oauthNotRegistered = "not_registered".equals(oauthError);
+        boolean oauthErr = oauthError != null && !oauthError.isBlank() && !oauthNotRegistered;
         model.addAttribute("loginOauthError", oauthErr);
+        model.addAttribute("loginOauthNotRegistered", oauthNotRegistered);
         boolean errorParamPresent = request.getParameterMap().containsKey("error");
         String errorVal = request.getParameter("error");
         boolean blocked = "blocked".equals(errorVal);
@@ -185,8 +214,34 @@ public class UiController {
     }
 
     @GetMapping("/candidat/profil")
-    public String candidatProfil() {
+    public String candidatProfil(Model model, Authentication auth) {
+        if (auth == null || !(auth.getPrincipal() instanceof HirehubUserDetails user)) {
+            return "redirect:/login?flow=candidat";
+        }
+        model.addAttribute("profile", candidateProfileService.load(user));
         return "pages/candidat/profil";
+    }
+
+    @PostMapping("/candidat/profil")
+    public String candidatProfilSave(
+            @RequestParam(value = "phone", required = false) String phone,
+            @RequestParam(value = "defaultCv", required = false) MultipartFile defaultCv,
+            Authentication auth,
+            RedirectAttributes redirectAttributes
+    ) {
+        if (auth == null || !(auth.getPrincipal() instanceof HirehubUserDetails user)) {
+            return "redirect:/login?flow=candidat";
+        }
+        try {
+            candidateProfileService.save(user, phone, defaultCv);
+            redirectAttributes.addFlashAttribute("success", "Profil enregistré.");
+        } catch (IllegalStateException | IllegalArgumentException ex) {
+            redirectAttributes.addFlashAttribute("error", ex.getMessage());
+        } catch (Exception ex) {
+            log.error("Enregistrement profil candidat", ex);
+            redirectAttributes.addFlashAttribute("error", "Impossible d'enregistrer le profil.");
+        }
+        return "redirect:/candidat/profil";
     }
 
     @GetMapping("/demande-recruteur")
@@ -278,7 +333,11 @@ public class UiController {
     @GetMapping("/recruteur/entretiens")
     public String recruteurEntretiens(Model model) {
         try {
-            model.addAttribute("entretiens", entretienFrontendClient.listForRecruiter());
+            var entretiens = entretienFrontendClient.listForRecruiter();
+            for (EntretienView e : entretiens) {
+                e.setCandidatDisplayName(candidateDisplayService.displayName(e.getCandidatId()));
+            }
+            model.addAttribute("entretiens", entretiens);
             model.addAttribute("apiError", false);
         } catch (Exception ex) {
             log.warn("Entretiens recruteur: {}", ex.getMessage());

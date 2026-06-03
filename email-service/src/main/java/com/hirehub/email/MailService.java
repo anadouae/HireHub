@@ -29,12 +29,16 @@ public class MailService implements EmailService {
 
     private final JavaMailSender mailSender;
 
-    @Value("${spring.mail.username}")
-    private String fromEmail;
+    @Value("${spring.mail.from:noreply@hirehub.local}")
+    private String fromAddress;
 
     public MailService(JavaMailSender mailSender) {
         this.mailSender = mailSender;
-        log.info("[MAIL SERVICE] Initialized with email: {}", fromEmail);
+    }
+
+    @jakarta.annotation.PostConstruct
+    void logMailConfig() {
+        log.info("[MAIL SERVICE] Ready — expéditeur={}", fromAddress);
     }
 
     /**
@@ -50,7 +54,7 @@ public class MailService implements EmailService {
             log.info("[MAIL] Envoi email simple à: {} | Sujet: {}", to, subject);
 
             SimpleMailMessage message = new SimpleMailMessage();
-            message.setFrom(fromEmail);
+            message.setFrom(fromAddress);
             message.setTo(to);
             message.setSubject(subject);
             message.setText(body);
@@ -79,7 +83,7 @@ public class MailService implements EmailService {
             MimeMessage message = mailSender.createMimeMessage();
             MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
 
-            helper.setFrom(fromEmail);
+            helper.setFrom(fromAddress);
             helper.setTo(to);
             helper.setSubject(subject);
             helper.setText(htmlBody, true); // true = HTML
@@ -108,7 +112,7 @@ public class MailService implements EmailService {
             MimeMessage message = mailSender.createMimeMessage();
             MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
 
-            helper.setFrom(fromEmail);
+            helper.setFrom(fromAddress);
             helper.setTo(to);
             helper.setSubject(subject);
             helper.setText(htmlBody, true); // true = HTML

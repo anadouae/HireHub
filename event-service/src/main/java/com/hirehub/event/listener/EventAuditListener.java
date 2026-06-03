@@ -14,7 +14,7 @@ import org.springframework.stereotype.Component;
 
 /**
  * Audit passif des événements (logging + persistance).
- * Consomme le contrat standard EmailEventDTO.
+ * Utilise des queues {@code audit.*} dédiées — jamais les queues {@code notif.*} réservées à email-service.
  */
 @Component
 @Slf4j
@@ -29,27 +29,27 @@ public class EventAuditListener {
         auditCommon(message, "[AUDIT] Événement candidature.created reçu");
     }
 
-    @RabbitListener(queues = RabbitMQConstants.QUEUE_NOTIFICATION_STATUT)
+    @RabbitListener(queues = RabbitMQConstants.QUEUE_AUDIT_STATUT)
     public void auditStatutChanged(@Payload EmailEventDTO message) {
         auditCommon(message, "[AUDIT] Événement candidature.statut.changed reçu");
     }
 
-    @RabbitListener(queues = RabbitMQConstants.QUEUE_NOTIFICATION_ENTRETIEN)
+    @RabbitListener(queues = RabbitMQConstants.QUEUE_AUDIT_ENTRETIEN)
     public void auditEntretienPlanifie(@Payload EmailEventDTO message) {
         auditCommon(message, "[AUDIT] Événement entretien.planifie reçu");
     }
 
-    @RabbitListener(queues = RabbitMQConstants.QUEUE_NOTIFICATION_RECRUITER)
+    @RabbitListener(queues = RabbitMQConstants.QUEUE_AUDIT_RECRUITER)
     public void auditRecruiterDecision(@Payload EmailEventDTO message) {
-        auditCommon(message, "[AUDIT] Événement recruteur (approved/rejected) reçu");
+        auditCommon(message, "[AUDIT] Événement recruteur reçu");
     }
 
-    @RabbitListener(queues = RabbitMQConstants.QUEUE_NOTIFICATION_AUTHENTIFICATION)
+    @RabbitListener(queues = RabbitMQConstants.QUEUE_AUDIT_AUTHENTIFICATION)
     public void auditAuthentication(@Payload EmailEventDTO message) {
         auditCommon(message, "[AUDIT] Événement authentification reçu");
     }
 
-    @RabbitListener(queues = RabbitMQConstants.QUEUE_NOTIFICATION_ADMIN_USER)
+    @RabbitListener(queues = RabbitMQConstants.QUEUE_AUDIT_ADMIN_USER)
     public void auditAdminAction(@Payload EmailEventDTO message) {
         auditCommon(message, "[AUDIT] Événement admin (user blocked/deleted) reçu");
     }
@@ -65,13 +65,12 @@ public class EventAuditListener {
 
             log.info("{}: eventId={}, eventType={}", logPrefix, eventId, eventType);
 
-            // Les services source/destination ne sont pas dans EmailEventDTO, on met des placeholders
             eventLogService.logEvent(
                     eventId,
                     eventType,
                     json,
                     "UNKNOWN_SOURCE",
-                    "Email-Service"
+                    "event-service"
             );
         } catch (Exception e) {
             log.error("[AUDIT ERROR] Erreur lors de l'audit de l'événement {}: {}", message.getEventType(), e.getMessage(), e);

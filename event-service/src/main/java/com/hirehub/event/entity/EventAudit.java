@@ -19,7 +19,7 @@ public class EventAudit {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false, unique = true, length = 36)
+    @Column(nullable = false, unique = true, length = 255)
     private String eventId;
 
     @Column(nullable = false, length = 100)

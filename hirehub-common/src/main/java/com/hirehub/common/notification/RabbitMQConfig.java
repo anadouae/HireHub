@@ -71,6 +71,31 @@ public class RabbitMQConfig {
         );
     }
 
+    @Bean
+    public Queue auditStatutQueue() {
+        return new Queue(RabbitMQConstants.QUEUE_AUDIT_STATUT, true, false, false);
+    }
+
+    @Bean
+    public Queue auditEntretienQueue() {
+        return new Queue(RabbitMQConstants.QUEUE_AUDIT_ENTRETIEN, true, false, false);
+    }
+
+    @Bean
+    public Queue auditRecruiterQueue() {
+        return new Queue(RabbitMQConstants.QUEUE_AUDIT_RECRUITER, true, false, false);
+    }
+
+    @Bean
+    public Queue auditAuthentificationQueue() {
+        return new Queue(RabbitMQConstants.QUEUE_AUDIT_AUTHENTIFICATION, true, false, false);
+    }
+
+    @Bean
+    public Queue auditAdminUserQueue() {
+        return new Queue(RabbitMQConstants.QUEUE_AUDIT_ADMIN_USER, true, false, false);
+    }
+
     /**
      * Queue pour les CHANGEMENTS DE STATUT
      * Événements: candidature.statut.changed
@@ -200,6 +225,86 @@ public class RabbitMQConfig {
                 .bind(queue)
                 .to(exchange)
                 .with(RabbitMQConstants.ROUTING_CANDIDATURE_CREATED);
+    }
+
+    @Bean
+    public Binding bindingStatutChangedAudit(
+            @Qualifier("auditStatutQueue") Queue queue,
+            TopicExchange exchange
+    ) {
+        return BindingBuilder.bind(queue).to(exchange).with(RabbitMQConstants.ROUTING_CANDIDATURE_STATUT_CHANGED);
+    }
+
+    @Bean
+    public Binding bindingEntretienPlanifieAudit(
+            @Qualifier("auditEntretienQueue") Queue queue,
+            TopicExchange exchange
+    ) {
+        return BindingBuilder.bind(queue).to(exchange).with(RabbitMQConstants.ROUTING_ENTRETIEN_PLANIFIE);
+    }
+
+    @Bean
+    public Binding bindingRecruiterApprovedAudit(
+            @Qualifier("auditRecruiterQueue") Queue queue,
+            TopicExchange exchange
+    ) {
+        return BindingBuilder.bind(queue).to(exchange).with(RabbitMQConstants.ROUTING_RECRUITER_APPROVED);
+    }
+
+    @Bean
+    public Binding bindingRecruiterRejectedAudit(
+            @Qualifier("auditRecruiterQueue") Queue queue,
+            TopicExchange exchange
+    ) {
+        return BindingBuilder.bind(queue).to(exchange).with(RabbitMQConstants.ROUTING_RECRUITER_REJECTED);
+    }
+
+    @Bean
+    public Binding bindingRecruiterVerifiedAudit(
+            @Qualifier("auditRecruiterQueue") Queue queue,
+            TopicExchange exchange
+    ) {
+        return BindingBuilder.bind(queue).to(exchange).with(RabbitMQConstants.ROUTING_RECRUITER_VERIFIED);
+    }
+
+    @Bean
+    public Binding bindingAuthLoginAudit(
+            @Qualifier("auditAuthentificationQueue") Queue queue,
+            TopicExchange exchange
+    ) {
+        return BindingBuilder.bind(queue).to(exchange).with(RabbitMQConstants.ROUTING_USER_AUTHENTIFICATION_LOGIN);
+    }
+
+    @Bean
+    public Binding bindingAuthLogoutAudit(
+            @Qualifier("auditAuthentificationQueue") Queue queue,
+            TopicExchange exchange
+    ) {
+        return BindingBuilder.bind(queue).to(exchange).with(RabbitMQConstants.ROUTING_USER_AUTHENTIFICATION_LOGOUT);
+    }
+
+    @Bean
+    public Binding bindingAuthRegisterAudit(
+            @Qualifier("auditAuthentificationQueue") Queue queue,
+            TopicExchange exchange
+    ) {
+        return BindingBuilder.bind(queue).to(exchange).with(RabbitMQConstants.ROUTING_USER_AUTHENTIFICATION_REGISTER);
+    }
+
+    @Bean
+    public Binding bindingUserBlockedAudit(
+            @Qualifier("auditAdminUserQueue") Queue queue,
+            TopicExchange exchange
+    ) {
+        return BindingBuilder.bind(queue).to(exchange).with(RabbitMQConstants.ROUTING_USER_BLOCKED);
+    }
+
+    @Bean
+    public Binding bindingUserDeletedAudit(
+            @Qualifier("auditAdminUserQueue") Queue queue,
+            TopicExchange exchange
+    ) {
+        return BindingBuilder.bind(queue).to(exchange).with(RabbitMQConstants.ROUTING_USER_DELETED);
     }
 
     @Bean

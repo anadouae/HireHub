@@ -95,6 +95,18 @@ public class OffreService {
         return offreRepository.existsByIdAndStatut(id, StatutOffre.PUBLIEE);
     }
 
+    /**
+     * Vérifie si le recruteur est propriétaire de l'offre (candidature-service / pipeline).
+     */
+    public boolean isRecruteurProprietaire(Long offreId, String recruteurId) {
+        if (recruteurId == null || recruteurId.isBlank()) {
+            return false;
+        }
+        return offreRepository.findById(offreId)
+                .map(offre -> recruteurId.equals(offre.getRecruteurId()))
+                .orElse(false);
+    }
+
     private Offre findOffre(Long id) {
         return offreRepository.findById(id)
                 .orElseThrow(() -> {

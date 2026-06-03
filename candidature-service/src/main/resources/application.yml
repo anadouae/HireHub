@@ -7,8 +7,9 @@ spring:
       enabled: false
   application:
     name: candidature-service
-  profiles:
-    active: sandbox
+  # Profil sandbox = fausses offres 1001–1003 uniquement ; en dev utiliser le vrai offre-service (Feign).
+  # profiles:
+  #   active: sandbox
 
   # PostgreSQL Configuration
   datasource:

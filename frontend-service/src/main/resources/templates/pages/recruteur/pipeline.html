@@ -36,7 +36,11 @@
                     <td colspan="5" class="text-center text-muted py-4">Aucune candidature pour cette offre.</td>
                 </tr>
                 <tr th:each="c : ${candidatures}">
-                    <td th:text="${c.candidatId}">candidat-id</td>
+                    <td>
+                        <span class="fw-medium" th:text="${c.candidatDisplayName}">Nom</span>
+                        <br/>
+                        <small class="text-muted" th:if="${c.candidatEmail}" th:text="${c.candidatEmail}">email</small>
+                    </td>
                     <td th:text="${c.dateSoumissionFormatted}">date</td>
                     <td>
                         <a th:if="${c.hasCv()}"

@@ -1,13 +1,18 @@
 spring:
   mail:
-    host: ${SMTP_HOST:smtp.gmail.com}
-    port: ${SMTP_PORT:587}
-    username: ${SMTP_USERNAME}
-    password: ${SMTP_PASSWORD}
+    host: ${MAIL_HOST:${SMTP_HOST:smtp.gmail.com}}
+    port: ${MAIL_PORT:${SMTP_PORT:587}}
+    username: ${MAIL_USERNAME:${SMTP_USERNAME:}}
+    password: ${MAIL_PASSWORD:${SMTP_PASSWORD:}}
     from: ${MAIL_FROM:noreply@hirehub.com}
+    properties:
+      mail:
+        smtp:
+          auth: ${MAIL_SMTP_AUTH:true}
+          starttls:
+            enable: ${MAIL_SMTP_STARTTLS:true}
 
 logging:
   level:
     com.hirehub.notification: INFO
     org.springframework.mail: WARN
-

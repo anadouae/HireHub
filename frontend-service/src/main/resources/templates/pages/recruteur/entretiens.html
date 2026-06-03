@@ -16,36 +16,40 @@
             Impossible de charger les entretiens pour le moment.
         </div>
 
-        <div class="hh-table-wrap">
+        <div class="alert alert-info border-0 shadow-sm" th:if="${#lists.isEmpty(entretiens) and !apiError}">
+            Pour planifier un entretien, ouvrez une candidature depuis le
+            <a th:href="@{/recruteur/offres}">pipeline d'une offre</a>,
+            passez-la en <strong>En cours</strong>, puis utilisez le formulaire « Planifier un entretien ».
+        </div>
+
+        <div class="hh-table-wrap" th:if="${!#lists.isEmpty(entretiens)}">
             <table class="table table-hover mb-0">
                 <thead>
                 <tr>
-                    <th>Candidature</th>
                     <th>Candidat</th>
                     <th>Date</th>
                     <th>Lieu / visio</th>
                     <th>Type</th>
                     <th>Statut</th>
+                    <th></th>
                 </tr>
                 </thead>
                 <tbody>
-                <tr th:if="${#lists.isEmpty(entretiens)}">
-                    <td colspan="6" class="text-center text-muted py-4">Aucun entretien en base.</td>
-                </tr>
                 <tr th:each="e : ${entretiens}">
-                    <td th:text="${e.candidatureId}">candidature</td>
-                    <td th:text="${e.candidatId}">candidat</td>
+                    <td th:text="${e.candidatDisplayName != null ? e.candidatDisplayName : e.candidatId}">candidat</td>
                     <td th:text="${e.dateHeureFormatted}">date</td>
                     <td th:text="${e.lieuOuVisio}">lieu</td>
                     <td th:text="${e.type}">type</td>
-                    <td th:text="${e.status}">statut</td>
+                    <td><span class="badge bg-primary" th:text="${e.status}">statut</span></td>
+                    <td>
+                        <a th:href="@{/recruteur/candidature/{id}(id=${e.candidatureId})}" class="btn btn-sm btn-outline-secondary">
+                            Voir candidature
+                        </a>
+                    </td>
                 </tr>
                 </tbody>
             </table>
         </div>
-        <p class="text-muted small mt-3">
-            Aucun entretien planifié pour le moment.
-        </p>
     </div>
     </div>
 </section>

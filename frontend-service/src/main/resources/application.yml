@@ -67,7 +67,7 @@ hirehub:
   candidature-service-base-url: http://localhost:8089/candidature-service
   entretien-service-base-url: http://localhost:8089/entretien-service
   public-base-url: http://localhost:8086
-  upload-dir: ./data/uploads
+  upload-dir: ${HIREHUB_UPLOAD_DIR:${user.dir}/data/uploads}
   jwt:
     secret: ${HIREHUB_JWT_SECRET:hirehub-local-dev-jwt-secret-change-me-32b}
     expiration-seconds: ${HIREHUB_JWT_EXPIRATION_SECONDS:3600}

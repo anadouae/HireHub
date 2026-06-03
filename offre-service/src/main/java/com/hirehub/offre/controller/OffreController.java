@@ -77,10 +77,18 @@ public class OffreController {
         return ResponseEntity.ok(offreService.fermerOffre(id, recruteurId));
     }
 
-    // GET /api/offres/{id}/valide — pour Lydivine (candidature-service)
+    // GET /api/offres/{id}/valide — pour candidature-service
     @GetMapping("/{id}/valide")
     public ResponseEntity<Boolean> isOffreValide(@PathVariable(name = "id") Long id) {
         return ResponseEntity.ok(offreService.isOffreValide(id));
+    }
+
+    // GET /api/offres/{offreId}/owner?recruteurId=... — pipeline recruteur (candidature-service)
+    @GetMapping("/{offreId}/owner")
+    public ResponseEntity<Boolean> isRecruteurOwner(
+            @PathVariable(name = "offreId") Long offreId,
+            @RequestParam(name = "recruteurId") String recruteurId) {
+        return ResponseEntity.ok(offreService.isRecruteurProprietaire(offreId, recruteurId));
     }
 
     @ExceptionHandler(IllegalArgumentException.class)

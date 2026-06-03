@@ -59,6 +59,7 @@ public class UiStateAdvice {
             model.addAttribute("uiRecruteurApprouve", false);
             model.addAttribute("uiRecruteurAutoCheck", false);
             model.addAttribute("uiRecruteurReviewRequired", false);
+            model.addAttribute("uiCanPostuler", false);
             return;
         }
 
@@ -86,8 +87,10 @@ public class UiStateAdvice {
         model.addAttribute("uiConnecte", true);
         model.addAttribute("uiEstAdmin", admin);
         model.addAttribute("uiTypeCompte", role.name());
-        model.addAttribute("uiMenuCandidat", candidat || admin);
+        model.addAttribute("uiMenuCandidat", candidat);
         model.addAttribute("uiMenuRecruteur", recruteur);
+        /** Bouton « Postuler » : réservé aux candidats (pas recruteur ni admin). */
+        model.addAttribute("uiCanPostuler", candidat);
         model.addAttribute("uiRecruteurPending", recruteurPending);
         model.addAttribute("uiRecruteurApprouve", recruteurApprouve);
         model.addAttribute("uiRecruteurAutoCheck", autoCheck);

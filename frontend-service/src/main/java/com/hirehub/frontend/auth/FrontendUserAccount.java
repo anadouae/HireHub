@@ -45,6 +45,12 @@ public class FrontendUserAccount {
     @Column(name = "blocked")
     private Boolean blocked;
 
+    @Column(name = "phone", length = 40)
+    private String phone;
+
+    @Column(name = "default_cv_path", length = 500)
+    private String defaultCvPath;
+
     protected FrontendUserAccount() {
     }
 
@@ -119,5 +125,21 @@ public class FrontendUserAccount {
 
     public void setBlocked(boolean blocked) {
         this.blocked = blocked;
+    }
+
+    public String getPhone() {
+        return phone;
+    }
+
+    public void setPhone(String phone) {
+        this.phone = phone;
+    }
+
+    public String getDefaultCvPath() {
+        return defaultCvPath;
+    }
+
+    public void setDefaultCvPath(String defaultCvPath) {
+        this.defaultCvPath = defaultCvPath;
     }
 }

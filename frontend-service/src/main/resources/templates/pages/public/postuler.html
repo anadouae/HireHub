@@ -12,22 +12,72 @@
 
         <div class="alert alert-danger border-0 shadow-sm" th:if="${postulerError}" th:text="${postulerError}"></div>
 
-        <form class="hh-card" method="post" th:action="@{/offres/{id}/postuler(id=${offreId})}" enctype="multipart/form-data">
+        <form class="hh-card" method="post" th:action="@{/offres/{id}/postuler(id=${offreId})}" enctype="multipart/form-data" id="postulerForm">
             <div class="mb-3">
                 <label class="hh-form-label" for="lettre">Lettre de motivation</label>
                 <textarea id="lettre" name="lettre" class="form-control rounded-3 border-0 shadow-sm" rows="6"
                           placeholder="Expliquez votre motivation…"></textarea>
             </div>
-            <div class="mb-4">
-                <label class="hh-form-label" for="cv">CV (PDF, max. 5 Mo)</label>
-                <input type="file" id="cv" name="cv" class="form-control rounded-3 border-0 shadow-sm" accept=".pdf" required/>
+
+            <div class="mb-3" th:if="${hasDefaultCv}">
+                <label class="hh-form-label">CV</label>
+                <div class="form-check mb-2">
+                    <input class="form-check-input" type="radio" name="cvMode" id="cvModeDefault" value="default" checked>
+                    <label class="form-check-label" for="cvModeDefault">
+                        Utiliser mon CV par défaut (<a th:href="@{/candidat/profil}">Mon profil</a>)
+                    </label>
+                </div>
+                <div class="form-check mb-2">
+                    <input class="form-check-input" type="radio" name="cvMode" id="cvModeNew" value="new">
+                    <label class="form-check-label" for="cvModeNew">Téléverser un autre CV (PDF)</label>
+                </div>
+                <input type="hidden" name="useDefaultCv" id="useDefaultCv" value="true"/>
+                <input type="file" id="cv" name="cv" class="form-control rounded-3 border-0 shadow-sm mt-2 d-none"
+                       accept=".pdf"/>
             </div>
+
+            <div class="mb-4" th:unless="${hasDefaultCv}">
+                <label class="hh-form-label" for="cvOnly">CV (PDF, max. 5 Mo)</label>
+                <p class="small text-muted">
+                    Vous pouvez enregistrer un CV par défaut dans
+                    <a th:href="@{/candidat/profil}">Mon profil</a> pour les prochaines candidatures.
+                </p>
+                <input type="hidden" name="useDefaultCv" value="false"/>
+                <input type="file" id="cvOnly" name="cv" class="form-control rounded-3 border-0 shadow-sm" accept=".pdf" required/>
+            </div>
+
             <div class="d-flex gap-2 flex-wrap">
                 <button type="submit" class="btn hh-btn-primary rounded-pill">Envoyer ma candidature</button>
                 <a class="btn btn-outline-secondary rounded-pill" th:href="@{/offres/{id}(id=${offreId})}">Annuler</a>
             </div>
         </form>
     </div>
+
+    <script th:if="${hasDefaultCv}">
+        (function () {
+            const form = document.getElementById('postulerForm');
+            const useDefault = document.getElementById('useDefaultCv');
+            const cvInput = document.getElementById('cv');
+            const modeDefault = document.getElementById('cvModeDefault');
+            const modeNew = document.getElementById('cvModeNew');
+            function sync() {
+                if (modeDefault.checked) {
+                    useDefault.value = 'true';
+                    cvInput.classList.add('d-none');
+                    cvInput.removeAttribute('required');
+                    cvInput.value = '';
+                } else {
+                    useDefault.value = 'false';
+                    cvInput.classList.remove('d-none');
+                    cvInput.setAttribute('required', 'required');
+                }
+            }
+            modeDefault.addEventListener('change', sync);
+            modeNew.addEventListener('change', sync);
+            form.addEventListener('submit', function () { sync(); });
+            sync();
+        })();
+    </script>
 </section>
 </body>
 </html>

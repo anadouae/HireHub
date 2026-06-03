@@ -7,7 +7,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.ParameterizedTypeReference;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClientException;
@@ -35,6 +38,40 @@ public class EntretienFrontendClient {
 
     public List<EntretienView> listForCandidat(HirehubUserDetails candidat) {
         return listByCandidat(candidat.getId().toString());
+    }
+
+    public List<EntretienView> listByCandidature(String candidatureId) {
+        String url = entretienBaseUrl + "/entretiens/candidature/" + candidatureId;
+        return fetchList(url);
+    }
+
+    public EntretienView create(CreateEntretienRequest request) {
+        HirehubUserDetails recruiter = RecruiterContext.requireRecruiter();
+        request.setRecruteurId(recruiter.getId().toString());
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        HttpEntity<CreateEntretienRequest> entity = new HttpEntity<>(request, headers);
+
+        try {
+            ResponseEntity<ApiResponse<EntretienView>> response = restTemplate.exchange(
+                    entretienBaseUrl + "/entretiens",
+                    HttpMethod.POST,
+                    entity,
+                    new ParameterizedTypeReference<ApiResponse<EntretienView>>() {}
+            );
+            ApiResponse<EntretienView> body = response.getBody();
+            if (body != null && body.isSuccess() && body.getData() != null) {
+                return body.getData();
+            }
+            String message = body != null && body.getMessage() != null
+                    ? body.getMessage()
+                    : "Impossible de planifier l'entretien";
+            throw new EntretienServiceException(message);
+        } catch (RestClientException ex) {
+            log.warn("Creation entretien : {}", ex.getMessage());
+            throw new EntretienServiceException("Service entretien indisponible");
+        }
     }
 
     private List<EntretienView> listByRecruteur(String recruteurId) {

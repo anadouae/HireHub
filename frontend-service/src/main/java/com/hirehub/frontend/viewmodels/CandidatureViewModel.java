@@ -20,6 +20,8 @@ import java.time.format.DateTimeFormatter;
 public class CandidatureViewModel {
     private String id;
     private String candidatId;
+    private String candidatDisplayName;
+    private String candidatEmail;
     private String offreId;
     private String cvPath;
     private String lettreMotivationPath;
@@ -81,15 +83,16 @@ public class CandidatureViewModel {
      * Retourne la date de soumission formatée pour l'affichage
      */
     public String getDateSoumissionFormatted() {
-        if (dateSoumission == null) return "-";
+        if (dateSoumission == null) {
+            return "-";
+        }
         return dateSoumission.format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm"));
     }
 
-    /**
-     * Retourne la date de modification formatée pour l'affichage
-     */
     public String getDateModificationFormatted() {
-        if (dateModification == null) return "-";
+        if (dateModification == null) {
+            return "-";
+        }
         return dateModification.format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm"));
     }
 

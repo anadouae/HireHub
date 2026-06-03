@@ -20,6 +20,9 @@ import org.springframework.web.client.HttpStatusCodeException;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -189,7 +192,27 @@ public class CandidatureFrontendClient {
         dto.setStatus(item.getStatus());
         dto.setCvPath(item.getCvPath());
         dto.setLettreMotivationPath(item.getLettreMotivationPath());
+        dto.setDateSoumission(parseDateTime(item.getDateSoumission(), item.getCreatedAt()));
+        dto.setDateModification(parseDateTime(item.getDateModification(), null));
         return dto;
+    }
+
+    private static LocalDateTime parseDateTime(String primary, String fallback) {
+        for (String raw : new String[]{primary, fallback}) {
+            if (raw == null || raw.isBlank()) {
+                continue;
+            }
+            try {
+                return LocalDateTime.parse(raw, DateTimeFormatter.ISO_LOCAL_DATE_TIME);
+            } catch (DateTimeParseException ignored) {
+                try {
+                    return LocalDateTime.parse(raw + "T00:00:00", DateTimeFormatter.ISO_LOCAL_DATE_TIME);
+                } catch (DateTimeParseException ignored2) {
+                    // try next
+                }
+            }
+        }
+        return null;
     }
 
     private String parseError(HttpStatusCodeException ex) {
@@ -197,9 +220,30 @@ public class CandidatureFrontendClient {
         if (raw != null && raw.contains("deja postule")) {
             return "Vous avez déjà postulé à cette offre.";
         }
-        if (raw != null && raw.contains("message")) {
-            return "Candidature refusée : vérifiez que l'offre est publiée et que vous êtes connecté en tant que candidat.";
+        if (raw != null && (raw.contains("n'existe pas") || raw.contains("non publie"))) {
+            return "Cette offre n'est pas disponible (non publiée ou introuvable).";
         }
-        return "Impossible d'enregistrer la candidature.";
+        if (raw != null && (raw.contains("Transition invalide") || raw.contains("transition"))) {
+            return "Transition de statut non autorisée — suivez : Soumise → En cours → Entretien → Acceptée/Refusée.";
+        }
+        if (raw != null && raw.contains("Session expir")) {
+            return "Session expirée — reconnectez-vous puis réessayez.";
+        }
+        if (raw != null && raw.contains("\"message\"")) {
+            int start = raw.indexOf("\"message\"");
+            int colon = raw.indexOf(':', start);
+            int firstQuote = raw.indexOf('"', colon + 1);
+            int secondQuote = raw.indexOf('"', firstQuote + 1);
+            if (firstQuote >= 0 && secondQuote > firstQuote) {
+                return raw.substring(firstQuote + 1, secondQuote);
+            }
+        }
+        if (ex.getStatusCode().value() == 403) {
+            return "Accès refusé — reconnectez-vous en tant que candidat.";
+        }
+        if (ex.getStatusCode().value() == 503 || ex.getStatusCode().value() == 502) {
+            return "Service candidatures indisponible — vérifiez que la gateway (8089) et candidature-service (8083) sont démarrés.";
+        }
+        return "Impossible d'enregistrer la candidature (" + ex.getStatusCode().value() + ").";
     }
 }
