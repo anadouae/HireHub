@@ -43,6 +43,6 @@ SERVICES_STARTUP.md
 # Docker
 DOCKER.md
 
-# Postman
-postman/
+# Postman (racine uniquement — docs/postman/ reste versionné)
+/postman/
 .postman/

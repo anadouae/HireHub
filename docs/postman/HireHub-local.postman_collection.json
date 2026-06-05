@@ -1,0 +1,319 @@
+{
+  "info": {
+    "name": "HireHub — local (collection unique)",
+    "description": "Collection Postman unifiée pour tests locaux HireHub.\n\nPorts (voir DEMARRAGE_RAPIDE.md) : Eureka 8761, Config 8888, Gateway 8089, Auth 8081, Offre 8092, Candidature 8083, Event 8084, Entretien 8085, Email 8093, Verification 8090, Frontend 8086.\n\nOrdre conseillé :\n1. Infra → Eureka\n2. Auth → Login (remplit accessToken)\n3. Offres (gateway) ou Offres (direct)\n4. Candidatures / Event / Entretien selon le scénario\n\nVariables à adapter : recruteurId, recruteurEmail, offreId.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "eurekaUrl", "value": "http://localhost:8761" },
+    { "key": "configUrl", "value": "http://localhost:8888" },
+    { "key": "gatewayUrl", "value": "http://localhost:8089" },
+    { "key": "authUrl", "value": "http://localhost:8081" },
+    { "key": "offreUrl", "value": "http://localhost:8092" },
+    { "key": "candidatureUrl", "value": "http://localhost:8083" },
+    { "key": "eventUrl", "value": "http://localhost:8084" },
+    { "key": "entretienUrl", "value": "http://localhost:8085" },
+    { "key": "frontendUrl", "value": "http://localhost:8086" },
+    { "key": "verificationUrl", "value": "http://localhost:8090" },
+    { "key": "emailUrl", "value": "http://localhost:8093" },
+    { "key": "accessToken", "value": "" },
+    { "key": "recruteurId", "value": "20eef518-ac5a-4aaf-a8a7-997c3d9933fb" },
+    { "key": "recruteurEmail", "value": "elassal.douae@etu.uae.ac.ma" },
+    { "key": "offreId", "value": "1" }
+  ],
+  "item": [
+    {
+      "name": "00 — Infra",
+      "item": [
+        {
+          "name": "Eureka dashboard",
+          "request": { "method": "GET", "url": "{{eurekaUrl}}/" }
+        },
+        {
+          "name": "Config — auth-service/default",
+          "request": { "method": "GET", "url": "{{configUrl}}/auth-service/default" }
+        },
+        {
+          "name": "Gateway health",
+          "request": { "method": "GET", "url": "{{gatewayUrl}}/actuator/health" }
+        }
+      ]
+    },
+    {
+      "name": "01 — Auth",
+      "item": [
+        {
+          "name": "Login (JSON) — remplit accessToken",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"admin@hirehub.local\",\n  \"password\": \"Admin@12345\"\n}"
+            },
+            "url": "{{authUrl}}/api/v1/auth/login"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const j = pm.response.json();",
+                  "const tok = j.data && j.data.accessToken;",
+                  "if (tok) { pm.collectionVariables.set('accessToken', tok); }",
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "pm.test('accessToken present', () => pm.expect(tok).to.be.a('string').and.not.empty);"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "Health (auth)",
+          "request": { "method": "GET", "url": "{{authUrl}}/actuator/health" }
+        },
+        {
+          "name": "Swagger UI (auth)",
+          "request": { "method": "GET", "url": "{{authUrl}}/swagger-ui.html" }
+        },
+        {
+          "name": "OpenAPI JSON (auth)",
+          "request": { "method": "GET", "url": "{{authUrl}}/v3/api-docs" }
+        }
+      ]
+    },
+    {
+      "name": "02 — Offres via Gateway (recommandé)",
+      "item": [
+        {
+          "name": "Liste offres publiées",
+          "request": {
+            "method": "GET",
+            "url": "{{gatewayUrl}}/offre-service/api/offres?page=0&size=20"
+          }
+        },
+        {
+          "name": "Mes offres (recruteur)",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "X-User-Id", "value": "{{recruteurId}}" },
+              { "key": "X-User-Email", "value": "{{recruteurEmail}}" }
+            ],
+            "url": "{{gatewayUrl}}/offre-service/api/offres/mes-offres?page=0&size=50"
+          }
+        },
+        {
+          "name": "Créer offre (brouillon)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "X-User-Id", "value": "{{recruteurId}}" },
+              { "key": "X-User-Email", "value": "{{recruteurEmail}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"titre\": \"Developpeur Java\",\n  \"description\": \"Mission Spring Boot\",\n  \"typeContrat\": \"CDI\",\n  \"ville\": \"Casablanca\",\n  \"salaire\": 15000,\n  \"dateExpiration\": \"2026-12-31T23:59:59\"\n}"
+            },
+            "url": "{{gatewayUrl}}/offre-service/api/offres"
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 201 || pm.response.code === 200) {",
+                  "  const j = pm.response.json();",
+                  "  const id = j.id || (j.data && j.data.id);",
+                  "  if (id) pm.collectionVariables.set('offreId', String(id));",
+                  "}",
+                  "pm.test('Création OK', () => pm.expect(pm.response.code).to.be.oneOf([200, 201]));"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
+          "name": "Publier offre",
+          "request": {
+            "method": "PATCH",
+            "header": [{ "key": "X-User-Id", "value": "{{recruteurId}}" }],
+            "url": "{{gatewayUrl}}/offre-service/api/offres/{{offreId}}/publier"
+          }
+        },
+        {
+          "name": "Détail offre",
+          "request": {
+            "method": "GET",
+            "url": "{{gatewayUrl}}/offre-service/api/offres/{{offreId}}"
+          }
+        },
+        {
+          "name": "Offre valide (candidature)",
+          "request": {
+            "method": "GET",
+            "url": "{{gatewayUrl}}/offre-service/api/offres/{{offreId}}/valide"
+          }
+        },
+        {
+          "name": "Fermer offre",
+          "request": {
+            "method": "PATCH",
+            "header": [{ "key": "X-User-Id", "value": "{{recruteurId}}" }],
+            "url": "{{gatewayUrl}}/offre-service/api/offres/{{offreId}}/fermer"
+          }
+        }
+      ]
+    },
+    {
+      "name": "03 — Offres (direct 8092)",
+      "item": [
+        {
+          "name": "Liste offres",
+          "request": { "method": "GET", "url": "{{offreUrl}}/api/offres" }
+        },
+        {
+          "name": "Health (offre)",
+          "request": { "method": "GET", "url": "{{offreUrl}}/actuator/health" }
+        },
+        {
+          "name": "Swagger UI (offre)",
+          "request": { "method": "GET", "url": "{{offreUrl}}/swagger-ui.html" }
+        },
+        {
+          "name": "OpenAPI JSON (offre)",
+          "request": { "method": "GET", "url": "{{offreUrl}}/v3/api-docs" }
+        }
+      ]
+    },
+    {
+      "name": "04 — Candidatures (Bearer)",
+      "auth": {
+        "type": "bearer",
+        "bearer": [{ "key": "token", "value": "{{accessToken}}", "type": "string" }]
+      },
+      "item": [
+        {
+          "name": "Mes candidatures",
+          "request": { "method": "GET", "url": "{{candidatureUrl}}/candidatures/moi" }
+        },
+        {
+          "name": "Health (candidature)",
+          "request": { "method": "GET", "url": "{{candidatureUrl}}/actuator/health" }
+        },
+        {
+          "name": "Swagger UI (candidature)",
+          "request": { "method": "GET", "url": "{{candidatureUrl}}/swagger-ui.html" }
+        },
+        {
+          "name": "OpenAPI JSON (candidature)",
+          "request": { "method": "GET", "url": "{{candidatureUrl}}/v3/api-docs" }
+        }
+      ]
+    },
+    {
+      "name": "05 — Event logs",
+      "item": [
+        {
+          "name": "Health (event)",
+          "request": { "method": "GET", "url": "{{eventUrl}}/api/event-logs/health" }
+        },
+        {
+          "name": "Liste des logs",
+          "request": { "method": "GET", "url": "{{eventUrl}}/api/event-logs" }
+        },
+        {
+          "name": "Swagger UI (event)",
+          "request": { "method": "GET", "url": "{{eventUrl}}/swagger-ui.html" }
+        },
+        {
+          "name": "OpenAPI JSON (event)",
+          "request": { "method": "GET", "url": "{{eventUrl}}/v3/api-docs" }
+        }
+      ]
+    },
+    {
+      "name": "06 — Entretien",
+      "item": [
+        {
+          "name": "Health (entretien)",
+          "request": { "method": "GET", "url": "{{entretienUrl}}/actuator/health" }
+        },
+        {
+          "name": "Swagger UI (entretien)",
+          "request": { "method": "GET", "url": "{{entretienUrl}}/swagger-ui.html" }
+        },
+        {
+          "name": "OpenAPI JSON (entretien)",
+          "request": { "method": "GET", "url": "{{entretienUrl}}/v3/api-docs" }
+        }
+      ]
+    },
+    {
+      "name": "07 — Verification",
+      "item": [
+        {
+          "name": "Health (verification)",
+          "request": { "method": "GET", "url": "{{verificationUrl}}/actuator/health" }
+        },
+        {
+          "name": "Swagger UI (verification)",
+          "request": { "method": "GET", "url": "{{verificationUrl}}/swagger-ui.html" }
+        },
+        {
+          "name": "OpenAPI JSON (verification)",
+          "request": { "method": "GET", "url": "{{verificationUrl}}/v3/api-docs" }
+        }
+      ]
+    },
+    {
+      "name": "08 — Email / notifications",
+      "item": [
+        {
+          "name": "Health (email)",
+          "request": { "method": "GET", "url": "{{emailUrl}}/actuator/health" }
+        },
+        {
+          "name": "Swagger UI (email)",
+          "request": { "method": "GET", "url": "{{emailUrl}}/swagger-ui.html" }
+        },
+        {
+          "name": "OpenAPI JSON (email)",
+          "request": { "method": "GET", "url": "{{emailUrl}}/v3/api-docs" }
+        },
+        {
+          "name": "POST candidature-confirmation (exemple)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"candidatEmail\": \"candidat@example.com\",\n  \"candidatName\": \"Test User\",\n  \"offreId\": 1,\n  \"offreTitle\": \"Développeur Java\"\n}"
+            },
+            "url": "{{emailUrl}}/notification-service/notifications/candidature-confirmation"
+          }
+        }
+      ]
+    },
+    {
+      "name": "09 — Gateway & Frontend",
+      "item": [
+        {
+          "name": "Swagger UI (gateway)",
+          "request": { "method": "GET", "url": "{{gatewayUrl}}/swagger-ui.html" }
+        },
+        {
+          "name": "OpenAPI JSON (gateway)",
+          "request": { "method": "GET", "url": "{{gatewayUrl}}/v3/api-docs" }
+        },
+        {
+          "name": "Frontend — page d'accueil",
+          "request": { "method": "GET", "url": "{{frontendUrl}}/" }
+        }
+      ]
+    }
+  ]
+}

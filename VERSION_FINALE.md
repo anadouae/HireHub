@@ -63,7 +63,8 @@ Document de référence pour la soutenance et le démarrage local.
 |---------|---------|
 | `DEMARRAGE_RAPIDE.md` | Guide de lancement pas à pas |
 | `docs/SCHEMA_BASES_DONNEES.md` | Tables PostgreSQL |
-| `postman/HireHub.postman_collection.json` | Tests API |
+| `docs/postman/HireHub-local.postman_collection.json` | **Collection Postman unique** (ports à jour, gateway + tous services) |
+| `postman/HireHub.postman_collection.json` | Ancienne collection offres/gateway (remplacée par le fichier ci-dessus) |
 | `hirehub-common/.../RabbitMQConstants.java` | Queues / routing keys |
 
 ---
