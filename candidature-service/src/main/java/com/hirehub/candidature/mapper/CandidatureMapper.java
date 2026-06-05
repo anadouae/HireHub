@@ -34,6 +34,7 @@ public final class CandidatureMapper {
         candidatureResponseDTO.setId(candidature.getId());
         candidatureResponseDTO.setOffreId(candidature.getOffreId());
         candidatureResponseDTO.setCandidatId(candidature.getCandidatId());
+        candidatureResponseDTO.setCandidatEmail(candidature.getCandidatEmail());
         candidatureResponseDTO.setMessage("Candidature crée");
 
         DateTimeFormatter iso = DateTimeFormatter.ISO_LOCAL_DATE_TIME;

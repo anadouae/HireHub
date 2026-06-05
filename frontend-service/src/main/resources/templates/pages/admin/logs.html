@@ -7,13 +7,48 @@
 <body>
 <section layout:fragment="content" class="page-inner">
     <div class="container">
-        <h1 class="page-hero-title">Journaux systeme</h1>
-        <p class="page-hero-sub">Etat systeme reel base sur les donnees courantes de la plateforme.</p>
+        <h1 class="page-hero-title">Journal d'audit</h1>
+        <p class="page-hero-sub">Événements enregistrés par event-service.</p>
 
-        <div class="log-box" th:inline="text">[[${#dates.format(#dates.createNow(), 'yyyy-MM-dd HH:mm:ss')}]] INFO  admin-space — Tableau de supervision charge.
-[[${#dates.format(#dates.createNow(), 'yyyy-MM-dd HH:mm:ss')}]] INFO  auth-db — Utilisateurs total: [[${stats.totalUsers}]].
-[[${#dates.format(#dates.createNow(), 'yyyy-MM-dd HH:mm:ss')}]] INFO  auth-db — Candidats: [[${stats.candidats}]], recruteurs: [[${stats.recruteurs}]], admins: [[${stats.admins}]].
-[[${#dates.format(#dates.createNow(), 'yyyy-MM-dd HH:mm:ss')}]] INFO  auth-flow — Inscriptions recruteur traitees en mode decision immediate.</div>
+        <form class="hh-card mb-4" method="get" th:action="@{/admin/logs}">
+            <div class="row g-2">
+                <div class="col-md-4">
+                    <label class="form-label small">Type d'événement</label>
+                    <input class="form-control" name="eventType" th:value="${eventType}" placeholder="ENTRETIEN, OFFER…"/>
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label small">Service source</label>
+                    <input class="form-control" name="source" th:value="${source}"/>
+                </div>
+                <div class="col-md-2 d-flex align-items-end">
+                    <button class="btn hh-btn-primary w-100" type="submit">Filtrer</button>
+                </div>
+            </div>
+        </form>
+
+        <div class="hh-table-wrap">
+            <table class="table table-sm table-hover mb-0">
+                <thead>
+                <tr>
+                    <th>Date</th>
+                    <th>Type</th>
+                    <th>Source</th>
+                    <th>Message</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:if="${#lists.isEmpty(logs)}">
+                    <td colspan="4" class="text-muted py-3">Aucun log (vérifiez event-service sur le port 8084).</td>
+                </tr>
+                <tr th:each="log : ${logs}">
+                    <td class="small" th:text="${log.createdAt}">date</td>
+                    <td class="small" th:text="${log.eventType}">type</td>
+                    <td class="small" th:text="${log.sourceService}">source</td>
+                    <td class="small" th:text="${log.message}">message</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
     </div>
 </section>
 </body>

@@ -15,30 +15,38 @@
         </div>
 
         <div class="hh-table-wrap">
-            <table class="table table-hover mb-0">
+            <table class="table table-hover mb-0 align-middle">
                 <thead>
                 <tr>
-                    <th>Candidature</th>
+                    <th>Offre</th>
                     <th>Date &amp; heure</th>
                     <th>Lieu / lien</th>
                     <th>Type</th>
                     <th>Statut</th>
+                    <th class="text-end">Actions</th>
                 </tr>
                 </thead>
                 <tbody>
                 <tr th:if="${#lists.isEmpty(entretiens)}">
-                    <td colspan="5" class="text-center text-muted py-4">Aucun entretien planifie.</td>
+                    <td colspan="6" class="text-center text-muted py-4">Aucun entretien planifie.</td>
                 </tr>
                 <tr th:each="e : ${entretiens}">
-                    <td class="fw-medium" th:text="${e.candidatureId}">candidature</td>
+                    <td class="fw-medium" th:text="${e.offreTitre}">Offre</td>
                     <td th:text="${e.dateHeureFormatted}">date</td>
                     <td>
                         <span th:text="${e.lieuOuVisio}">lieu</span>
                         <a th:if="${e.lienVisio != null and !#strings.isEmpty(e.lienVisio)}"
-                           th:href="${e.lienVisio}" target="_blank" rel="noopener">Rejoindre</a>
+                           th:href="${e.lienVisio}" target="_blank" rel="noopener" class="ms-1">Rejoindre</a>
                     </td>
                     <td th:text="${e.type}">type</td>
                     <td><span class="badge bg-success rounded-pill" th:text="${e.status}">statut</span></td>
+                    <td class="text-end text-nowrap">
+                        <a class="btn btn-sm btn-outline-primary me-1"
+                           th:href="@{/candidat/mes-candidatures}">Voir ma candidature</a>
+                        <a class="btn btn-sm btn-outline-secondary"
+                           th:if="${e.offreId != null}"
+                           th:href="@{/offres/{id}(id=${e.offreId})}">Détail offre</a>
+                    </td>
                 </tr>
                 </tbody>
             </table>

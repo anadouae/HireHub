@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout}">
+<head>
+    <title>Entretiens</title>
+</head>
+<body>
+<section layout:fragment="content" class="page-inner">
+    <div class="container">
+        <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
+            <div>
+                <h1 class="page-hero-title mb-0">Entretiens plateforme</h1>
+                <p class="page-hero-sub mb-0">Tous les entretiens planifiés et annulés.</p>
+            </div>
+            <a class="btn btn-outline-secondary" th:href="@{/admin/dashboard}">← Dashboard</a>
+        </div>
+
+        <div class="row g-3 mb-4">
+            <div class="col-6 col-md-3">
+                <div class="hh-kpi hh-admin-kpi">
+                    <div class="hh-kpi-value" th:text="${platform.entretiensTotal()}">0</div>
+                    <div class="hh-kpi-label">Total</div>
+                </div>
+            </div>
+            <div class="col-6 col-md-3">
+                <div class="hh-kpi hh-admin-kpi">
+                    <div class="hh-kpi-value" th:text="${platform.entretiensPlanifies()}">0</div>
+                    <div class="hh-kpi-label">Planifiés</div>
+                </div>
+            </div>
+            <div class="col-6 col-md-3">
+                <div class="hh-kpi hh-admin-kpi">
+                    <div class="hh-kpi-value" th:text="${platform.entretiensAnnules()}">0</div>
+                    <div class="hh-kpi-label">Annulés</div>
+                </div>
+            </div>
+        </div>
+
+        <form class="hh-card mb-4" method="get" th:action="@{/admin/entretiens}">
+            <div class="row g-2">
+                <div class="col-md-3">
+                    <label class="form-label small">Statut</label>
+                    <select class="form-select" name="status">
+                        <option value="">Tous</option>
+                        <option value="PLANIFIE" th:selected="${status == 'PLANIFIE'}">Planifié</option>
+                        <option value="ANNULE" th:selected="${status == 'ANNULE'}">Annulé</option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label small">Type</label>
+                    <select class="form-select" name="type">
+                        <option value="">Tous</option>
+                        <option value="PRESENTIEL" th:selected="${type == 'PRESENTIEL'}">Présentiel</option>
+                        <option value="VISIO" th:selected="${type == 'VISIO'}">Visio</option>
+                    </select>
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label small">Recruteur (email ou ID)</label>
+                    <input class="form-control" name="recruteurId" th:value="${recruteurId}"/>
+                </div>
+                <div class="col-md-2 d-flex align-items-end">
+                    <button class="btn hh-btn-primary w-100" type="submit">Filtrer</button>
+                </div>
+            </div>
+        </form>
+
+        <div class="hh-table-wrap">
+            <table class="table table-hover mb-0 align-middle">
+                <thead>
+                <tr>
+                    <th>Date</th>
+                    <th>Type</th>
+                    <th>Statut</th>
+                    <th>Offre</th>
+                    <th>Candidature</th>
+                    <th>Recruteur</th>
+                    <th>Lieu / Visio</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:if="${#lists.isEmpty(entretiens.content)}">
+                    <td colspan="7" class="text-center text-muted py-4">Aucun entretien.</td>
+                </tr>
+                <tr th:each="e : ${entretiens.content}">
+                    <td th:text="${e.dateHeureFormatted}">date</td>
+                    <td th:text="${e.type}">PRESENTIEL</td>
+                    <td><span class="badge bg-light text-dark" th:text="${e.status}">PLANIFIE</span></td>
+                    <td class="fw-medium" th:text="${e.offreTitre}">Offre</td>
+                    <td class="small font-monospace" th:text="${e.candidatureId}">cand</td>
+                    <td th:text="${e.recruteurLabel}">recruteur</td>
+                    <td class="small" th:text="${e.lieuOuVisio}">—</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</section>
+</body>
+</html>

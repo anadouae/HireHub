@@ -25,6 +25,7 @@ import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -50,6 +51,46 @@ public class CandidatureFrontendClient {
     public List<CandidatureDTO> getCandidaturesByOffre(String offreId) {
         RecruiterContext.requireRecruiter();
         return fetchList(candidatureBaseUrl + "/candidatures/offre/" + offreId);
+    }
+
+    public List<CandidatureDTO> getCandidaturesByOffreAdmin(String offreId) {
+        return fetchList(candidatureBaseUrl + "/candidatures/offre/" + offreId);
+    }
+
+    public long countByOffre(String offreId) {
+        try {
+            ResponseEntity<ApiResponse<Long>> response = restTemplate.exchange(
+                    candidatureBaseUrl + "/candidatures/admin/offre/" + offreId + "/count",
+                    HttpMethod.GET,
+                    authEntity(null),
+                    new ParameterizedTypeReference<ApiResponse<Long>>() {}
+            );
+            ApiResponse<Long> body = response.getBody();
+            return body != null && body.getData() != null ? body.getData() : 0L;
+        } catch (RestClientException ex) {
+            log.warn("Count candidatures offre {} : {}", offreId, ex.getMessage());
+            return 0L;
+        }
+    }
+
+    public Map<String, Long> adminStats() {
+        try {
+            ResponseEntity<ApiResponse<CandidatureAdminStatsApi>> response = restTemplate.exchange(
+                    candidatureBaseUrl + "/candidatures/admin/stats",
+                    HttpMethod.GET,
+                    authEntity(null),
+                    new ParameterizedTypeReference<ApiResponse<CandidatureAdminStatsApi>>() {}
+            );
+            ApiResponse<CandidatureAdminStatsApi> body = response.getBody();
+            if (body != null && body.getData() != null) {
+                Map<String, Long> result = new java.util.HashMap<>(body.getData().getByStatus());
+                result.put("total", body.getData().getTotal());
+                return result;
+            }
+        } catch (RestClientException ex) {
+            log.warn("Stats candidatures admin: {}", ex.getMessage());
+        }
+        return Map.of();
     }
 
     public Optional<CandidatureDTO> getCandidature(String id) {
@@ -98,6 +139,28 @@ public class CandidatureFrontendClient {
         } catch (HttpStatusCodeException ex) {
             log.warn("Création candidature offre {} : {} {}", offreId, ex.getStatusCode(), ex.getResponseBodyAsString());
             throw new CandidatureServiceException(parseError(ex), ex);
+        } catch (RestClientException ex) {
+            throw new CandidatureServiceException("Service candidatures indisponible", ex);
+        }
+    }
+
+    public int rejectPendingOnOfferClose(String offreId) {
+        String url = candidatureBaseUrl + "/candidatures/offres/" + offreId + "/reject-pending-on-close";
+        try {
+            ResponseEntity<ApiResponse<Map<String, Integer>>> response = restTemplate.exchange(
+                    url,
+                    HttpMethod.POST,
+                    authEntity(null),
+                    new ParameterizedTypeReference<ApiResponse<Map<String, Integer>>>() {}
+            );
+            ApiResponse<Map<String, Integer>> body = response.getBody();
+            if (body != null && body.getData() != null && body.getData().get("rejectedCount") != null) {
+                return body.getData().get("rejectedCount");
+            }
+            return 0;
+        } catch (HttpStatusCodeException ex) {
+            log.warn("Refus candidatures en attente offre {} : {} {}", offreId, ex.getStatusCode(), ex.getResponseBodyAsString());
+            throw new CandidatureServiceException("Impossible de clôturer les candidatures en attente", ex);
         } catch (RestClientException ex) {
             throw new CandidatureServiceException("Service candidatures indisponible", ex);
         }

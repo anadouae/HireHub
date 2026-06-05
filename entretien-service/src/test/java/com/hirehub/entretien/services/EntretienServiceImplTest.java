@@ -110,7 +110,7 @@ class EntretienServiceImplTest {
 
         Entretien created = service.create(request);
 
-        assertEquals("ent-1", created.getId());
+        assertNotNull(created.getId());
         assertEquals(InterviewStatus.PLANIFIE, created.getStatus());
         verify(candidatureClient).updateStatus("cand-1", CandidatureStatus.ENTRETIEN.name());
         verify(publisher).publish(created, false);
@@ -118,25 +118,27 @@ class EntretienServiceImplTest {
 
     @Test
     void cancelRejectsWrongRecruiter() {
+        java.util.UUID entretienId = java.util.UUID.fromString("00000000-0000-0000-0000-000000000001");
         Entretien entretien = new Entretien();
-        entretien.setId("ent-1");
+        entretien.setId(entretienId);
         entretien.setRecruteurId("rec-1");
         entretien.setStatus(InterviewStatus.PLANIFIE);
-        when(repository.findById("ent-1")).thenReturn(Optional.of(entretien));
+        when(repository.findById(entretienId)).thenReturn(Optional.of(entretien));
 
-        assertThrows(SecurityException.class, () -> service.cancel("ent-1", "rec-2"));
+        assertThrows(SecurityException.class, () -> service.cancel(entretienId.toString(), "rec-2"));
     }
 
     @Test
     void cancelByCorrectRecruiterSucceeds() {
+        java.util.UUID entretienId = java.util.UUID.fromString("00000000-0000-0000-0000-000000000001");
         Entretien entretien = new Entretien();
-        entretien.setId("ent-1");
+        entretien.setId(entretienId);
         entretien.setRecruteurId("rec-1");
         entretien.setStatus(InterviewStatus.PLANIFIE);
-        when(repository.findById("ent-1")).thenReturn(Optional.of(entretien));
+        when(repository.findById(entretienId)).thenReturn(Optional.of(entretien));
         when(repository.save(any(Entretien.class))).thenAnswer(inv -> inv.getArgument(0));
 
-        Entretien result = service.cancel("ent-1", "rec-1");
+        Entretien result = service.cancel(entretienId.toString(), "rec-1");
 
         assertEquals(InterviewStatus.ANNULE, result.getStatus());
         assertNotNull(result.getDateAnnulation());

@@ -18,6 +18,8 @@ public interface OffreRepository extends JpaRepository<Offre, Long>, JpaSpecific
 
     boolean existsByIdAndStatut(Long id, StatutOffre statut);
 
+    long countByStatut(StatutOffre statut);
+
     @Query("""
     SELECT o FROM Offre o
     WHERE o.statut = :statut

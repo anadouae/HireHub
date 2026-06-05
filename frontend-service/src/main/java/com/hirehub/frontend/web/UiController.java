@@ -1,12 +1,11 @@
 package com.hirehub.frontend.web;
 
-import com.hirehub.frontend.admin.AdminDashboardStats;
-import com.hirehub.frontend.admin.AdminSpaceService;
-import com.hirehub.frontend.admin.AdminUserDetailVm;
+import com.hirehub.frontend.entretien.EntretienDisplayEnrichmentService;
 import com.hirehub.frontend.entretien.EntretienFrontendClient;
 import com.hirehub.frontend.offre.OffreForm;
 import com.hirehub.frontend.offre.OffreFrontendClient;
 import com.hirehub.frontend.offre.OffreView;
+import com.hirehub.frontend.recruteur.RecruteurDashboardService;
 import com.hirehub.frontend.recruteur.RecruteurStatsService;
 import com.hirehub.frontend.recruteur.RecruteurStatsView;
 import com.hirehub.common.enums.UserRole;
@@ -31,8 +30,6 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import org.springframework.security.core.Authentication;
 
 import jakarta.servlet.http.HttpServletRequest;
-import java.util.UUID;
-
 
 /**
  * Routes UI Thymeleaf — pages publiques, candidat, recruteur et admin.
@@ -42,29 +39,32 @@ public class UiController {
 
     private static final Logger log = LoggerFactory.getLogger(UiController.class);
 
-    private final AdminSpaceService adminSpaceService;
     private final OffreFrontendClient offreFrontendClient;
     private final EntretienFrontendClient entretienFrontendClient;
+    private final EntretienDisplayEnrichmentService entretienDisplayEnrichmentService;
     private final RecruteurStatsService recruteurStatsService;
+    private final RecruteurDashboardService recruteurDashboardService;
     private final CandidatureFrontendClient candidatureFrontendClient;
     private final ApplicationUploadService applicationUploadService;
     private final CandidateProfileService candidateProfileService;
     private final CandidateDisplayService candidateDisplayService;
 
     public UiController(
-            AdminSpaceService adminSpaceService,
             OffreFrontendClient offreFrontendClient,
             EntretienFrontendClient entretienFrontendClient,
+            EntretienDisplayEnrichmentService entretienDisplayEnrichmentService,
             RecruteurStatsService recruteurStatsService,
+            RecruteurDashboardService recruteurDashboardService,
             CandidatureFrontendClient candidatureFrontendClient,
             ApplicationUploadService applicationUploadService,
             CandidateProfileService candidateProfileService,
             CandidateDisplayService candidateDisplayService
     ) {
-        this.adminSpaceService = adminSpaceService;
         this.offreFrontendClient = offreFrontendClient;
         this.entretienFrontendClient = entretienFrontendClient;
+        this.entretienDisplayEnrichmentService = entretienDisplayEnrichmentService;
         this.recruteurStatsService = recruteurStatsService;
+        this.recruteurDashboardService = recruteurDashboardService;
         this.candidatureFrontendClient = candidatureFrontendClient;
         this.applicationUploadService = applicationUploadService;
         this.candidateProfileService = candidateProfileService;
@@ -200,7 +200,9 @@ public class UiController {
     public String candidatEntretiens(Model model, org.springframework.security.core.Authentication auth) {
         try {
             if (auth != null && auth.getPrincipal() instanceof HirehubUserDetails details) {
-                model.addAttribute("entretiens", entretienFrontendClient.listForCandidat(details));
+                var entretiens = entretienFrontendClient.listForCandidat(details);
+                entretienDisplayEnrichmentService.enrich(entretiens);
+                model.addAttribute("entretiens", entretiens);
             } else {
                 model.addAttribute("entretiens", java.util.List.of());
             }
@@ -262,6 +264,15 @@ public class UiController {
             model.addAttribute("offresCount", 0);
             model.addAttribute("offresRecentes", java.util.List.of());
         }
+        try {
+            var nouvelles = recruteurDashboardService.recentNewCandidatures();
+            model.addAttribute("nouvellesCandidatures", nouvelles);
+            model.addAttribute("nouvellesCandidaturesCount", nouvelles.size());
+        } catch (Exception ex) {
+            log.warn("Dashboard recruteur: candidatures récentes: {}", ex.getMessage());
+            model.addAttribute("nouvellesCandidatures", java.util.List.of());
+            model.addAttribute("nouvellesCandidaturesCount", 0);
+        }
         return "pages/recruteur/dashboard";
     }
 
@@ -318,6 +329,12 @@ public class UiController {
     public String recruteurFermerOffre(@PathVariable("id") Long id) {
         try {
             offreFrontendClient.fermer(id);
+            try {
+                int rejected = candidatureFrontendClient.rejectPendingOnOfferClose(String.valueOf(id));
+                log.info("Offre {} fermée — {} candidature(s) SOUMISE refusée(s)", id, rejected);
+            } catch (Throwable candidatureEx) {
+                log.warn("Offre {} fermée mais refus auto des SOUMISE échoué: {}", id, candidatureEx.toString());
+            }
             return "redirect:/recruteur/offres?updated=1";
         } catch (Throwable ex) {
             log.warn("Recruiter offer close failed id={}: {}", id, ex.toString());
@@ -337,6 +354,7 @@ public class UiController {
             for (EntretienView e : entretiens) {
                 e.setCandidatDisplayName(candidateDisplayService.displayName(e.getCandidatId()));
             }
+            entretienDisplayEnrichmentService.enrich(entretiens);
             model.addAttribute("entretiens", entretiens);
             model.addAttribute("apiError", false);
         } catch (Exception ex) {
@@ -359,110 +377,6 @@ public class UiController {
             model.addAttribute("apiError", true);
         }
         return "pages/recruteur/statistiques";
-    }
-
-    /* ---------- Admin ---------- */
-
-    @GetMapping("/admin/dashboard")
-    public String adminDashboard(Model model) {
-        AdminDashboardStats stats = adminSpaceService.dashboardStats();
-        model.addAttribute("stats", stats);
-        return "pages/admin/dashboard";
-    }
-
-    @GetMapping("/admin/utilisateurs")
-    public String adminUtilisateurs(Model model) {
-        model.addAttribute("users", adminSpaceService.allUsers());
-        return "pages/admin/utilisateurs";
-    }
-
-    /**
-     * Chemins plus spécifiques en premier (évite toute ambiguïté de matching avec {@code /{id}}).
-     * GET sur une URL d'action : rediriger (la vraie action est en POST depuis la liste).
-     */
-    @GetMapping("/admin/utilisateurs/{id}/delete")
-    public String adminDeleteUserWrongHttpMethod(@PathVariable("id") String id) {
-        return "redirect:/admin/utilisateurs?error=action_failed";
-    }
-
-    @GetMapping("/admin/utilisateurs/{id}/block")
-    public String adminBlockUserWrongHttpMethod(@PathVariable("id") String id) {
-        return "redirect:/admin/utilisateurs?error=action_failed";
-    }
-
-    @GetMapping("/admin/utilisateurs/{id}/unblock")
-    public String adminUnblockUserWrongHttpMethod(@PathVariable("id") String id) {
-        return "redirect:/admin/utilisateurs?error=action_failed";
-    }
-
-    @GetMapping("/admin/utilisateurs/{id}")
-    public String adminUtilisateurDetails(@PathVariable("id") String id, Model model) {
-        try {
-            final UUID userId;
-            try {
-                userId = UUID.fromString(id);
-            } catch (IllegalArgumentException ex) {
-                return "redirect:/admin/utilisateurs?error=not_found";
-            }
-            return adminSpaceService.findUser(userId)
-                    .map(user -> {
-                        AdminUserDetailVm vm = AdminUserDetailVm.from(user);
-                        model.addAttribute("detailEmail", vm.getEmail());
-                        model.addAttribute("detailFullName", vm.getFullName());
-                        model.addAttribute("detailRole", vm.getRole());
-                        model.addAttribute("detailBlocked", vm.isBlocked());
-                        return "pages/admin/utilisateur-detail";
-                    })
-                    .orElse("redirect:/admin/utilisateurs?error=not_found");
-        } catch (Throwable ex) {
-            log.warn("Admin user detail failed id={}: {}", id, ex.toString());
-            return "redirect:/admin/utilisateurs?error=not_found";
-        }
-    }
-
-    @GetMapping("/admin/logs")
-    public String adminLogs(Model model) {
-        model.addAttribute("stats", adminSpaceService.dashboardStats());
-        return "pages/admin/logs";
-    }
-
-    @GetMapping("/admin/demandes-recruteur")
-    public String adminDemandesRecruteur(Model model) {
-        model.addAttribute("recruiters", adminSpaceService.recruiters());
-        return "pages/admin/demandes-recruteur";
-    }
-
-    @PostMapping("/admin/utilisateurs/{id}/block")
-    public String adminBlockUser(@PathVariable("id") String id) {
-        try {
-            adminSpaceService.blockUser(UUID.fromString(id));
-            return "redirect:/admin/utilisateurs?updated=1";
-        } catch (Throwable ex) {
-            log.warn("Admin block user failed id={}: {}", id, ex.toString());
-            return "redirect:/admin/utilisateurs?error=action_failed";
-        }
-    }
-
-    @PostMapping("/admin/utilisateurs/{id}/unblock")
-    public String adminUnblockUser(@PathVariable("id") String id) {
-        try {
-            adminSpaceService.unblockUser(UUID.fromString(id));
-            return "redirect:/admin/utilisateurs?updated=1";
-        } catch (Throwable ex) {
-            log.warn("Admin unblock user failed id={}: {}", id, ex.toString());
-            return "redirect:/admin/utilisateurs?error=action_failed";
-        }
-    }
-
-    @PostMapping("/admin/utilisateurs/{id}/delete")
-    public String adminDeleteUser(@PathVariable("id") String id) {
-        try {
-            adminSpaceService.deleteUser(UUID.fromString(id));
-            return "redirect:/admin/utilisateurs?updated=1";
-        } catch (Throwable ex) {
-            log.warn("Admin delete user failed id={}: {}", id, ex.toString());
-            return "redirect:/admin/utilisateurs?error=action_failed";
-        }
     }
 
     @GetMapping("/support")

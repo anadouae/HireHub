@@ -48,24 +48,27 @@ spring:
             client-secret: ${GOOGLE_OAUTH_CLIENT_SECRET:}
             scope: openid, profile, email
 
-  # SMTP : definir MAIL_HOST, MAIL_PORT, MAIL_USERNAME, MAIL_PASSWORD ou application-local.yml
+  # SMTP dev : Mailpit par defaut (docker compose up -d). UI : http://localhost:8025
+  # Prod / Gmail : surcharger via MAIL_* ou application-local.yml
   mail:
-    host: ${MAIL_HOST:smtp.gmail.com}
-    port: ${MAIL_PORT:587}
+    host: ${MAIL_HOST:localhost}
+    port: ${MAIL_PORT:1025}
     username: ${MAIL_USERNAME:}
     password: ${MAIL_PASSWORD:}
     properties:
       mail:
         smtp:
-          auth: true
+          auth: ${MAIL_SMTP_AUTH:false}
           starttls:
-            enable: true
+            enable: ${MAIL_SMTP_STARTTLS:false}
+            required: false
 
 hirehub:
   api-base-url: http://localhost:8081
   offre-service-base-url: http://localhost:8089/offre-service
   candidature-service-base-url: http://localhost:8089/candidature-service
   entretien-service-base-url: http://localhost:8089/entretien-service
+  event-service-base-url: http://localhost:8089/event-service
   public-base-url: http://localhost:8086
   upload-dir: ${HIREHUB_UPLOAD_DIR:${user.dir}/data/uploads}
   jwt:

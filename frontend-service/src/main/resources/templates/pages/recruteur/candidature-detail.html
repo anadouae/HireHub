@@ -7,13 +7,14 @@
 <body>
 <section layout:fragment="content" class="page-inner">
     <div class="container">
-        <div th:if="${error}" class="alert alert-danger">
+        <div th:if="${error}" class="alert alert-danger" role="alert">
             <span th:text="${error}"></span>
         </div>
         <div class="alert alert-success" th:if="${success}" th:text="${success}"></div>
+        <div th:if="${loadError}" class="alert alert-warning" th:text="${loadError}"></div>
 
-        <div th:unless="${error}">
-            <div class="mb-3" th:if="${candidature != null}">
+        <div th:if="${candidature != null}">
+            <div class="mb-3">
                 <a th:href="@{/recruteur/pipeline/{id}(id=${candidature.offreId})}" class="btn btn-outline-secondary">
                     ← Retour au pipeline
                 </a>
@@ -166,6 +167,8 @@
                     Passez d'abord la candidature en <strong>En cours</strong>, puis planifiez l'entretien.
                 </div>
             </div>
+        <div th:if="${candidature == null and loadError == null and error == null}" class="alert alert-warning">
+            Candidature introuvable.
         </div>
     </div>
     <script>

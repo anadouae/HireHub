@@ -19,7 +19,7 @@ public class OpenApiConfig {
                         .title("HireHub — Candidature Service")
                         .version("1.0")
                         .description("""
-                                API REST des candidatures. Hors profil `mock`, toutes les routes exigent \
+                                API REST des candidatures (PostgreSQL). Toutes les routes exigent \
                                 `Authorization: Bearer <JWT>` émis par **auth-service** (même secret `HIREHUB_JWT_SECRET`).
                                 """))
                 .addSecurityItem(new SecurityRequirement().addList(schemeName))

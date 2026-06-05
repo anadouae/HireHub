@@ -8,43 +8,61 @@
 <section layout:fragment="content" class="page-inner">
     <div class="container">
         <h1 class="page-hero-title">Dashboard administrateur</h1>
-        <p class="page-hero-sub">Vue globale de la plateforme.</p>
+        <p class="page-hero-sub">Vue globale de la plateforme HireHub.</p>
 
+        <h2 class="h6 text-uppercase mt-4 mb-3" style="color: var(--hh-violet-800);">Comptes</h2>
         <div class="row g-3 mb-4">
             <div class="col-6 col-md-3">
                 <div class="hh-kpi hh-admin-kpi">
-                    <div class="hh-admin-kpi-icon">👥</div>
-                    <div class="hh-kpi-value" th:text="${stats.totalUsers}">0</div>
+                    <div class="hh-kpi-value" th:text="${stats.totalUsers()}">0</div>
                     <div class="hh-kpi-label">Utilisateurs</div>
                 </div>
             </div>
             <div class="col-6 col-md-3">
                 <div class="hh-kpi hh-admin-kpi">
-                    <div class="hh-admin-kpi-icon">🎓</div>
-                    <div class="hh-kpi-value" th:text="${stats.candidats}">0</div>
+                    <div class="hh-kpi-value" th:text="${stats.candidats()}">0</div>
                     <div class="hh-kpi-label">Candidats</div>
                 </div>
             </div>
             <div class="col-6 col-md-3">
                 <div class="hh-kpi hh-admin-kpi">
-                    <div class="hh-admin-kpi-icon">🏢</div>
-                    <div class="hh-kpi-value" th:text="${stats.recruteurs}">0</div>
+                    <div class="hh-kpi-value" th:text="${stats.recruteurs()}">0</div>
                     <div class="hh-kpi-label">Recruteurs</div>
                 </div>
             </div>
             <div class="col-6 col-md-3">
                 <div class="hh-kpi hh-admin-kpi">
-                    <div class="hh-admin-kpi-icon">⏱</div>
-                    <div class="hh-kpi-value" th:text="${stats.admins}">0</div>
+                    <div class="hh-kpi-value" th:text="${stats.admins()}">0</div>
                     <div class="hh-kpi-label">Administrateurs</div>
                 </div>
             </div>
         </div>
 
-        <div class="hh-card mb-4">
-                    <h2 class="h6 text-uppercase mb-3" style="color: var(--hh-violet-800);">Activite plateforme</h2>
-            <div style="max-height: 380px;">
-                <canvas id="chartAdmin"></canvas>
+        <h2 class="h6 text-uppercase mb-3" style="color: var(--hh-violet-800);">Activité plateforme</h2>
+        <div class="row g-3 mb-4">
+            <div class="col-6 col-md-3">
+                <div class="hh-kpi hh-admin-kpi">
+                    <div class="hh-kpi-value" th:text="${platform.offresPubliees()}">0</div>
+                    <div class="hh-kpi-label">Offres publiées</div>
+                </div>
+            </div>
+            <div class="col-6 col-md-3">
+                <div class="hh-kpi hh-admin-kpi">
+                    <div class="hh-kpi-value" th:text="${platform.candidaturesTotal()}">0</div>
+                    <div class="hh-kpi-label">Candidatures</div>
+                </div>
+            </div>
+            <div class="col-6 col-md-3">
+                <div class="hh-kpi hh-admin-kpi">
+                    <div class="hh-kpi-value" th:text="${platform.candidaturesSoumises()}">0</div>
+                    <div class="hh-kpi-label">Nouvelles (SOUMISE)</div>
+                </div>
+            </div>
+            <div class="col-6 col-md-3">
+                <div class="hh-kpi hh-admin-kpi">
+                    <div class="hh-kpi-value" th:text="${platform.entretiensPlanifies()}">0</div>
+                    <div class="hh-kpi-label">Entretiens planifiés</div>
+                </div>
             </div>
         </div>
 
@@ -52,48 +70,21 @@
             <div class="col-md-6">
                 <div class="hh-card">
                     <h2 class="h6 mb-2" style="color: var(--hh-violet-900);">Accès rapides</h2>
-                    <a class="hh-admin-quick-link d-block mb-2" th:href="@{/admin/utilisateurs}">Gestion des utilisateurs</a>
-                    <a class="hh-admin-quick-link d-block" th:href="@{/admin/logs}">Journaux système</a>
+                    <a class="hh-admin-quick-link d-block mb-2" th:href="@{/admin/offres}">Offres plateforme</a>
+                    <a class="hh-admin-quick-link d-block mb-2" th:href="@{/admin/entretiens}">Entretiens</a>
+                    <a class="hh-admin-quick-link d-block" th:href="@{/admin/utilisateurs}">Utilisateurs</a>
                 </div>
             </div>
             <div class="col-md-6">
                 <div class="hh-card">
-                    <h2 class="h6 mb-2" style="color: var(--hh-violet-900);">Sante</h2>
-                    <p class="small text-muted mb-1">Admins: <strong th:text="${stats.admins}">0</strong></p>
-                    <p class="small text-muted mb-0">Statut des services via <code>/actuator/health</code>.</p>
+                    <h2 class="h6 mb-2" style="color: var(--hh-violet-900);">Offres par statut</h2>
+                    <p class="small text-muted mb-1">Brouillons : <strong th:text="${platform.offresBrouillon()}">0</strong></p>
+                    <p class="small text-muted mb-1">Publiées : <strong th:text="${platform.offresPubliees()}">0</strong></p>
+                    <p class="small text-muted mb-0">Fermées : <strong th:text="${platform.offresFermees()}">0</strong></p>
                 </div>
             </div>
         </div>
     </div>
-    <script th:inline="javascript">
-        document.addEventListener('DOMContentLoaded', function () {
-            const el = document.getElementById('chartAdmin');
-            if (!el || typeof Chart === 'undefined') return;
-            new Chart(el, {
-                type: 'line',
-                data: {
-                    labels: ['Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam', 'Dim'],
-                    datasets: [{
-                        label: 'Candidatures',
-                        data: [0, [[${stats.candidats}]], [[${stats.recruteurs}]], [[${stats.recruiterPendingReview}]], [[${stats.totalUsers}]], [[${stats.admins}]], [[${stats.totalUsers}]]],
-                        borderColor: 'rgb(109, 40, 217)',
-                        backgroundColor: 'rgba(109, 40, 217, 0.15)',
-                        fill: true,
-                        tension: 0.35
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: { legend: { display: false } },
-                    scales: {
-                        y: { beginAtZero: true, grid: { color: 'rgba(76,29,149,0.08)' } },
-                        x: { grid: { display: false } }
-                    }
-                }
-            });
-        });
-    </script>
 </section>
 </body>
 </html>

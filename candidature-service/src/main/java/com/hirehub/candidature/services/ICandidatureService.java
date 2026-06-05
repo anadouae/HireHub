@@ -15,4 +15,11 @@ public interface ICandidatureService  {
     void updateCandidatureDetailsByCandidat(String id, String CV_Path, String lettreMotivationPath);
     void uploadCVAndCoverLetter(String id, String CV_Path, String lettreMotivationPath);
     void deleteCandidatureByCandidat(String id);
+
+    /**
+     * Lors de la fermeture d'une offre : refuse les candidatures encore SOUMISE et notifie les concernés.
+     *
+     * @return nombre de candidatures passées en REFUSEE
+     */
+    int rejectPendingWhenOfferClosed(String offreId);
 }

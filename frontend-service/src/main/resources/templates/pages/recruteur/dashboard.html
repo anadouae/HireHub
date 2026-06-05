@@ -10,7 +10,7 @@
     <div th:classappend="${uiRecruteurPending} ? 'hh-recruteur-locked'">
     <div class="container">
         <h1 class="page-hero-title">Tableau de bord recruteur</h1>
-        <p class="page-hero-sub">Tableau de bord de votre activité recruteur.</p>
+        <p class="page-hero-sub">Suivez vos offres et traitez les nouvelles candidatures.</p>
 
         <div class="row g-3 mb-4">
             <div class="col-6 col-md-3">
@@ -19,17 +19,71 @@
                     <div class="hh-kpi-label">Offres (toutes)</div>
                 </div>
             </div>
+            <div class="col-6 col-md-3">
+                <div class="hh-kpi">
+                    <div class="hh-kpi-value" th:text="${nouvellesCandidaturesCount}">0</div>
+                    <div class="hh-kpi-label">Nouvelles candidatures</div>
+                </div>
+            </div>
         </div>
 
         <div class="row g-4">
-            <div class="col-lg-8">
+            <div class="col-lg-7">
+                <div class="hh-card mb-4">
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h2 class="h5 mb-0" style="color: var(--hh-violet-900);">Nouvelles candidatures</h2>
+                        <span class="badge bg-primary" th:text="|${nouvellesCandidaturesCount} à traiter|">0</span>
+                    </div>
+                    <p class="small text-muted mb-3">
+                        Candidatures au statut <strong>Soumise</strong>. Cliquez pour ouvrir le pipeline de l'offre concernée.
+                    </p>
+                    <div class="hh-table-wrap">
+                        <table class="table table-sm mb-0 align-middle">
+                            <thead>
+                            <tr>
+                                <th>Candidat</th>
+                                <th>Offre</th>
+                                <th>Reçue le</th>
+                                <th></th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr th:if="${#lists.isEmpty(nouvellesCandidatures)}">
+                                <td colspan="4" class="text-muted text-center py-4">
+                                    Aucune nouvelle candidature pour le moment.
+                                </td>
+                            </tr>
+                            <tr th:each="c : ${nouvellesCandidatures}">
+                                <td>
+                                    <strong th:text="${c.candidatDisplayName}">Candidat</strong>
+                                    <br>
+                                    <small class="text-muted" th:if="${c.candidatEmail}" th:text="${c.candidatEmail}">email</small>
+                                </td>
+                                <td th:text="${c.offreTitre}">Offre</td>
+                                <td th:text="${c.dateSoumissionFormatted}">-</td>
+                                <td class="text-end text-nowrap">
+                                    <a class="btn btn-sm btn-primary"
+                                       th:href="@{/recruteur/pipeline/{offreId}(offreId=${c.offreId})}">
+                                        Pipeline
+                                    </a>
+                                    <a class="btn btn-sm btn-outline-secondary ms-1"
+                                       th:href="@{/recruteur/candidature/{id}(id=${c.candidatureId})}">
+                                        Dossier
+                                    </a>
+                                </td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
                 <div class="hh-card">
                     <h2 class="h5 mb-3" style="color: var(--hh-violet-900);">Vos offres</h2>
                     <div class="hh-table-wrap">
                         <table class="table table-sm mb-0">
                             <thead>
                             <tr>
-                                <th>Intitule</th>
+                                <th>Intitulé</th>
                                 <th>Ville</th>
                                 <th>Statut</th>
                                 <th></th>
@@ -37,7 +91,7 @@
                             </thead>
                             <tbody>
                             <tr th:if="${#lists.isEmpty(offresRecentes)}">
-                                <td colspan="4" class="text-muted text-center py-3">Aucune offre. Creez-en une.</td>
+                                <td colspan="4" class="text-muted text-center py-3">Aucune offre. Créez-en une.</td>
                             </tr>
                             <tr th:each="offre : ${offresRecentes}">
                                 <td th:text="${offre.titre}">Titre</td>
@@ -52,12 +106,13 @@
                     </div>
                 </div>
             </div>
-            <div class="col-lg-4">
+            <div class="col-lg-5">
                 <div class="hh-card">
-                    <h2 class="h5 mb-3" style="color: var(--hh-violet-900);">Actions</h2>
+                    <h2 class="h5 mb-3" style="color: var(--hh-violet-900);">Actions rapides</h2>
                     <div class="d-grid gap-2">
                         <a class="btn hh-btn-primary rounded-pill" th:href="@{/recruteur/offres/nouvelle}">Nouvelle offre</a>
-                        <a class="btn btn-outline-primary rounded-pill" th:href="@{/recruteur/offres}">Gerer les offres</a>
+                        <a class="btn btn-outline-primary rounded-pill" th:href="@{/recruteur/offres}">Gérer les offres</a>
+                        <a class="btn btn-outline-secondary rounded-pill" th:href="@{/recruteur/entretiens}">Mes entretiens</a>
                     </div>
                 </div>
             </div>

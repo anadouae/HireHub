@@ -46,6 +46,20 @@ public class CandidatureListener {
 
             log.info("[CANDIDATURE.CREATED] Traitement de l'événement {} pour: {}", eventId, event.getRecipientEmail());
 
+            if ("CANDIDATURE.RECRUITER_NEW".equals(event.getEventType())) {
+                String offerTitle = event.getPayload() != null && event.getPayload().get("offerTitle") != null
+                        ? event.getPayload().get("offerTitle").toString()
+                        : "Offre";
+                emailService.sendRecruiterNewCandidature(
+                        event.getRecipientEmail(),
+                        event.getRecipientName(),
+                        offerTitle
+                );
+                idempotenceService.markAsProcessed(eventId, event.getEventType(), event.getRecipientEmail());
+                log.info("[CANDIDATURE.RECRUITER_NEW] OK - Email envoyé à: {}", event.getRecipientEmail());
+                return;
+            }
+
             String offerTitle = event.getPayload() != null && event.getPayload().get("offerTitle") != null
                     ? event.getPayload().get("offerTitle").toString()
                     : "Offre";
@@ -87,6 +101,24 @@ public class CandidatureListener {
             }
             String eventId = event.getEventId();
             log.info("[CANDIDATURE.STATUT.CHANGED] Traitement de l'événement {} pour: {}", eventId, event.getRecipientEmail());
+
+            if ("OFFER.CLOSED".equals(event.getEventType())) {
+                var closedPayload = event.getPayload() != null ? event.getPayload() : java.util.Map.<String, Object>of();
+                String offerTitle = closedPayload.get("offerTitle") != null
+                        ? closedPayload.get("offerTitle").toString()
+                        : "Offre";
+                int rejected = closedPayload.get("rejectedCount") instanceof Number n
+                        ? n.intValue()
+                        : 0;
+                emailService.sendOfferClosedSummary(
+                        event.getRecipientEmail(),
+                        event.getRecipientName(),
+                        offerTitle,
+                        rejected
+                );
+                log.info("[OFFER.CLOSED] OK - Email récap envoyé à: {}", event.getRecipientEmail());
+                return;
+            }
 
             var payload = event.getPayload() != null ? event.getPayload() : java.util.Map.<String, Object>of();
             String offerTitle = payload.get("offerTitle") != null ? payload.get("offerTitle").toString() : "Offre";

@@ -14,7 +14,7 @@ Service de gestion des candidatures des candidats aux offres d'emploi.
 
 ### Stack Technique
 - Spring Boot 3.2.5
-- PostgreSQL (production) / En mémoire (mock)
+- PostgreSQL (base réelle `hirehub_candidature` sur le port **55432** en local Docker)
 - JPA/Hibernate
 - RabbitMQ
 - Eureka Client
@@ -22,36 +22,13 @@ Service de gestion des candidatures des candidats aux offres d'emploi.
 ### Port
 **8083**
 
-### Profils
-- `mock` - Données en mémoire pour développement
-- `production` - PostgreSQL + RabbitMQ
-
 ## ⚙️ Configuration
 
-### Mode Mock (Développement)
-```yaml
-spring:
-  profiles:
-    active: mock
-```
+Configuration par défaut dans `application.yml` :
 
-**Utilise**: `CandidatureServiceMock` avec 5 candidatures pré-chargées
-
-### Mode Production
-```yaml
-spring:
-  profiles:
-    active: production
-  datasource:
-    url: jdbc:postgresql://localhost:5432/hirehub_candidature
-    username: hirehub_user
-    password: hirehub_password
-  rabbitmq:
-    host: localhost
-    port: 5672
-```
-
-**Utilise**: `CandidatureServiceImpl` avec PostgreSQL et RabbitMQ
+- **PostgreSQL** : `jdbc:postgresql://localhost:55432/hirehub_candidature`
+- **RabbitMQ** + **Eureka** + **offre-service** (Feign) pour le métier réel
+- **Pas de profil mock** : les implémentations en mémoire ont été retirées du projet
 
 ## 📡 API REST
 
@@ -104,34 +81,18 @@ cd candidature-service
 mvnw clean compile
 ```
 
-### Lancer (Mode Mock)
+### Lancer
 
 ```bash
-mvnw spring-boot:run -Dspring-boot.run.arguments="--spring.profiles.active=mock"
-```
-
-### Lancer (Mode Production)
-
-```bash
-# Assurer que PostgreSQL et RabbitMQ tournent
-mvnw spring-boot:run -Dspring-boot.run.arguments="--spring.profiles.active=production"
+# Docker : postgres (55432), rabbitmq, eureka, offre-service
+mvnw spring-boot:run
 ```
 
 ## 🧪 Tests
 
-### Mode Mock - Tests avec Données Pré-chargées
+Tests unitaires avec Mockito (`CandidatureServiceTest`) — pas de données en mémoire au runtime.
 
-5 candidatures sont automatiquement chargées au démarrage :
-
-```json
-[
-  { "id": "cand-001", "candidatId": "user-john-001", "status": "EN_ATTENTE" },
-  { "id": "cand-002", "candidatId": "user-alice-002", "status": "ACCEPTED" },
-  { "id": "cand-003", "candidatId": "user-bob-003", "status": "REJECTED" },
-  { "id": "cand-004", "candidatId": "user-carol-004", "status": "EN_ATTENTE" },
-  { "id": "cand-005", "candidatId": "user-diana-005", "status": "INTERVIEW" }
-]
-```
+Les données viennent de PostgreSQL (et du seeder `CandidatureDataSeeder` au premier démarrage si la base est vide).
 
 ### Tester avec Postman/cURL
 
@@ -238,7 +199,7 @@ candidature-service/
 │   ├── services/
 │   │   ├── CandidatureService.java
 │   │   ├── CandidatureServiceImpl.java
-│   │   └── CandidatureServiceMock.java
+│   │   └── CandidatureServiceImpl.java
 │   ├── repository/
 │   │   ├── CandidatureRepository.java
 │   │   └── HistoriqueStatusRepository.java

@@ -2,6 +2,7 @@ package com.hirehub.offre.controller;
 
 import com.hirehub.offre.dto.OffreRequest;
 import com.hirehub.offre.dto.OffreResponse;
+import com.hirehub.offre.enums.StatutOffre;
 import com.hirehub.offre.enums.TypeContrat;
 import com.hirehub.offre.service.OffreService;
 import jakarta.validation.Valid;
@@ -32,6 +33,27 @@ public class OffreController {
     @GetMapping("/{id}")
     public ResponseEntity<OffreResponse> getOffre(@PathVariable(name = "id") Long id) {
         return ResponseEntity.ok(offreService.getOffre(id));
+    }
+
+    // GET /api/offres/admin — toutes les offres (supervision)
+    @GetMapping("/admin")
+    public ResponseEntity<Page<OffreResponse>> listerOffresAdmin(
+            @RequestParam(name = "statut", required = false) StatutOffre statut,
+            @RequestParam(name = "ville", required = false) String ville,
+            @RequestParam(name = "typeContrat", required = false) TypeContrat typeContrat,
+            @RequestParam(name = "motCle", required = false) String motCle,
+            @RequestParam(name = "recruteurEmail", required = false) String recruteurEmail,
+            Pageable pageable) {
+        return ResponseEntity.ok(offreService.listerOffresAdmin(statut, ville, typeContrat, motCle, recruteurEmail, pageable));
+    }
+
+    @GetMapping("/admin/stats")
+    public ResponseEntity<java.util.Map<String, Long>> statsAdmin() {
+        return ResponseEntity.ok(java.util.Map.of(
+                "brouillon", offreService.countByStatut(StatutOffre.BROUILLON),
+                "publiee", offreService.countByStatut(StatutOffre.PUBLIEE),
+                "fermee", offreService.countByStatut(StatutOffre.FERMEE)
+        ));
     }
 
     // GET /api/offres — liste publique paginée + filtres

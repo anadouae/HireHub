@@ -6,17 +6,24 @@ import com.hirehub.common.enums.InterviewStatus;
 import com.hirehub.entretien.clients.CandidatureClient;
 import com.hirehub.entretien.clients.CandidatureSnapshot;
 import com.hirehub.entretien.dtos.CreateEntretienRequest;
+import com.hirehub.entretien.dtos.EntretienAdminStats;
 import com.hirehub.entretien.entities.Entretien;
 import com.hirehub.entretien.entities.EntretienType;
 import com.hirehub.entretien.repository.EntretienRepository;
 import feign.FeignException;
+import jakarta.persistence.criteria.Predicate;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
 import java.time.Clock;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 @Service
 @Slf4j
@@ -80,8 +87,22 @@ public class EntretienServiceImpl implements EntretienService {
         entretien.setStatus(InterviewStatus.PLANIFIE);
 
         Entretien saved = entretienRepository.save(entretien);
-        candidatureClient.updateStatus(saved.getCandidatureId(), CandidatureStatus.ENTRETIEN.name());
-        notificationPublisher.publish(saved, false);
+        try {
+            candidatureClient.updateStatus(saved.getCandidatureId(), CandidatureStatus.ENTRETIEN.name());
+        } catch (FeignException.Forbidden e) {
+            throw new SecurityException("Accès refusé pour mettre à jour la candidature");
+        } catch (FeignException.BadRequest e) {
+            throw new IllegalArgumentException(
+                    "Impossible de passer la candidature au statut Entretien — vérifiez qu'elle est bien « En cours ».");
+        } catch (FeignException e) {
+            log.warn("[ENTRETIEN] Mise à jour statut candidature {} : {}", saved.getCandidatureId(), e.getMessage());
+            throw new IllegalArgumentException("Service candidatures indisponible pour finaliser l'entretien");
+        }
+        try {
+            notificationPublisher.publish(saved, false);
+        } catch (Exception e) {
+            log.warn("[ENTRETIEN] Notification email non envoyée (entretien créé quand même) : {}", e.getMessage());
+        }
         log.info("[ENTRETIEN] Cree avec succes: entretienId={}, candidatId={}", saved.getId(), saved.getCandidatId());
         return saved;
     }
@@ -108,13 +129,28 @@ public class EntretienServiceImpl implements EntretienService {
     }
 
     @Override
+    public Page<Entretien> listAdmin(InterviewStatus status, EntretienType type, String recruteurId,
+                                     LocalDateTime from, LocalDateTime to, Pageable pageable) {
+        return entretienRepository.findAll(adminSpecification(status, type, recruteurId, from, to), pageable);
+    }
+
+    @Override
+    public EntretienAdminStats adminStats() {
+        long total = entretienRepository.count();
+        long planifies = entretienRepository.countByStatus(InterviewStatus.PLANIFIE);
+        long annules = entretienRepository.countByStatus(InterviewStatus.ANNULE);
+        return new EntretienAdminStats(total, planifies, annules);
+    }
+
+    @Override
     public Entretien cancel(String entretienId, String recruteurId) {
         log.info("[ENTRETIEN] Annulation: entretienId={}, recruteurId={}", entretienId, recruteurId);
 
         if (!StringUtils.hasText(recruteurId))
             throw new IllegalArgumentException("recruteurId est obligatoire");
 
-        Entretien entretien = entretienRepository.findById(entretienId)
+        UUID entretienUuid = parseEntretienId(entretienId);
+        Entretien entretien = entretienRepository.findById(entretienUuid)
                 .orElseThrow(() -> {
                     log.warn("[ENTRETIEN] Entretien non trouve: id={}", entretienId);
                     return new IllegalArgumentException("Entretien non trouve");
@@ -131,9 +167,36 @@ public class EntretienServiceImpl implements EntretienService {
         entretien.setStatus(InterviewStatus.ANNULE);
         entretien.setDateAnnulation(LocalDateTime.now(clock));
         Entretien saved = entretienRepository.save(entretien);
-        notificationPublisher.publish(saved, true);
+        try {
+            notificationPublisher.publish(saved, true);
+        } catch (Exception e) {
+            log.warn("[ENTRETIEN] Notification annulation non envoyée : {}", e.getMessage());
+        }
         log.info("[ENTRETIEN] Annule avec succes: entretienId={}", saved.getId());
         return saved;
+    }
+
+    private Specification<Entretien> adminSpecification(InterviewStatus status, EntretienType type,
+                                                        String recruteurId, LocalDateTime from, LocalDateTime to) {
+        return (root, query, cb) -> {
+            List<Predicate> predicates = new ArrayList<>();
+            if (status != null) {
+                predicates.add(cb.equal(root.get("status"), status));
+            }
+            if (type != null) {
+                predicates.add(cb.equal(root.get("type"), type));
+            }
+            if (StringUtils.hasText(recruteurId)) {
+                predicates.add(cb.equal(root.get("recruteurId"), recruteurId.trim()));
+            }
+            if (from != null) {
+                predicates.add(cb.greaterThanOrEqualTo(root.get("dateHeure"), from));
+            }
+            if (to != null) {
+                predicates.add(cb.lessThanOrEqualTo(root.get("dateHeure"), to));
+            }
+            return cb.and(predicates.toArray(Predicate[]::new));
+        };
     }
 
     private void validateRequest(CreateEntretienRequest request) {
@@ -159,9 +222,23 @@ public class EntretienServiceImpl implements EntretienService {
             response = candidatureClient.getCandidatureById(candidatureId);
         } catch (FeignException.NotFound e) {
             throw new IllegalArgumentException("Candidature inexistante");
+        } catch (FeignException e) {
+            log.warn("[ENTRETIEN] candidature-service indisponible pour {} : {}", candidatureId, e.getMessage());
+            throw new IllegalArgumentException("Service candidatures indisponible");
         }
         if (response == null || !response.isSuccess() || response.getData() == null)
             throw new IllegalArgumentException("Candidature inexistante");
         return response.getData();
+    }
+
+    private static UUID parseEntretienId(String entretienId) {
+        if (!StringUtils.hasText(entretienId)) {
+            throw new IllegalArgumentException("entretienId est obligatoire");
+        }
+        try {
+            return UUID.fromString(entretienId.trim());
+        } catch (IllegalArgumentException e) {
+            throw new IllegalArgumentException("Identifiant entretien invalide");
+        }
     }
 }

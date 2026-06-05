@@ -6,6 +6,8 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import com.hirehub.common.enums.CandidatureStatus;
+
 import java.util.List;
 import java.util.Optional;
 
@@ -26,6 +28,10 @@ public interface CandidatureRepository extends JpaRepository<Candidature, String
     List<Candidature> findByCandidatId(String candidatId);
 
     List<Candidature> findByOffreId(String offreId);
+
+    long countByOffreId(String offreId);
+
+    long countByStatus(CandidatureStatus status);
 
     /** Exclut les supprimées — utilisé pour les vues métier normales. */
     Optional<Candidature> findByCandidatIdAndOffreId(String candidatId, String offreId);

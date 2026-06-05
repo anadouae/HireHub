@@ -82,10 +82,12 @@ Préfixe : **`/admin`**. Rôle attendu : **ADMIN** uniquement.
 
 | URL | Template | Contenu métier |
 |-----|----------|----------------|
-| `/admin/dashboard` | `pages/admin/dashboard.html` | KPI globaux, liens rapides | Agrégation multi-services |
-| `/admin/demandes-recruteur` | `pages/admin/demandes-recruteur.html` | **Valider / refuser** comptes recruteurs | **auth-service** + **notification-service** |
-| `/admin/utilisateurs` | `pages/admin/utilisateurs.html` | Comptes, rôles | **auth-service** |
-| `/admin/logs` | `pages/admin/logs.html` | Journaux (mock → futur audit) | Selon design |
+| `/admin/dashboard` | `pages/admin/dashboard.html` | KPI comptes + plateforme (offres, candidatures, entretiens) | Agrégation multi-services |
+| `/admin/offres` | `pages/admin/offres.html` | Toutes les offres (filtres, lecture seule) | **offre-service** |
+| `/admin/offres/{id}` | `pages/admin/offre-detail.html` | Détail offre + candidatures | **offre-service**, **candidature-service** |
+| `/admin/entretiens` | `pages/admin/entretiens.html` | Tous les entretiens (filtres) | **entretien-service** |
+| `/admin/utilisateurs` | `pages/admin/utilisateurs.html` | Comptes, rôles, blocage | BDD frontend locale |
+| `/admin/logs` | `pages/admin/logs.html` | Journal d'audit | **event-service** |
 
 ---
 

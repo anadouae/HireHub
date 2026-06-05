@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout}">
+<head>
+    <title>Détail offre</title>
+</head>
+<body>
+<section layout:fragment="content" class="page-inner">
+    <div class="container">
+        <a class="btn btn-link ps-0 mb-3" th:href="@{/admin/offres}">← Toutes les offres</a>
+        <div class="alert alert-info border-0">Supervision lecture seule</div>
+
+        <div class="hh-card mb-4">
+            <h1 class="h4 mb-2" th:text="${offre.titre}">Titre</h1>
+            <p class="text-muted mb-2">
+                <span th:text="${offre.ville}">Ville</span> ·
+                <span th:text="${offre.typeContrat}">CDI</span> ·
+                <span class="badge bg-secondary" th:text="${offre.statut}">PUBLIEE</span>
+            </p>
+            <p class="small mb-1">Recruteur : <strong th:text="${offre.recruteurEmail}">email</strong></p>
+            <p class="mb-0" th:text="${offre.description}">Description</p>
+            <a class="btn btn-sm btn-outline-secondary mt-3" th:href="@{/offres/{id}(id=${offre.id})}" target="_blank">Voir comme candidat</a>
+        </div>
+
+        <div class="hh-card">
+            <h2 class="h6 mb-3">Candidatures (<span th:text="${#lists.size(candidatures)}">0</span>)</h2>
+            <table class="table table-sm mb-0">
+                <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Candidat</th>
+                    <th>Statut</th>
+                    <th>Soumission</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:if="${#lists.isEmpty(candidatures)}">
+                    <td colspan="4" class="text-muted">Aucune candidature.</td>
+                </tr>
+                <tr th:each="c : ${candidatures}">
+                    <td class="small font-monospace" th:text="${c.id}">uuid</td>
+                    <td class="small" th:text="${c.candidatId}">candidat</td>
+                    <td><span class="badge bg-light text-dark" th:text="${c.status}">SOUMISE</span></td>
+                    <td class="small" th:text="${c.dateSoumission}">date</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</section>
+</body>
+</html>

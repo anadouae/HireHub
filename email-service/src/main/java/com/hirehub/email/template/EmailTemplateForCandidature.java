@@ -180,4 +180,29 @@ public class EmailTemplateForCandidature {
                         : "");
     }
 
+    public static String buildRecruiterNewCandidatureTemplate(String recruiterName, String offerTitle) {
+        return """
+            <!DOCTYPE html>
+            <html lang="fr"><body style="font-family:Arial,sans-serif">
+            <p>Bonjour <strong>%s</strong>,</p>
+            <p>Un candidat vient de postuler à votre offre <strong>%s</strong>.</p>
+            <p>Connectez-vous à HireHub pour consulter le pipeline.</p>
+            <p>— L'équipe HireHub</p>
+            </body></html>
+            """.formatted(recruiterName, offerTitle);
+    }
+
+    public static String buildOfferClosedSummaryTemplate(String recruiterName, String offerTitle, int rejectedCount) {
+        return """
+            <!DOCTYPE html>
+            <html lang="fr"><body style="font-family:Arial,sans-serif">
+            <p>Bonjour <strong>%s</strong>,</p>
+            <p>Votre offre <strong>%s</strong> est maintenant <strong>fermée</strong>.</p>
+            <p>%d candidature(s) encore « Soumise » ont été automatiquement refusée(s) et les candidats ont été notifiés.</p>
+            <p>Les candidatures déjà en cours de traitement restent actives dans votre pipeline.</p>
+            <p>— L'équipe HireHub</p>
+            </body></html>
+            """.formatted(recruiterName, offerTitle, rejectedCount);
+    }
+
 }

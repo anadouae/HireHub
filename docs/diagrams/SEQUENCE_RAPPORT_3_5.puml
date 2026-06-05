@@ -1,0 +1,117 @@
+' Diagrammes de sequence — chapitre rapport 3.5 (Figures 8 a 11)
+' Rendu : PlantUML / extension IDE
+
+@startuml FIG08_POSTULER_OFFRE
+title Figure 8 — Postuler a une offre
+
+actor Candidat as C
+participant "frontend-service\n:8086" as FE
+participant "api-gateway\n:8089" as GW
+participant "candidature-service\n:8083" as CA
+participant "offre-service\n:8092" as OF
+database "PostgreSQL\ncandidatures" as DB
+queue "RabbitMQ\nhirehub.events" as MQ
+participant "email-service\n:8093" as EM
+participant "event-service\n:8084" as EV
+
+C -> FE : GET /offres/{id}/postuler
+C -> FE : POST formulaire (CV + lettre)
+FE -> GW : POST /candidatures + JWT
+GW -> CA : creer candidature
+CA -> OF : verifier offre (Feign)
+CA -> DB : INSERT statut SOUMISE
+CA -> MQ : publish candidature.created\n(EmailEventDTO)
+MQ -> EM : notif.candidature.queue
+EM -> C : email confirmation candidat
+note right of EM : email recruteur si recruteurEmail\n(CANDIDATURE.RECRUITER_NEW)
+MQ -> EV : audit.candidature.queue
+EV -> EV : journal audit
+
+@enduml
+
+
+@startuml FIG09_CHANGEMENT_STATUT
+title Figure 9 — Changement de statut
+
+actor Recruteur as R
+actor Candidat as Cand
+participant "frontend-service" as FE
+participant "api-gateway" as GW
+participant "candidature-service" as CA
+database "PostgreSQL" as DB
+queue "RabbitMQ" as MQ
+participant "email-service" as EM
+participant "event-service" as EV
+
+R -> FE : pipeline ou detail candidature
+R -> FE : choisit nouveau statut
+FE -> GW : PUT /candidatures/{id}/status
+GW -> CA : mise a jour autorisee
+CA -> DB : UPDATE candidature
+CA -> DB : INSERT historique_statut
+CA -> MQ : candidature.statut.changed
+MQ -> EM : notif.statut.queue
+EM -> Cand : email changement statut
+MQ -> EV : audit.statut.queue
+
+@enduml
+
+
+@startuml FIG10_VALIDATION_RECRUTEUR
+title Figure 10 — Validation compte recruteur
+
+actor Recruteur as R
+actor Administrateur as A
+participant "frontend-service" as FE
+participant "auth-service\n:8081" as AU
+participant "verification-service" as VS
+queue "RabbitMQ" as MQ
+participant "email-service" as EM
+participant "event-service" as EV
+
+R -> FE : inscription recruteur
+FE -> AU : POST register recruteur
+AU -> AU : INSERT user
+AU -> MQ : recruiter.registered
+MQ -> VS : verification.recruteur.queue
+VS -> VS : OCR / controle documentaire
+VS -> MQ : recruiter.verified
+MQ -> AU : auth.recruiter.verified.queue
+AU -> AU : recruiter_approved = true\n(si APPROVED)
+AU -> MQ : RECRUITER.APPROVED
+MQ -> EM : notif.recruiter.queue
+EM -> R : email decision recruteur
+A -> FE : GET /admin/demandes-recruteur\n(suivi lecture seule)
+FE --> A : etats des comptes
+MQ -> EV : audit (si applicable)
+
+@enduml
+
+
+@startuml FIG11_PLANIFICATION_ENTRETIEN
+title Figure 11 — Planification entretien
+
+actor Recruteur as R
+actor Candidat as Cand
+participant "frontend-service" as FE
+participant "api-gateway" as GW
+participant "entretien-service\n:8085" as EN
+participant "candidature-service" as CA
+database "PostgreSQL\nentretiens" as DB
+queue "RabbitMQ" as MQ
+participant "email-service" as EM
+participant "event-service" as EV
+
+R -> FE : GET /recruteur/candidature/{id}
+R -> FE : POST planifier entretien\n(date, type, lieu/visio)
+FE -> GW : POST /entretiens + JWT
+GW -> EN : CreateEntretienRequest
+EN -> DB : INSERT entretien PLANIFIE
+EN -> CA : PUT status=ENTRETIEN (Feign)
+CA --> EN : OK
+EN -> MQ : entretien.planifie\n(EmailEventDTO)
+MQ -> EM : notif.entretien.queue
+EM -> Cand : email convocation entretien
+MQ -> EV : audit.entretien.queue
+
+@enduml

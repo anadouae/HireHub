@@ -24,7 +24,7 @@ public class EntretienResponse {
 
     public static EntretienResponse from(Entretien e) {
         EntretienResponse r = new EntretienResponse();
-        r.id            = e.getId();
+        r.id            = e.getId() != null ? e.getId().toString() : null;
         r.candidatureId = e.getCandidatureId();
         r.candidatId    = e.getCandidatId();
         r.recruteurId   = e.getRecruteurId();

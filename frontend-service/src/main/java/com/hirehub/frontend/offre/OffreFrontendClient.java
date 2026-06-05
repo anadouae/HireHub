@@ -35,6 +35,44 @@ public class OffreFrontendClient {
         this.offreBaseUrl = offreBaseUrl;
     }
 
+    public OffrePageResponse offresAdmin(String statut, String ville, String typeContrat, String motCle,
+                                         String recruteurEmail, int page) {
+        String url = UriComponentsBuilder.fromHttpUrl(offreBaseUrl + "/api/offres/admin")
+                .queryParamIfPresent("statut", text(statut))
+                .queryParamIfPresent("ville", text(ville))
+                .queryParamIfPresent("typeContrat", text(typeContrat))
+                .queryParamIfPresent("motCle", text(motCle))
+                .queryParamIfPresent("recruteurEmail", text(recruteurEmail))
+                .queryParam("page", page)
+                .queryParam("size", 20)
+                .queryParam("sort", "dateCreation,desc")
+                .toUriString();
+        return getPage(url, null);
+    }
+
+    @SuppressWarnings("unchecked")
+    public java.util.Map<String, Long> adminOffreStats() {
+        try {
+            java.util.Map<String, Object> raw = restTemplate.getForObject(
+                    offreBaseUrl + "/api/offres/admin/stats",
+                    java.util.Map.class
+            );
+            if (raw == null) {
+                return java.util.Map.of();
+            }
+            java.util.Map<String, Long> stats = new java.util.HashMap<>();
+            raw.forEach((k, v) -> {
+                if (v instanceof Number n) {
+                    stats.put(k, n.longValue());
+                }
+            });
+            return stats;
+        } catch (RestClientException ex) {
+            log.warn("Stats offres admin: {}", ex.getMessage());
+            return java.util.Map.of();
+        }
+    }
+
     public OffrePageResponse offresPubliees(String ville, String typeContrat, String motCle) {
         String url = UriComponentsBuilder.fromHttpUrl(offreBaseUrl + "/api/offres")
                 .queryParamIfPresent("ville", text(ville))

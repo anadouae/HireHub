@@ -9,6 +9,7 @@ import lombok.Setter;
 public class CandidatureSnapshot {
     private String id;
     private String candidatId;
+    private String candidatEmail;
     private String offreId;
     private CandidatureStatus status;
 }

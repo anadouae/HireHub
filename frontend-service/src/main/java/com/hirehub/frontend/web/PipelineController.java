@@ -188,7 +188,7 @@ public class PipelineController {
 
             if (candidatureDTO == null) {
 
-                model.addAttribute("error", "Candidature non trouvée");
+                model.addAttribute("loadError", "Candidature non trouvée");
 
                 return "pages/recruteur/candidature-detail";
 
@@ -217,7 +217,7 @@ public class PipelineController {
 
             log.error("Erreur détail candidature {}", id, e);
 
-            model.addAttribute("error", "Erreur lors de la récupération de la candidature");
+            model.addAttribute("loadError", "Erreur lors de la récupération de la candidature");
 
             return "pages/recruteur/candidature-detail";
 
@@ -318,15 +318,35 @@ public class PipelineController {
 
             request.setCandidatureId(id);
 
-            request.setDateHeure(LocalDateTime.parse(dateHeure));
+            request.setDateHeure(parseDateHeure(dateHeure));
 
-            request.setType(type);
+            request.setType(type != null ? type.trim().toUpperCase() : null);
 
-            request.setLieu(lieu);
+            request.setLieu(trimToNull(lieu));
 
-            request.setLienVisio(lienVisio);
+            request.setLienVisio(trimToNull(lienVisio));
 
-            request.setNotesInternes(notesInternes);
+            request.setNotesInternes(trimToNull(notesInternes));
+
+            if ("PRESENTIEL".equals(request.getType()) && request.getLieu() == null) {
+
+                redirectAttributes.addFlashAttribute("error",
+
+                        "Le lieu est obligatoire pour un entretien en présentiel.");
+
+                return "redirect:/recruteur/candidature/" + id;
+
+            }
+
+            if ("VISIO".equals(request.getType()) && request.getLienVisio() == null) {
+
+                redirectAttributes.addFlashAttribute("error",
+
+                        "Le lien visio est obligatoire pour un entretien en visioconférence.");
+
+                return "redirect:/recruteur/candidature/" + id;
+
+            }
 
             entretienFrontendClient.create(request);
 
@@ -340,11 +360,20 @@ public class PipelineController {
 
             redirectAttributes.addFlashAttribute("error", e.getMessage());
 
+        } catch (java.time.format.DateTimeParseException e) {
+
+            redirectAttributes.addFlashAttribute("error",
+
+                    "Date ou heure invalide — utilisez le sélecteur date/heure du formulaire.");
+
         } catch (Exception e) {
 
             log.error("Planification entretien {}", id, e);
 
-            redirectAttributes.addFlashAttribute("error", "Impossible de planifier l'entretien.");
+            String msg = e.getMessage() != null && !e.getMessage().isBlank()
+                    ? e.getMessage()
+                    : "Impossible de planifier l'entretien.";
+            redirectAttributes.addFlashAttribute("error", "Erreur lors de la planification : " + msg);
 
         }
 
@@ -505,6 +534,25 @@ public class PipelineController {
 
 
     /** Statuts sélectionnables manuellement (aligné sur CandidatureStateMachine). */
+
+    private static LocalDateTime parseDateHeure(String raw) {
+        if (raw == null || raw.isBlank()) {
+            throw new java.time.format.DateTimeParseException("empty", raw, 0);
+        }
+        String normalized = raw.trim();
+        if (normalized.length() == 16) {
+            return LocalDateTime.parse(normalized);
+        }
+        return LocalDateTime.parse(normalized, java.time.format.DateTimeFormatter.ISO_LOCAL_DATE_TIME);
+    }
+
+    private static String trimToNull(String value) {
+        if (value == null) {
+            return null;
+        }
+        String t = value.trim();
+        return t.isEmpty() ? null : t;
+    }
 
     private List<String> allowedNextStatuses(String currentStatus) {
 

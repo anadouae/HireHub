@@ -18,8 +18,6 @@ import com.hirehub.common.notification.NotificationPublisher;
 import com.hirehub.common.notification.RabbitMQConstants;
 import feign.FeignException;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.context.annotation.Primary;
-import org.springframework.context.annotation.Profile;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
@@ -34,9 +32,7 @@ import java.util.Map;
  * Utilise PostgreSQL via JPA et publie des événements RabbitMQ
  */
 @Service
-@Profile("!mock") // S'active partout SAUF si le profil 'mock' est actif
 @Slf4j
-@Primary
 public class CandidatureServiceImpl implements ICandidatureService {
 
     private final CandidatureRepository candidatureRepository;
@@ -99,9 +95,63 @@ public class CandidatureServiceImpl implements ICandidatureService {
         Candidature saved = candidatureRepository.save(candidature);
         log.info("Candidature créée avec l'ID: {}", saved.getId());
 
-        // 5. Publier l'événement RabbitMQ
-        publishCandidatureCreatedEvent(saved, offre.getTitre());
+        // 5. Publier l'événement RabbitMQ (candidat + recruteur propriétaire)
+        publishCandidatureCreatedEvent(saved, offre);
         return saved;
+    }
+
+    @Override
+    public int rejectPendingWhenOfferClosed(String offreId) {
+        log.info("Fermeture offre {} — refus des candidatures SOUMISE", offreId);
+        CurrentUser.requireAnyRole(UserRole.RECRUTEUR, UserRole.ADMIN);
+        String recruiterId = CurrentUser.requireSubject();
+
+        if (!iOffreServiceClient.isRecruteurOwner(offreId, recruiterId)) {
+            throw new UnauthorizedException("Vous n'êtes pas propriétaire de cette offre");
+        }
+
+        OffreDTO offre;
+        try {
+            offre = iOffreServiceClient.getOffre(offreId);
+        } catch (FeignException e) {
+            log.warn("Offre {} introuvable lors de la fermeture: {}", offreId, e.getMessage());
+            throw new OffreNotFoundException("Offre introuvable");
+        }
+
+        String offerTitle = offre != null && offre.getTitre() != null ? offre.getTitre() : offreId;
+        String recruiterEmail = offre != null ? offre.getRecruteurEmail() : null;
+        if (recruiterEmail == null || recruiterEmail.isBlank()) {
+            recruiterEmail = CurrentUser.requireEmail();
+        }
+
+        List<Candidature> pending = candidatureRepository.findByOffreId(offreId).stream()
+                .filter(c -> c.getStatus() == CandidatureStatus.SOUMISE)
+                .toList();
+
+        int rejected = 0;
+        for (Candidature candidature : pending) {
+            CandidatureStatus oldStatus = candidature.getStatus();
+            candidature.setStatus(CandidatureStatus.REFUSEE);
+            candidature.setDateModification(LocalDateTime.now());
+            candidatureRepository.save(candidature);
+
+            HistoriqueStatus historique = new HistoriqueStatus();
+            historique.setCandidatureId(candidature.getId());
+            historique.setAncienStatus(oldStatus);
+            historique.setNouveauStatus(CandidatureStatus.REFUSEE);
+            historique.setCommentaire("Offre fermée — candidature non traitée");
+            historique.setDateChangement(LocalDateTime.now());
+            historique.setUtilisateurId(recruiterId);
+            historiqueStatusRepository.save(historique);
+
+            publishStatutChangedEvent(candidature, oldStatus, CandidatureStatus.REFUSEE,
+                    "Offre fermée — candidature clôturée automatiquement");
+            rejected++;
+        }
+
+        publishOfferClosedSummary(recruiterEmail, offerTitle, rejected);
+        log.info("Offre {} fermée : {} candidature(s) SOUMISE → REFUSEE", offreId, rejected);
+        return rejected;
     }
 
     @Override
@@ -183,7 +233,7 @@ public class CandidatureServiceImpl implements ICandidatureService {
             log.info("Statut de la candidature {} mis à jour de {} à {}", candidatureId, oldStatus, newStatus);
 
             // 4. Publier l'événement RabbitMQ
-            publishStatutChangedEvent(candidature, oldStatus, newStatus);
+            publishStatutChangedEvent(candidature, oldStatus, newStatus, "");
 
         }
         catch (FeignException.NotFound e) {
@@ -276,14 +326,17 @@ public class CandidatureServiceImpl implements ICandidatureService {
     /**
      * Publie un événement "candidature.created" dans RabbitMQ (contrat EmailEventDTO)
      */
-    private void publishCandidatureCreatedEvent(Candidature candidature, String offreTitre) {
+    private void publishCandidatureCreatedEvent(Candidature candidature, OffreDTO offre) {
         try {
             String candidateEmail = candidature.getCandidatEmail();
+            String offerTitle = offre != null && offre.getTitre() != null
+                    ? offre.getTitre()
+                    : candidature.getOffreId();
 
             Map<String, Object> payload = new HashMap<>();
             payload.put("candidatureId", candidature.getId());
             payload.put("offerId", candidature.getOffreId());
-            payload.put("offerTitle", offreTitre != null ? offreTitre : candidature.getOffreId());
+            payload.put("offerTitle", offerTitle);
             payload.put("status", candidature.getStatus().name());
             payload.put("cvPath", candidature.getCvPath() != null ? candidature.getCvPath() : "");
             payload.put("lettreMotivation", candidature.getLettreMotivationPath() != null ? candidature.getLettreMotivationPath() : "");
@@ -296,9 +349,39 @@ public class CandidatureServiceImpl implements ICandidatureService {
                     payload
             );
 
+            String recruiterEmail = offre != null ? offre.getRecruteurEmail() : null;
+            if (recruiterEmail != null && !recruiterEmail.isBlank()) {
+                Map<String, Object> recruiterPayload = new HashMap<>(payload);
+                recruiterPayload.put("candidatId", candidature.getCandidatId());
+                notificationPublisher.publishEmailEvent(
+                        "CANDIDATURE.RECRUITER_NEW",
+                        recruiterEmail,
+                        "Recruteur",
+                        RabbitMQConstants.ROUTING_CANDIDATURE_CREATED,
+                        recruiterPayload
+                );
+            }
+
             log.info("Événement 'candidature.created' publié pour la candidature: {}", candidature.getId());
         } catch (Exception e) {
             log.error("Erreur lors de la publication de l'événement candidature.created: {}", e.getMessage(), e);
+        }
+    }
+
+    private void publishOfferClosedSummary(String recruiterEmail, String offerTitle, int rejectedCount) {
+        try {
+            Map<String, Object> payload = new HashMap<>();
+            payload.put("offerTitle", offerTitle);
+            payload.put("rejectedCount", rejectedCount);
+            notificationPublisher.publishEmailEvent(
+                    "OFFER.CLOSED",
+                    recruiterEmail,
+                    "Recruteur",
+                    RabbitMQConstants.ROUTING_CANDIDATURE_STATUT_CHANGED,
+                    payload
+            );
+        } catch (Exception e) {
+            log.warn("Notification fermeture offre non publiée: {}", e.getMessage());
         }
     }
 
@@ -306,7 +389,8 @@ public class CandidatureServiceImpl implements ICandidatureService {
      * Publie un événement "candidature.statut.changed" dans RabbitMQ (contrat EmailEventDTO).
      * L'utilisateur courant est le recruteur : l'email du candidat vient de l'entité.
      */
-    private void publishStatutChangedEvent(Candidature candidature, CandidatureStatus oldStatus, CandidatureStatus newStatus) {
+    private void publishStatutChangedEvent(Candidature candidature, CandidatureStatus oldStatus,
+                                          CandidatureStatus newStatus, String comment) {
         try {
             String candidateEmail = candidature.getCandidatEmail();
             if (candidateEmail == null || candidateEmail.isBlank()) {
@@ -331,7 +415,7 @@ public class CandidatureServiceImpl implements ICandidatureService {
             payload.put("offerTitle", offreTitre);
             payload.put("oldStatus", oldStatus.name());
             payload.put("newStatus", newStatus.name());
-            payload.put("comment", "");
+            payload.put("comment", comment != null ? comment : "");
 
             notificationPublisher.publishEmailEvent(
                     EventType.CANDIDATURE_STATUT_CHANGED,

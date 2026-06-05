@@ -331,6 +331,32 @@ public class EmailBusinessServiceImpl extends MailService implements EmailBusine
         }
     }
 
+    public void sendRecruiterNewCandidature(String email, String recruiterName, String offerTitle) {
+        try {
+            String title = offerTitle != null && !offerTitle.isBlank() ? offerTitle : "Offre";
+            String name = recruiterName != null && !recruiterName.isBlank() ? recruiterName : "Recruteur";
+            String html = buildRecruiterNewCandidatureTemplate(name, title);
+            sendHtmlEmail(email, "Nouvelle candidature sur votre offre - HireHub", html);
+            log.info("[📧 RECRUITER NEW] Notification envoyée à {}", email);
+        } catch (Exception e) {
+            log.error("[❌ RECRUITER NEW] Erreur {}: {}", email, e.getMessage(), e);
+            throw new RuntimeException("Erreur envoi notification nouvelle candidature", e);
+        }
+    }
+
+    public void sendOfferClosedSummary(String email, String recruiterName, String offerTitle, int rejectedCount) {
+        try {
+            String title = offerTitle != null && !offerTitle.isBlank() ? offerTitle : "Offre";
+            String name = recruiterName != null && !recruiterName.isBlank() ? recruiterName : "Recruteur";
+            String html = buildOfferClosedSummaryTemplate(name, title, rejectedCount);
+            sendHtmlEmail(email, "Offre fermée - récapitulatif HireHub", html);
+            log.info("[📧 OFFER CLOSED] Récap envoyé à {} ({} refus auto)", email, rejectedCount);
+        } catch (Exception e) {
+            log.error("[❌ OFFER CLOSED] Erreur {}: {}", email, e.getMessage(), e);
+            throw new RuntimeException("Erreur envoi récap fermeture offre", e);
+        }
+    }
+
     public void sendRecruiterReviewRequired(String email, String userName, String message) {
         try {
             String html = EmailTemplateForAdminRecruiter.buildRecruiterReviewRequiredTemplate(

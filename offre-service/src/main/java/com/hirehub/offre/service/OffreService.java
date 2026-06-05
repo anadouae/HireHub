@@ -46,6 +46,19 @@ public class OffreService {
         return OffreResponse.from(findOffre(id));
     }
 
+    public long countByStatut(StatutOffre statut) {
+        return offreRepository.countByStatut(statut);
+    }
+
+    public Page<OffreResponse> listerOffresAdmin(StatutOffre statut, String ville, TypeContrat typeContrat,
+                                                 String motCle, String recruteurEmail, Pageable pageable) {
+        String villeParam = blankToNull(ville);
+        String motCleParam = blankToNull(motCle);
+        String emailParam = blankToNull(recruteurEmail);
+        return offreRepository.findAll(adminOffersSpecification(statut, villeParam, typeContrat, motCleParam, emailParam), pageable)
+                .map(OffreResponse::from);
+    }
+
     public Page<OffreResponse> listerOffresPubliees(String ville, TypeContrat typeContrat,
                                                     String motCle, Pageable pageable) {
         String villeParam = (ville != null && !ville.isBlank()) ? ville : null;
@@ -119,6 +132,43 @@ public class OffreService {
         if (!offre.getRecruteurId().equals(recruteurId)) {
             throw new SecurityException("Acces refuse : vous n'etes pas proprietaire de cette offre");
         }
+    }
+
+    private static String blankToNull(String value) {
+        return value != null && !value.isBlank() ? value : null;
+    }
+
+    private Specification<Offre> adminOffersSpecification(StatutOffre statut, String ville, TypeContrat typeContrat,
+                                                          String motCle, String recruteurEmail) {
+        return (root, query, criteriaBuilder) -> {
+            List<Predicate> predicates = new ArrayList<>();
+            if (statut != null) {
+                predicates.add(criteriaBuilder.equal(root.get("statut"), statut));
+            }
+            if (ville != null) {
+                predicates.add(criteriaBuilder.like(
+                        criteriaBuilder.lower(root.get("ville")),
+                        "%" + ville.toLowerCase() + "%"
+                ));
+            }
+            if (typeContrat != null) {
+                predicates.add(criteriaBuilder.equal(root.get("typeContrat"), typeContrat));
+            }
+            if (motCle != null) {
+                String pattern = "%" + motCle.toLowerCase() + "%";
+                predicates.add(criteriaBuilder.or(
+                        criteriaBuilder.like(criteriaBuilder.lower(root.get("titre")), pattern),
+                        criteriaBuilder.like(criteriaBuilder.lower(root.get("description")), pattern)
+                ));
+            }
+            if (recruteurEmail != null) {
+                predicates.add(criteriaBuilder.like(
+                        criteriaBuilder.lower(root.get("recruteurEmail")),
+                        "%" + recruteurEmail.toLowerCase() + "%"
+                ));
+            }
+            return criteriaBuilder.and(predicates.toArray(Predicate[]::new));
+        };
     }
 
     private Specification<Offre> publishedOffersSpecification(String ville, TypeContrat typeContrat, String motCle) {

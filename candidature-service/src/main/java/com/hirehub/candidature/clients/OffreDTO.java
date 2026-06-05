@@ -21,7 +21,8 @@ public class OffreDTO {
     private String titre;
     private String description;
     private String recruteurId;
-  /** Valeurs attendues : BROUILLON, PUBLIEE, FERMEE (OffreResponse.statut). */
+    private String recruteurEmail;
+    /** Valeurs attendues : BROUILLON, PUBLIEE, FERMEE (OffreResponse.statut). */
     private String statut;
     private long createdAt;
     private long updatedAt;
@@ -36,7 +37,7 @@ public class OffreDTO {
         return "PUBLIEE".equalsIgnoreCase(statut);
     }
 
-    /** Utilisé par FakeOffreServiceClient (profil sandbox). */
+    /** Données de test unitaires uniquement. */
     public static OffreDTO sandbox(
             String id,
             String titre,

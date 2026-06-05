@@ -3,10 +3,8 @@ package com.hirehub.entretien.entities;
 import com.hirehub.common.enums.InterviewStatus;
 import jakarta.persistence.*;
 import lombok.*;
-import org.hibernate.annotations.JdbcTypeCode;
-import org.hibernate.type.SqlTypes;
-
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 @Entity
 @Table(name = "entretiens", indexes = {
@@ -20,9 +18,7 @@ public class Entretien {
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
-    @JdbcTypeCode(SqlTypes.UUID)
-    @Column(columnDefinition = "uuid")
-    private String id;
+    private UUID id;
 
     @Column(name = "candidature_id", nullable = false)
     private String candidatureId;

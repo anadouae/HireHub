@@ -15,6 +15,9 @@ public class EntretienView {
     private String type;
     private String status;
     private String candidatDisplayName;
+    private String offreId;
+    private String offreTitre;
+    private String recruteurLabel;
 
     public String getId() {
         return id;
@@ -101,6 +104,30 @@ public class EntretienView {
             return "-";
         }
         return dateHeure.format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm"));
+    }
+
+    public String getOffreId() {
+        return offreId;
+    }
+
+    public void setOffreId(String offreId) {
+        this.offreId = offreId;
+    }
+
+    public String getOffreTitre() {
+        return offreTitre;
+    }
+
+    public void setOffreTitre(String offreTitre) {
+        this.offreTitre = offreTitre;
+    }
+
+    public String getRecruteurLabel() {
+        return recruteurLabel;
+    }
+
+    public void setRecruteurLabel(String recruteurLabel) {
+        this.recruteurLabel = recruteurLabel;
     }
 
     public String getLieuOuVisio() {

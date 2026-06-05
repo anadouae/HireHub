@@ -4,9 +4,12 @@ import com.hirehub.candidature.clients.ICandidatureAPI;
 import com.hirehub.candidature.config.CandidatureSecurityService;
 import com.hirehub.candidature.config.RequireAuth;
 import com.hirehub.candidature.config.UserContext;
+import com.hirehub.candidature.dtos.CandidatureAdminStatsDTO;
 import com.hirehub.candidature.dtos.CandidatureCreatedDTO;
 import com.hirehub.candidature.dtos.CandidatureResponseDTO;
 import com.hirehub.candidature.dtos.HistoriqueStatusDTO;
+import com.hirehub.candidature.repository.CandidatureRepository;
+import com.hirehub.common.enums.CandidatureStatus;
 import com.hirehub.candidature.entities.Candidature;
 import com.hirehub.candidature.entities.HistoriqueStatus;
 import com.hirehub.candidature.exceptions.CandidatureChangedStatusException;
@@ -27,7 +30,9 @@ import org.springframework.core.io.Resource;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -44,17 +49,20 @@ public class CandidatureController implements ICandidatureAPI {
 
     private final ICandidatureService candidatureService;
     private final HistoriqueStatusRepository historiqueStatusRepository;
+    private final CandidatureRepository candidatureRepository;
     private final CandidatureSecurityService securityService;
     private final CandidatureMapper candidatureMapper;
     private final HistoriqueStatusMapper historiqueStatusMapper;
 
     public CandidatureController(ICandidatureService candidatureService,
                                  HistoriqueStatusRepository historiqueStatusRepository,
+                                 CandidatureRepository candidatureRepository,
                                  CandidatureSecurityService securityService,
                                  CandidatureMapper candidatureMapper,
                                  HistoriqueStatusMapper historiqueStatusMapper) {
         this.candidatureService = candidatureService;
         this.historiqueStatusRepository = historiqueStatusRepository;
+        this.candidatureRepository = candidatureRepository;
         this.securityService = securityService;
         this.candidatureMapper = candidatureMapper;
         this.historiqueStatusMapper = historiqueStatusMapper;
@@ -281,6 +289,58 @@ public class CandidatureController implements ICandidatureAPI {
     }
 
     /**
+     * POST /candidatures/offres/{offreId}/reject-pending-on-close
+     * Refuse les candidatures SOUMISE lors de la fermeture d'une offre.
+     */
+    @PostMapping("/offres/{offreId}/reject-pending-on-close")
+    public ResponseEntity<ApiResponse<java.util.Map<String, Integer>>> rejectPendingOnOfferClose(
+            @PathVariable String offreId) {
+        try {
+            securityService.requireAuth();
+            int rejected = candidatureService.rejectPendingWhenOfferClosed(offreId);
+            return ResponseEntity.ok(ApiResponse.ok(
+                    "Candidatures en attente refusées",
+                    java.util.Map.of("rejectedCount", rejected)));
+        } catch (UnauthorizedException e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(ApiResponse.error(e.getMessage()));
+        } catch (Exception e) {
+            log.error("Erreur fermeture offre {} : {}", offreId, e.getMessage(), e);
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(ApiResponse.error(e.getMessage()));
+        }
+    }
+
+    @GetMapping("/admin/offre/{offreId}/count")
+    public ResponseEntity<ApiResponse<Long>> countByOffreAdmin(@PathVariable String offreId) {
+        try {
+            securityService.requireAuth();
+            return ResponseEntity.ok(ApiResponse.ok("Nombre de candidatures",
+                    candidatureRepository.countByOffreId(offreId)));
+        } catch (UnauthorizedException e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(ApiResponse.error(e.getMessage()));
+        }
+    }
+
+    @GetMapping("/admin/stats")
+    public ResponseEntity<ApiResponse<CandidatureAdminStatsDTO>> adminStats() {
+        try {
+            securityService.requireAuth();
+            Map<String, Long> byStatus = new HashMap<>();
+            for (CandidatureStatus status : CandidatureStatus.values()) {
+                byStatus.put(status.name(), candidatureRepository.countByStatus(status));
+            }
+            CandidatureAdminStatsDTO stats = new CandidatureAdminStatsDTO(
+                    candidatureRepository.count(),
+                    byStatus
+            );
+            return ResponseEntity.ok(ApiResponse.ok("Statistiques candidatures", stats));
+        } catch (UnauthorizedException e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(ApiResponse.error(e.getMessage()));
+        }
+    }
+
+    /**
      * GET /candidatures/offre/{offreId}
      * Pipeline du recruteur: liste de toutes les candidatures pour une offre
      */
@@ -290,8 +350,7 @@ public class CandidatureController implements ICandidatureAPI {
         try {
             UserContext.UserInfo user = securityService.requireAuth();
 
-            // Vérifier que le recruteur peut accéder au pipeline de cette offre
-            securityService.requireRecruteurCanViewPipeline(user, offreId);
+            securityService.requireAdminOrRecruteurPipeline(user, offreId);
 
             List<Candidature> data = candidatureService.getCandidaturesByOfferIdByRecruiter(offreId);
 

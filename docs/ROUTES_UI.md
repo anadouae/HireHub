@@ -46,7 +46,9 @@ Toutes les pages incluent le bandeau **en attente de validation** et la classe `
 | URL | Page |
 |-----|------|
 | `/admin/dashboard` | KPI globaux + graphique |
-| `/admin/demandes-recruteur` | **Validation** des comptes recruteurs inscrits (approuver / rejeter + emails) |
+| `/admin/offres` | Toutes les offres plateforme (filtres, lecture seule) |
+| `/admin/offres/{id}` | Détail offre + candidatures (supervision) |
+| `/admin/entretiens` | Tous les entretiens (filtres statut / type / recruteur) |
 | `/admin/utilisateurs` | Gestion des comptes |
 | `/admin/logs` | Journaux (mock) |
 

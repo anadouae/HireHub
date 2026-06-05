@@ -169,6 +169,19 @@ public class CandidatureSecurityService {
     /**
      * Vérifie que le recruteur peut accéder au pipeline (liste des candidatures) d'une offre
      */
+    public void requireAdmin(UserContext.UserInfo user) {
+        if (!UserRole.ADMIN.name().equals(user.role)) {
+            throw new UnauthorizedException("Accès réservé aux administrateurs");
+        }
+    }
+
+    public void requireAdminOrRecruteurPipeline(UserContext.UserInfo user, String offreId) {
+        if (UserRole.ADMIN.name().equals(user.role)) {
+            return;
+        }
+        requireRecruteurCanViewPipeline(user, offreId);
+    }
+
     public void requireRecruteurCanViewPipeline(UserContext.UserInfo user, String offreId) {
         requireRecruteur(user);
         try {
